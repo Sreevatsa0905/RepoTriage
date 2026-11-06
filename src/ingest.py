@@ -10,7 +10,7 @@ Usage:
 """
 
 from __future__ import annotations
-
+import os
 import argparse
 import json
 import logging
@@ -50,11 +50,15 @@ _LINK_NEXT_RE = re.compile(r'<([^>]+)>;\s*rel="next"')
 
 def _build_headers() -> dict[str, str]:
     """Standard headers for GitHub API requests."""
-    return {
+    headers = {
         "Accept": "application/vnd.github+json",
         "User-Agent": "RepoTriage/0.1",
         "X-GitHub-Api-Version": "2022-11-28",
     }
+    token = os.environ.get("GITHUB_TOKEN")
+    if token:
+        headers["Authorization"] = f"Bearer {token}"
+    return headers
 
 
 def _parse_link_next(link_header: str | None) -> str | None:
