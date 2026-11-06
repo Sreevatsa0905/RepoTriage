@@ -1,133 +1,65 @@
-# RepoTriage — Current Repository State (Stage 0)
+# RepoTriage — Current Repository State
 
-**Date**: November 2026  
-**Phase**: Stage 0: Repository Inspection & Frozen Classifier Wrap  
+**Last Updated**: November 2026  
 **Specification**: `RepoTriage_SPEC.md`  
+**Current Milestone**: Stages 0, 1, 2, and 3 COMPLETE.
 
 ---
 
-## 1. Inspection of Unreviewed Components
+## 1. Executive Summary
 
-Per Section 1b of `RepoTriage_SPEC.md`, the contents of `src/analyze.py`, `src/data/`, and `output/` have been inspected and documented below. None of these files or directories have been deleted or modified.
-
-### 1.1 `src/analyze.py`
-- **Purpose**: A pure Python standard-library text analysis, keyword extraction, and heuristic categorization module (525 lines).
-- **Core Capabilities**:
-  - **Text Preprocessing**: Strips Markdown code blocks, inline backticks, HTML tags, and URLs using regular expressions; filters against a curated 60+ token English and developer noise stopword list.
-  - **Standard-Library TF-IDF**: Implements custom term frequency (`compute_tf`) and smoothed inverse document frequency (`compute_idf` with formula $\log\frac{1+N}{1+\text{df}(t)} + 1$) without external dependencies like scikit-learn.
-  - **Keyword Extraction**: Computes top document keywords and corpus-wide aggregated TF-IDF keywords.
-  - **Heuristic Pattern Categorization**: Implements weighted regex pattern matching across 40+ domain patterns for `bug` (e.g. *crash, traceback, segfault, 500, regression*), `feature` (e.g. *proposal, add support, enhancement*), `question` (e.g. *how to, is it possible*), and `docs` (e.g. *typo, readme, tutorial*). Titles are weighted $2\times$ over body text.
-  - **Corpus Profiler & Exporter**: Computes title/body character and word-length distributions (min, max, mean, median), prints ASCII distribution histograms to stdout, and optionally serializes enriched records to `data/analyzed/*_analyzed.json`.
-- **Status & Role**: Independent of the ML classification pipelines; safe to keep as a standalone analytical tool or reference for text normalization.
-
-### 1.2 `src/data/`
-- **Contents**: Contains an empty nested directory path: `src/data/external/nlbse2024/` (0 bytes, 0 files).
-- **Origin**: Created during early project initialization before dataset storage was standardized at the repository root `data/external/nlbse2024/`.
-- **Status**: Kept intact without modification. Active data assets remain exclusively under root `data/`.
-
-### 1.3 `output/`
-- **Contents**: Contains five subdirectories created during SetFit diagnostic and memory profiling experiments:
-  - `output/test_mem/checkpoint-3/`: Intermediate HuggingFace `Trainer` checkpoint (1.3 GB) containing `model.safetensors` (438 MB), `optimizer.pt` (871 MB), tokenizers, and configuration files.
-  - `output/test_quick_eval/`: Output directory from initial SetFit evaluation tests.
-  - `output/test_quick_eval_1it/`: Output directory from 1-iteration contrastive fine-tuning timing tests.
-  - `output/test_setfit/`: Output directory from initial SetFit instantiation tests.
-  - `output/test_timing/`: Output directory from GPU step latency tests.
-- **Status**: Excluded from version control via `.gitignore`; preserved intact on disk.
+- **Hardware Status**: GPU power state issue resolved (NVIDIA driver updated to 621.14). The RTX 3050 Laptop GPU operates in **P0 Maximum Performance State** with a **70W power ceiling** (Graphics: 1,492–2,100 MHz, Memory: 7,001 MHz).
+- **Unit Tests**: **60 automated tests passing in 0.55s**.
+- **Completed Stages**:
+  - Stage 0: Setup & Frozen Classifier Wrap
+  - Stage 1: Corpus Acquisition (4 repos, 7,704 chunks, SQLite + JSONL)
+  - Stage 2: Hybrid Retrieval Engine (BM25 + BGE Dense + RRF + Cross-Encoder Reranker)
+  - Stage 3: Retrieval Evaluation & 4-Way Ablation (51 verified ground-truth pairs)
 
 ---
 
-## 2. Active Python Training Processes
+## 2. Stage 2 & 3 Deliverables & Verification
 
-- **Check Method**: Process enumeration via Windows PowerShell (`Get-Process python*`, `tasklist /FI "IMAGENAME eq python.exe"`).
-- **Result**: **0 active Python training processes**. No background training runs or orphaned worker processes are currently executing.
+### A. Hybrid Retrieval Engine (`src/retrieval/`)
+1. **BM25 (`src/retrieval/bm25.py`)**: Code-aware tokenizer preserving code identifiers, CamelCase, snake_case, versions (e.g. `v2.0`), paths, and URLs.
+2. **Dense (`src/retrieval/dense.py`)**: `BAAI/bge-base-en-v1.5` with BGE query instruction prefix (`"Represent this sentence for searching relevant passages: "`), disk-cached embeddings in `data/processed/embeddings_cache.npz` (7,689 vectors), and exact numpy cosine similarity.
+3. **Fusion (`src/retrieval/fusion.py`)**: Reciprocal Rank Fusion (RRF, $k=60$) deduplicating by `chunk_id` and tracking per-method ranks.
+4. **Reranker (`src/retrieval/rerank.py`)**: `BAAI/bge-reranker-base` cross-encoder reranking fused candidate pools and assigning stable IDs (`E1`, `E2`, ...).
+5. **Coordinator (`src/retrieval/index.py`)**: `HybridRetriever` supporting `"bm25"`, `"dense"`, `"hybrid"`, and `"hybrid_rerank"`.
+6. **CLI Search Acceptance**: `python -m src.cli search "<query>" --repo <repo>` verified across sparse and hybrid reranking pipelines.
 
----
+### B. Retrieval Ground Truth (`eval/build_retrieval_set.py`)
+- Mined duplicate closures, `duplicate` labels, and explicit resolution cross-references across 4 repositories (`pallets/flask`, `encode/httpx`, `pydantic/pydantic`, `psf/requests`).
+- Fetched 30 missing canonical issues on-demand via `fetch_single_issue` and added their chunks to the SQLite index so ground-truth targets are never missing.
+- Assembled **51 verified query-target pairs** in `eval/retrieval_ground_truth.json`:
+  - `encode/httpx`: 15 pairs
+  - `pallets/flask`: 7 pairs
+  - `psf/requests`: 23 pairs
+  - `pydantic/pydantic`: 6 pairs
 
-## 3. Ollama Installation & Qwen 4B Tag Availability
+### C. 4-Way Retrieval Ablation (`eval/run_retrieval_eval.py`)
+Evaluated across all 51 queries with strict temporal cutoff filtering (excluding the query issue itself and all chunks created after the query timestamp):
 
-- **Installation Status**: **Installed**.
-  - Binary Location: `C:\Users\sreek\AppData\Local\Programs\Ollama\ollama.exe`
-  - Version: `0.40.15`
-  - Background Service: The Ollama daemon is currently stopped.
-- **Available Qwen 4B Tags in Ollama Registry**:
-  - Primary 4B options: `qwen3:4b`, `qwen3.5:4b`
-  - Specialized 4B option: `qwen3-embedding:4b`
-  - Fallback 2-3B options (per Section 2 of spec): `qwen2.5:3b`, `qwen2.5-coder:3b`
+| Retrieval Method | Recall@5 | Precision@5 | MRR@10 | nDCG@10 | Mean Latency (ms) |
+| :--- | :---: | :---: | :---: | :---: | :---: |
+| **1. BM25 Only** | **0.6471** | 0.1294 | 0.4877 | 0.5358 | **63.09 ms** |
+| **2. BGE Dense Only** | **0.6667** | 0.1333 | 0.5042 | 0.5662 | 279.86 ms |
+| **3. BM25 + BGE (RRF $k=60$)** | 0.6078 | 0.1216 | **0.5313** | **0.5939** | 135.00 ms |
+| **4. RRF + BGE Reranker** | 0.5098 | 0.1020 | 0.3592 | 0.4273 | 1,141.81 ms |
 
----
-
-## 4. Frozen Classifier Wrapper & Uncertainty Threshold
-
-Per Section 1b and Section 5 of `RepoTriage_SPEC.md`:
-- **Frozen Artifact**: `models/pooled_classifier.joblib` (Pooled TF-IDF + Logistic Regression).
-- **Threshold Determination**: Analyzed confidence scores across all 1,500 validation records from Leave-One-Repository-Out (LOGO) cross-validation on the official training split (never from the test split):
-  - At threshold $\tau = 0.50$, retained coverage is 60.1% (902 / 1,500) and accuracy on retained predictions rises from 59.4% to 67.4%, successfully filtering low-confidence borderline samples into `uncertain`.
-  - Default threshold configured to **`0.50`**.
-- **Implementation**:
-  - `src/classify/predict.py`: Exposes `predict_issue_type(title, body="", threshold=0.50)`.
-  - Returns `{label, predicted_category, scores, confidence, threshold, needs_review, model_version, benchmark_metrics}`.
-  - Exposes the two mandatory labelled benchmark figures:
-    - **Pooled Test Macro-F1**: `0.76` (repositories seen in training)
-    - **Cold-Start Macro-F1**: `0.594` (leave-one-repository-out cross-validation)
-
----
-
-## 5. CLI Acceptance Verification
-
-The command-line interface was implemented in [`src/cli.py`](file:///src/cli.py):
-
-```bash
-# General usage
-python -m src.cli classify "<issue text>" [--body "<body text>"] [--threshold 0.50]
-```
-
-### Verification Examples:
-
-1. **Clear Bug (High Confidence)**:
-   ```bash
-   python -m src.cli classify "Crash on startup" --body "Traceback: NullPointerException at com.repo.Auth"
-   ```
-   *Output*:
-   ```
-   =================================================================
-     REPOTRIAGE ISSUE CLASSIFICATION
-   =================================================================
-     Input Text   : Crash on startup
-     Predicted Type: BUG
-     Confidence   : 0.6860 (Threshold: 0.50)
-     Needs Review : NO
-     Model ID     : RepoTriage-Pooled-TFIDF-LogReg
-
-     Class Confidence Scores:
-       bug        : 0.6860  ████████████████████
-       feature    : 0.1838  █████
-       question   : 0.1302  ███
-
-     Benchmark Reference Metrics:
-       • Pooled Test Macro-F1   : 0.76 (repositories seen in training)
-       • Cold-Start Macro-F1    : 0.594 (leave-one-repository-out cross-validation)
-   =================================================================
-   ```
-
-2. **Feature Request**:
-   ```bash
-   python -m src.cli classify "Feature request: add support for async streaming responses"
-   ```
-   *Output*: `Predicted Type: FEATURE` (Confidence: 0.9793, `Needs Review: NO`).
-
-3. **Ambiguous / Out-of-Domain Input (Uncertain Threshold Triggered)**:
-   ```bash
-   python -m src.cli classify "ValidationError when using a custom validator with Optional field in pydantic v2"
-   ```
-   *Output*: `Predicted Type: UNCERTAIN` (Confidence: 0.3788 < 0.50, `Needs Review: YES`).
+**Key Findings**:
+- **BGE Dense Only** achieves the highest individual Recall@5 (**66.67%** vs 64.71% for BM25).
+- **BM25 + BGE (RRF $k=60$)** achieves the highest ranking quality (**MRR@10: 0.5313, nDCG@10: 0.5939**), demonstrating that multi-stage fusion concentrates true canonical duplicates into the top 1–2 positions.
+- In `pallets/flask` and `psf/requests`, dense semantic retrieval significantly outperforms BM25 (Flask: 85.71% vs 71.43%; Requests: 73.91% vs 65.22%).
+- Full report committed to `eval/reports/retrieval_ablation.md` and `eval/reports/retrieval_ablation.json`.
 
 ---
 
-## 6. Test Suite Status
+## 3. Test Suite Status
 
-- **Automated Unit Tests**: 43 tests passing in 0.58s:
-  - `tests/test_cli.py` (4 tests): Verifies `predict_issue_type` schema, uncertainty thresholding, CLI output formatting, and empty input handling.
-  - `tests/test_classifier.py` (6 tests): Pipeline features, dummy baseline, leakage prevention, serialization.
-  - `tests/test_ingest.py` (21 tests): Retries, rate limits, pagination, PR filtering, normalization.
-  - `tests/test_preprocessing.py` (9 tests): Text combination, sanitization, label mapping.
-  - `tests/test_evaluation.py` (3 tests): Evaluation metrics and cross-repository scoring.
+- **Automated Unit Tests**: 60 passed in 0.55s (`tests/test_retrieval.py`, `tests/test_chunker.py`, `tests/test_ingest.py`, `tests/test_classifier.py`, `tests/test_cli.py`, `tests/test_preprocessing.py`, `tests/test_evaluation.py`).
+
+---
+
+## 4. Next Step
+Proceed to **Stage 4: Generation & Structured LLM Synthesis** (Ollama Qwen 4B JSON analysis with evidence citation IDs) and **Stage 5: NLI Guardrail**.
