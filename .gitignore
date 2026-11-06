@@ -1,7 +1,44 @@
-﻿.venv/
+# Virtual environment
+.venv/
+
+# Python bytecode
 __pycache__/
 *.py[cod]
+
+# Environment variables
 .env
 .env.*
 !.env.example
+
+# Data directories (large / external / generated)
 data/raw/
+data/external/
+data/processed/
+
+# Model artifacts and weights
+models/
+*.pkl
+*.joblib
+*.pt
+*.bin
+*.safetensors
+*.onnx
+
+# Temporary experiment outputs
+output/
+tmp/
+*.tmp
+
+# Figures (optional large binary plots)
+# results/figures/
+
+# Archives
+*.tar.gz
+*.zip
+
+# Jupyter / notebook artifacts
+.ipynb_checkpoints/
+
+# OS
+.DS_Store
+Thumbs.db

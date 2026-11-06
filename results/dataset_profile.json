@@ -1,0 +1,184 @@
+{
+  "train": {
+    "split": "train",
+    "count": 1500,
+    "repos": {
+      "facebook/react": 300,
+      "tensorflow/tensorflow": 300,
+      "microsoft/vscode": 300,
+      "bitcoin/bitcoin": 300,
+      "opencv/opencv": 300
+    },
+    "labels": {
+      "bug": 500,
+      "feature": 500,
+      "question": 500
+    },
+    "repo_label_contingency": {
+      "facebook/react": {
+        "bug": 100,
+        "feature": 100,
+        "question": 100
+      },
+      "tensorflow/tensorflow": {
+        "bug": 100,
+        "feature": 100,
+        "question": 100
+      },
+      "microsoft/vscode": {
+        "bug": 100,
+        "feature": 100,
+        "question": 100
+      },
+      "bitcoin/bitcoin": {
+        "bug": 100,
+        "feature": 100,
+        "question": 100
+      },
+      "opencv/opencv": {
+        "bug": 100,
+        "feature": 100,
+        "question": 100
+      }
+    },
+    "data_quality": {
+      "missing_titles": 0,
+      "empty_titles": 0,
+      "missing_bodies": 0,
+      "empty_bodies": 0,
+      "empty_both": 0,
+      "internal_duplicates": 19
+    },
+    "text_statistics": {
+      "title_characters": {
+        "min": 1,
+        "max": 291,
+        "mean": 55.9,
+        "median": 52.0
+      },
+      "title_words": {
+        "min": 1,
+        "max": 39,
+        "mean": 7.9,
+        "median": 7.0
+      },
+      "body_characters": {
+        "min": 1,
+        "max": 202367,
+        "mean": 2296.4,
+        "median": 1074.5
+      },
+      "body_words": {
+        "min": 1,
+        "max": 21586,
+        "mean": 228.7,
+        "median": 142.0
+      },
+      "combined_characters": {
+        "min": 3,
+        "max": 202447,
+        "mean": 2353.3,
+        "median": 1141.5
+      },
+      "combined_words": {
+        "min": 2,
+        "max": 21595,
+        "mean": 236.6,
+        "median": 150.0
+      }
+    }
+  },
+  "test": {
+    "split": "test",
+    "count": 1500,
+    "repos": {
+      "facebook/react": 300,
+      "tensorflow/tensorflow": 300,
+      "microsoft/vscode": 300,
+      "bitcoin/bitcoin": 300,
+      "opencv/opencv": 300
+    },
+    "labels": {
+      "bug": 500,
+      "feature": 500,
+      "question": 500
+    },
+    "repo_label_contingency": {
+      "facebook/react": {
+        "bug": 100,
+        "feature": 100,
+        "question": 100
+      },
+      "tensorflow/tensorflow": {
+        "bug": 100,
+        "feature": 100,
+        "question": 100
+      },
+      "microsoft/vscode": {
+        "bug": 100,
+        "feature": 100,
+        "question": 100
+      },
+      "bitcoin/bitcoin": {
+        "bug": 100,
+        "feature": 100,
+        "question": 100
+      },
+      "opencv/opencv": {
+        "bug": 100,
+        "feature": 100,
+        "question": 100
+      }
+    },
+    "data_quality": {
+      "missing_titles": 0,
+      "empty_titles": 0,
+      "missing_bodies": 0,
+      "empty_bodies": 2,
+      "empty_both": 0,
+      "internal_duplicates": 10
+    },
+    "text_statistics": {
+      "title_characters": {
+        "min": 1,
+        "max": 284,
+        "mean": 56.5,
+        "median": 52.0
+      },
+      "title_words": {
+        "min": 1,
+        "max": 50,
+        "mean": 8.0,
+        "median": 7.0
+      },
+      "body_characters": {
+        "min": 0,
+        "max": 61556,
+        "mean": 2143.0,
+        "median": 1099.5
+      },
+      "body_words": {
+        "min": 0,
+        "max": 5048,
+        "mean": 216.2,
+        "median": 144.0
+      },
+      "combined_characters": {
+        "min": 3,
+        "max": 61627,
+        "mean": 2200.4,
+        "median": 1165.0
+      },
+      "combined_words": {
+        "min": 1,
+        "max": 5050,
+        "mean": 224.2,
+        "median": 151.0
+      }
+    }
+  },
+  "overlap": {
+    "exact_record_overlap": 3,
+    "title_repo_overlap": 14
+  }
+}

@@ -1,0 +1,1336 @@
+{
+  "DummyClassifier": {
+    "repositories": {
+      "facebook/react": {
+        "accuracy": 0.3333333333333333,
+        "macro_f1": 0.16666666666666666,
+        "weighted_f1": 0.16666666666666666,
+        "macro_precision": 0.1111111111111111,
+        "macro_recall": 0.3333333333333333,
+        "per_class": {
+          "bug": {
+            "precision": 0.3333333333333333,
+            "recall": 1.0,
+            "f1": 0.5
+          },
+          "feature": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0
+          },
+          "question": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0
+          }
+        },
+        "confusion_matrix": [
+          [
+            100,
+            0,
+            0
+          ],
+          [
+            100,
+            0,
+            0
+          ],
+          [
+            100,
+            0,
+            0
+          ]
+        ],
+        "labels": [
+          "bug",
+          "feature",
+          "question"
+        ]
+      },
+      "tensorflow/tensorflow": {
+        "accuracy": 0.3333333333333333,
+        "macro_f1": 0.16666666666666666,
+        "weighted_f1": 0.16666666666666666,
+        "macro_precision": 0.1111111111111111,
+        "macro_recall": 0.3333333333333333,
+        "per_class": {
+          "bug": {
+            "precision": 0.3333333333333333,
+            "recall": 1.0,
+            "f1": 0.5
+          },
+          "feature": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0
+          },
+          "question": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0
+          }
+        },
+        "confusion_matrix": [
+          [
+            100,
+            0,
+            0
+          ],
+          [
+            100,
+            0,
+            0
+          ],
+          [
+            100,
+            0,
+            0
+          ]
+        ],
+        "labels": [
+          "bug",
+          "feature",
+          "question"
+        ]
+      },
+      "microsoft/vscode": {
+        "accuracy": 0.3333333333333333,
+        "macro_f1": 0.16666666666666666,
+        "weighted_f1": 0.16666666666666666,
+        "macro_precision": 0.1111111111111111,
+        "macro_recall": 0.3333333333333333,
+        "per_class": {
+          "bug": {
+            "precision": 0.3333333333333333,
+            "recall": 1.0,
+            "f1": 0.5
+          },
+          "feature": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0
+          },
+          "question": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0
+          }
+        },
+        "confusion_matrix": [
+          [
+            100,
+            0,
+            0
+          ],
+          [
+            100,
+            0,
+            0
+          ],
+          [
+            100,
+            0,
+            0
+          ]
+        ],
+        "labels": [
+          "bug",
+          "feature",
+          "question"
+        ]
+      },
+      "bitcoin/bitcoin": {
+        "accuracy": 0.3333333333333333,
+        "macro_f1": 0.16666666666666666,
+        "weighted_f1": 0.16666666666666666,
+        "macro_precision": 0.1111111111111111,
+        "macro_recall": 0.3333333333333333,
+        "per_class": {
+          "bug": {
+            "precision": 0.3333333333333333,
+            "recall": 1.0,
+            "f1": 0.5
+          },
+          "feature": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0
+          },
+          "question": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0
+          }
+        },
+        "confusion_matrix": [
+          [
+            100,
+            0,
+            0
+          ],
+          [
+            100,
+            0,
+            0
+          ],
+          [
+            100,
+            0,
+            0
+          ]
+        ],
+        "labels": [
+          "bug",
+          "feature",
+          "question"
+        ]
+      },
+      "opencv/opencv": {
+        "accuracy": 0.3333333333333333,
+        "macro_f1": 0.16666666666666666,
+        "weighted_f1": 0.16666666666666666,
+        "macro_precision": 0.1111111111111111,
+        "macro_recall": 0.3333333333333333,
+        "per_class": {
+          "bug": {
+            "precision": 0.3333333333333333,
+            "recall": 1.0,
+            "f1": 0.5
+          },
+          "feature": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0
+          },
+          "question": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0
+          }
+        },
+        "confusion_matrix": [
+          [
+            100,
+            0,
+            0
+          ],
+          [
+            100,
+            0,
+            0
+          ],
+          [
+            100,
+            0,
+            0
+          ]
+        ],
+        "labels": [
+          "bug",
+          "feature",
+          "question"
+        ]
+      }
+    },
+    "cross_repository": {
+      "mean_macro_f1": 0.16666666666666666,
+      "mean_weighted_f1": 0.16666666666666666,
+      "mean_accuracy": 0.3333333333333333,
+      "mean_macro_precision": 0.11111111111111112,
+      "mean_macro_recall": 0.3333333333333333,
+      "per_class_mean": {
+        "bug": {
+          "precision": 0.3333333333333333,
+          "recall": 1.0,
+          "f1": 0.5
+        },
+        "feature": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        "question": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        }
+      }
+    }
+  },
+  "TF-IDF_LogReg": {
+    "repositories": {
+      "facebook/react": {
+        "accuracy": 0.7933333333333333,
+        "macro_f1": 0.7917836562997853,
+        "weighted_f1": 0.7917836562997854,
+        "macro_precision": 0.7964512300646754,
+        "macro_recall": 0.7933333333333333,
+        "per_class": {
+          "bug": {
+            "precision": 0.9387755102040817,
+            "recall": 0.92,
+            "f1": 0.9292929292929293
+          },
+          "feature": {
+            "precision": 0.7094017094017094,
+            "recall": 0.83,
+            "f1": 0.7649769585253456
+          },
+          "question": {
+            "precision": 0.7411764705882353,
+            "recall": 0.63,
+            "f1": 0.6810810810810811
+          }
+        },
+        "confusion_matrix": [
+          [
+            92,
+            1,
+            7
+          ],
+          [
+            2,
+            83,
+            15
+          ],
+          [
+            4,
+            33,
+            63
+          ]
+        ],
+        "labels": [
+          "bug",
+          "feature",
+          "question"
+        ]
+      },
+      "tensorflow/tensorflow": {
+        "accuracy": 0.7733333333333333,
+        "macro_f1": 0.7745902256771822,
+        "weighted_f1": 0.7745902256771822,
+        "macro_precision": 0.78076239149173,
+        "macro_recall": 0.7733333333333334,
+        "per_class": {
+          "bug": {
+            "precision": 0.7870370370370371,
+            "recall": 0.85,
+            "f1": 0.8173076923076923
+          },
+          "feature": {
+            "precision": 0.8823529411764706,
+            "recall": 0.75,
+            "f1": 0.8108108108108109
+          },
+          "question": {
+            "precision": 0.6728971962616822,
+            "recall": 0.72,
+            "f1": 0.6956521739130435
+          }
+        },
+        "confusion_matrix": [
+          [
+            85,
+            1,
+            14
+          ],
+          [
+            4,
+            75,
+            21
+          ],
+          [
+            19,
+            9,
+            72
+          ]
+        ],
+        "labels": [
+          "bug",
+          "feature",
+          "question"
+        ]
+      },
+      "microsoft/vscode": {
+        "accuracy": 0.69,
+        "macro_f1": 0.689485444053972,
+        "weighted_f1": 0.6894854440539719,
+        "macro_precision": 0.6900698672990226,
+        "macro_recall": 0.69,
+        "per_class": {
+          "bug": {
+            "precision": 0.6851851851851852,
+            "recall": 0.74,
+            "f1": 0.7115384615384616
+          },
+          "feature": {
+            "precision": 0.6736842105263158,
+            "recall": 0.64,
+            "f1": 0.6564102564102564
+          },
+          "question": {
+            "precision": 0.711340206185567,
+            "recall": 0.69,
+            "f1": 0.700507614213198
+          }
+        },
+        "confusion_matrix": [
+          [
+            74,
+            7,
+            19
+          ],
+          [
+            27,
+            64,
+            9
+          ],
+          [
+            7,
+            24,
+            69
+          ]
+        ],
+        "labels": [
+          "bug",
+          "feature",
+          "question"
+        ]
+      },
+      "bitcoin/bitcoin": {
+        "accuracy": 0.72,
+        "macro_f1": 0.7162709311060671,
+        "weighted_f1": 0.716270931106067,
+        "macro_precision": 0.722409656620183,
+        "macro_recall": 0.7200000000000001,
+        "per_class": {
+          "bug": {
+            "precision": 0.7564102564102564,
+            "recall": 0.59,
+            "f1": 0.6629213483146067
+          },
+          "feature": {
+            "precision": 0.7719298245614035,
+            "recall": 0.88,
+            "f1": 0.822429906542056
+          },
+          "question": {
+            "precision": 0.6388888888888888,
+            "recall": 0.69,
+            "f1": 0.6634615384615384
+          }
+        },
+        "confusion_matrix": [
+          [
+            59,
+            8,
+            33
+          ],
+          [
+            6,
+            88,
+            6
+          ],
+          [
+            13,
+            18,
+            69
+          ]
+        ],
+        "labels": [
+          "bug",
+          "feature",
+          "question"
+        ]
+      },
+      "opencv/opencv": {
+        "accuracy": 0.75,
+        "macro_f1": 0.746713741141556,
+        "weighted_f1": 0.746713741141556,
+        "macro_precision": 0.7498960890450123,
+        "macro_recall": 0.75,
+        "per_class": {
+          "bug": {
+            "precision": 0.7349397590361446,
+            "recall": 0.61,
+            "f1": 0.6666666666666666
+          },
+          "feature": {
+            "precision": 0.7843137254901961,
+            "recall": 0.8,
+            "f1": 0.7920792079207921
+          },
+          "question": {
+            "precision": 0.7304347826086957,
+            "recall": 0.84,
+            "f1": 0.7813953488372093
+          }
+        },
+        "confusion_matrix": [
+          [
+            61,
+            21,
+            18
+          ],
+          [
+            7,
+            80,
+            13
+          ],
+          [
+            15,
+            1,
+            84
+          ]
+        ],
+        "labels": [
+          "bug",
+          "feature",
+          "question"
+        ]
+      }
+    },
+    "cross_repository": {
+      "mean_macro_f1": 0.7437687996557125,
+      "mean_weighted_f1": 0.7437687996557124,
+      "mean_accuracy": 0.7453333333333333,
+      "mean_macro_precision": 0.7479178469041247,
+      "mean_macro_recall": 0.7453333333333334,
+      "per_class_mean": {
+        "bug": {
+          "precision": 0.780469549574541,
+          "recall": 0.7419999999999999,
+          "f1": 0.7575454196240713
+        },
+        "feature": {
+          "precision": 0.764336482231219,
+          "recall": 0.78,
+          "f1": 0.7693414280418522
+        },
+        "question": {
+          "precision": 0.6989475089066138,
+          "recall": 0.714,
+          "f1": 0.704419551301214
+        }
+      }
+    },
+    "hyperparameter_selection": {
+      "facebook/react": {
+        "repo": "facebook/react",
+        "best_config": {
+          "feature_mode": "word",
+          "C": 5.0
+        },
+        "best_val_macro_f1": 0.8038277511961723,
+        "tuning_history": [
+          {
+            "feature_mode": "word",
+            "C": 0.01,
+            "val_macro_f1": 0.6767098906687007,
+            "val_accuracy": 0.6666666666666666
+          },
+          {
+            "feature_mode": "word",
+            "C": 0.1,
+            "val_macro_f1": 0.6948221617874473,
+            "val_accuracy": 0.6833333333333333
+          },
+          {
+            "feature_mode": "word",
+            "C": 0.5,
+            "val_macro_f1": 0.6948221617874473,
+            "val_accuracy": 0.6833333333333333
+          },
+          {
+            "feature_mode": "word",
+            "C": 1.0,
+            "val_macro_f1": 0.7728952728952728,
+            "val_accuracy": 0.7666666666666667
+          },
+          {
+            "feature_mode": "word",
+            "C": 2.0,
+            "val_macro_f1": 0.7728952728952728,
+            "val_accuracy": 0.7666666666666667
+          },
+          {
+            "feature_mode": "word",
+            "C": 5.0,
+            "val_macro_f1": 0.8038277511961723,
+            "val_accuracy": 0.8
+          },
+          {
+            "feature_mode": "word",
+            "C": 10.0,
+            "val_macro_f1": 0.801368358283903,
+            "val_accuracy": 0.8
+          },
+          {
+            "feature_mode": "word_char",
+            "C": 0.01,
+            "val_macro_f1": 0.6948221617874473,
+            "val_accuracy": 0.6833333333333333
+          },
+          {
+            "feature_mode": "word_char",
+            "C": 0.1,
+            "val_macro_f1": 0.6948221617874473,
+            "val_accuracy": 0.6833333333333333
+          },
+          {
+            "feature_mode": "word_char",
+            "C": 0.5,
+            "val_macro_f1": 0.7417508417508417,
+            "val_accuracy": 0.7333333333333333
+          },
+          {
+            "feature_mode": "word_char",
+            "C": 1.0,
+            "val_macro_f1": 0.7566939032055311,
+            "val_accuracy": 0.75
+          },
+          {
+            "feature_mode": "word_char",
+            "C": 2.0,
+            "val_macro_f1": 0.771345029239766,
+            "val_accuracy": 0.7666666666666667
+          },
+          {
+            "feature_mode": "word_char",
+            "C": 5.0,
+            "val_macro_f1": 0.7876638525353336,
+            "val_accuracy": 0.7833333333333333
+          },
+          {
+            "feature_mode": "word_char",
+            "C": 10.0,
+            "val_macro_f1": 0.7851037851037851,
+            "val_accuracy": 0.7833333333333333
+          }
+        ],
+        "model_path": "C:\\Users\\sreek\\Downloads\\Coding\\AI Projects\\RepoTriage\\models\\classical_facebook-react.joblib",
+        "train_samples": 300
+      },
+      "tensorflow/tensorflow": {
+        "repo": "tensorflow/tensorflow",
+        "best_config": {
+          "feature_mode": "word",
+          "C": 10.0
+        },
+        "best_val_macro_f1": 0.8366443068455451,
+        "tuning_history": [
+          {
+            "feature_mode": "word",
+            "C": 0.01,
+            "val_macro_f1": 0.7483375959079283,
+            "val_accuracy": 0.75
+          },
+          {
+            "feature_mode": "word",
+            "C": 0.1,
+            "val_macro_f1": 0.714780701754386,
+            "val_accuracy": 0.7166666666666667
+          },
+          {
+            "feature_mode": "word",
+            "C": 0.5,
+            "val_macro_f1": 0.7304748822605965,
+            "val_accuracy": 0.7333333333333333
+          },
+          {
+            "feature_mode": "word",
+            "C": 1.0,
+            "val_macro_f1": 0.7488344988344989,
+            "val_accuracy": 0.75
+          },
+          {
+            "feature_mode": "word",
+            "C": 2.0,
+            "val_macro_f1": 0.7488344988344989,
+            "val_accuracy": 0.75
+          },
+          {
+            "feature_mode": "word",
+            "C": 5.0,
+            "val_macro_f1": 0.7861305361305361,
+            "val_accuracy": 0.7833333333333333
+          },
+          {
+            "feature_mode": "word",
+            "C": 10.0,
+            "val_macro_f1": 0.8366443068455451,
+            "val_accuracy": 0.8333333333333334
+          },
+          {
+            "feature_mode": "word_char",
+            "C": 0.01,
+            "val_macro_f1": 0.7193307945187644,
+            "val_accuracy": 0.7166666666666667
+          },
+          {
+            "feature_mode": "word_char",
+            "C": 0.1,
+            "val_macro_f1": 0.7174672925197244,
+            "val_accuracy": 0.7166666666666667
+          },
+          {
+            "feature_mode": "word_char",
+            "C": 0.5,
+            "val_macro_f1": 0.7488344988344989,
+            "val_accuracy": 0.75
+          },
+          {
+            "feature_mode": "word_char",
+            "C": 1.0,
+            "val_macro_f1": 0.7644100580270793,
+            "val_accuracy": 0.7666666666666667
+          },
+          {
+            "feature_mode": "word_char",
+            "C": 2.0,
+            "val_macro_f1": 0.7644100580270793,
+            "val_accuracy": 0.7666666666666667
+          },
+          {
+            "feature_mode": "word_char",
+            "C": 5.0,
+            "val_macro_f1": 0.7798174048174048,
+            "val_accuracy": 0.7833333333333333
+          },
+          {
+            "feature_mode": "word_char",
+            "C": 10.0,
+            "val_macro_f1": 0.7972222222222222,
+            "val_accuracy": 0.8
+          }
+        ],
+        "model_path": "C:\\Users\\sreek\\Downloads\\Coding\\AI Projects\\RepoTriage\\models\\classical_tensorflow-tensorflow.joblib",
+        "train_samples": 300
+      },
+      "microsoft/vscode": {
+        "repo": "microsoft/vscode",
+        "best_config": {
+          "feature_mode": "word_char",
+          "C": 0.1
+        },
+        "best_val_macro_f1": 0.7997557997557997,
+        "tuning_history": [
+          {
+            "feature_mode": "word",
+            "C": 0.01,
+            "val_macro_f1": 0.7667887667887667,
+            "val_accuracy": 0.7666666666666667
+          },
+          {
+            "feature_mode": "word",
+            "C": 0.1,
+            "val_macro_f1": 0.7491866218916403,
+            "val_accuracy": 0.75
+          },
+          {
+            "feature_mode": "word",
+            "C": 0.5,
+            "val_macro_f1": 0.7667887667887667,
+            "val_accuracy": 0.7666666666666667
+          },
+          {
+            "feature_mode": "word",
+            "C": 1.0,
+            "val_macro_f1": 0.7353137377527621,
+            "val_accuracy": 0.7333333333333333
+          },
+          {
+            "feature_mode": "word",
+            "C": 2.0,
+            "val_macro_f1": 0.7353137377527621,
+            "val_accuracy": 0.7333333333333333
+          },
+          {
+            "feature_mode": "word",
+            "C": 5.0,
+            "val_macro_f1": 0.7860504920838682,
+            "val_accuracy": 0.7833333333333333
+          },
+          {
+            "feature_mode": "word",
+            "C": 10.0,
+            "val_macro_f1": 0.7860504920838682,
+            "val_accuracy": 0.7833333333333333
+          },
+          {
+            "feature_mode": "word_char",
+            "C": 0.01,
+            "val_macro_f1": 0.7857718345523224,
+            "val_accuracy": 0.7833333333333333
+          },
+          {
+            "feature_mode": "word_char",
+            "C": 0.1,
+            "val_macro_f1": 0.7997557997557997,
+            "val_accuracy": 0.8
+          },
+          {
+            "feature_mode": "word_char",
+            "C": 0.5,
+            "val_macro_f1": 0.75,
+            "val_accuracy": 0.75
+          },
+          {
+            "feature_mode": "word_char",
+            "C": 1.0,
+            "val_macro_f1": 0.7340316864707108,
+            "val_accuracy": 0.7333333333333333
+          },
+          {
+            "feature_mode": "word_char",
+            "C": 2.0,
+            "val_macro_f1": 0.7166666666666667,
+            "val_accuracy": 0.7166666666666667
+          },
+          {
+            "feature_mode": "word_char",
+            "C": 5.0,
+            "val_macro_f1": 0.7345007296226808,
+            "val_accuracy": 0.7333333333333333
+          },
+          {
+            "feature_mode": "word_char",
+            "C": 10.0,
+            "val_macro_f1": 0.7496947496947497,
+            "val_accuracy": 0.75
+          }
+        ],
+        "model_path": "C:\\Users\\sreek\\Downloads\\Coding\\AI Projects\\RepoTriage\\models\\classical_microsoft-vscode.joblib",
+        "train_samples": 300
+      },
+      "bitcoin/bitcoin": {
+        "repo": "bitcoin/bitcoin",
+        "best_config": {
+          "feature_mode": "word",
+          "C": 5.0
+        },
+        "best_val_macro_f1": 0.7267161898740846,
+        "tuning_history": [
+          {
+            "feature_mode": "word",
+            "C": 0.01,
+            "val_macro_f1": 0.6073482073482074,
+            "val_accuracy": 0.6333333333333333
+          },
+          {
+            "feature_mode": "word",
+            "C": 0.1,
+            "val_macro_f1": 0.6250742721330956,
+            "val_accuracy": 0.65
+          },
+          {
+            "feature_mode": "word",
+            "C": 0.5,
+            "val_macro_f1": 0.669069069069069,
+            "val_accuracy": 0.6833333333333333
+          },
+          {
+            "feature_mode": "word",
+            "C": 1.0,
+            "val_macro_f1": 0.7060543515651876,
+            "val_accuracy": 0.7166666666666667
+          },
+          {
+            "feature_mode": "word",
+            "C": 2.0,
+            "val_macro_f1": 0.7235782693448597,
+            "val_accuracy": 0.7333333333333333
+          },
+          {
+            "feature_mode": "word",
+            "C": 5.0,
+            "val_macro_f1": 0.7267161898740846,
+            "val_accuracy": 0.7333333333333333
+          },
+          {
+            "feature_mode": "word",
+            "C": 10.0,
+            "val_macro_f1": 0.7090855157216712,
+            "val_accuracy": 0.7166666666666667
+          },
+          {
+            "feature_mode": "word_char",
+            "C": 0.01,
+            "val_macro_f1": 0.624465811965812,
+            "val_accuracy": 0.65
+          },
+          {
+            "feature_mode": "word_char",
+            "C": 0.1,
+            "val_macro_f1": 0.6405701754385965,
+            "val_accuracy": 0.6666666666666666
+          },
+          {
+            "feature_mode": "word_char",
+            "C": 0.5,
+            "val_macro_f1": 0.6831866901295793,
+            "val_accuracy": 0.7
+          },
+          {
+            "feature_mode": "word_char",
+            "C": 1.0,
+            "val_macro_f1": 0.7061615391134842,
+            "val_accuracy": 0.7166666666666667
+          },
+          {
+            "feature_mode": "word_char",
+            "C": 2.0,
+            "val_macro_f1": 0.7069409835367283,
+            "val_accuracy": 0.7166666666666667
+          },
+          {
+            "feature_mode": "word_char",
+            "C": 5.0,
+            "val_macro_f1": 0.7069409835367283,
+            "val_accuracy": 0.7166666666666667
+          },
+          {
+            "feature_mode": "word_char",
+            "C": 10.0,
+            "val_macro_f1": 0.7077947512730122,
+            "val_accuracy": 0.7166666666666667
+          }
+        ],
+        "model_path": "C:\\Users\\sreek\\Downloads\\Coding\\AI Projects\\RepoTriage\\models\\classical_bitcoin-bitcoin.joblib",
+        "train_samples": 300
+      },
+      "opencv/opencv": {
+        "repo": "opencv/opencv",
+        "best_config": {
+          "feature_mode": "word_char",
+          "C": 2.0
+        },
+        "best_val_macro_f1": 0.7832395247029394,
+        "tuning_history": [
+          {
+            "feature_mode": "word",
+            "C": 0.01,
+            "val_macro_f1": 0.44080145719489977,
+            "val_accuracy": 0.55
+          },
+          {
+            "feature_mode": "word",
+            "C": 0.1,
+            "val_macro_f1": 0.5238244514106584,
+            "val_accuracy": 0.6
+          },
+          {
+            "feature_mode": "word",
+            "C": 0.5,
+            "val_macro_f1": 0.7273141814865481,
+            "val_accuracy": 0.7333333333333333
+          },
+          {
+            "feature_mode": "word",
+            "C": 1.0,
+            "val_macro_f1": 0.7301587301587301,
+            "val_accuracy": 0.7333333333333333
+          },
+          {
+            "feature_mode": "word",
+            "C": 2.0,
+            "val_macro_f1": 0.7301587301587301,
+            "val_accuracy": 0.7333333333333333
+          },
+          {
+            "feature_mode": "word",
+            "C": 5.0,
+            "val_macro_f1": 0.732812174275589,
+            "val_accuracy": 0.7333333333333333
+          },
+          {
+            "feature_mode": "word",
+            "C": 10.0,
+            "val_macro_f1": 0.7659959611179122,
+            "val_accuracy": 0.7666666666666667
+          },
+          {
+            "feature_mode": "word_char",
+            "C": 0.01,
+            "val_macro_f1": 0.44080145719489977,
+            "val_accuracy": 0.55
+          },
+          {
+            "feature_mode": "word_char",
+            "C": 0.1,
+            "val_macro_f1": 0.6894123642091121,
+            "val_accuracy": 0.7166666666666667
+          },
+          {
+            "feature_mode": "word_char",
+            "C": 0.5,
+            "val_macro_f1": 0.7461055740125507,
+            "val_accuracy": 0.75
+          },
+          {
+            "feature_mode": "word_char",
+            "C": 1.0,
+            "val_macro_f1": 0.7301587301587301,
+            "val_accuracy": 0.7333333333333333
+          },
+          {
+            "feature_mode": "word_char",
+            "C": 2.0,
+            "val_macro_f1": 0.7832395247029394,
+            "val_accuracy": 0.7833333333333333
+          },
+          {
+            "feature_mode": "word_char",
+            "C": 5.0,
+            "val_macro_f1": 0.7665728580362726,
+            "val_accuracy": 0.7666666666666667
+          },
+          {
+            "feature_mode": "word_char",
+            "C": 10.0,
+            "val_macro_f1": 0.7665728580362726,
+            "val_accuracy": 0.7666666666666667
+          }
+        ],
+        "model_path": "C:\\Users\\sreek\\Downloads\\Coding\\AI Projects\\RepoTriage\\models\\classical_opencv-opencv.joblib",
+        "train_samples": 300
+      }
+    }
+  },
+  "SetFit": {
+    "repositories": {
+      "facebook/react": {
+        "accuracy": 0.81,
+        "macro_f1": 0.8043485590214562,
+        "weighted_f1": 0.8043485590214562,
+        "macro_precision": 0.8112706007442849,
+        "macro_recall": 0.81,
+        "per_class": {
+          "bug": {
+            "precision": 0.8636363636363636,
+            "recall": 0.95,
+            "f1": 0.9047619047619048
+          },
+          "feature": {
+            "precision": 0.7543859649122807,
+            "recall": 0.86,
+            "f1": 0.8037383177570093
+          },
+          "question": {
+            "precision": 0.8157894736842105,
+            "recall": 0.62,
+            "f1": 0.7045454545454546
+          }
+        },
+        "confusion_matrix": [
+          [
+            95,
+            0,
+            5
+          ],
+          [
+            5,
+            86,
+            9
+          ],
+          [
+            10,
+            28,
+            62
+          ]
+        ],
+        "labels": [
+          "bug",
+          "feature",
+          "question"
+        ]
+      },
+      "tensorflow/tensorflow": {
+        "accuracy": 0.7866666666666666,
+        "macro_f1": 0.7852800368286804,
+        "weighted_f1": 0.7852800368286804,
+        "macro_precision": 0.78466332955484,
+        "macro_recall": 0.7866666666666666,
+        "per_class": {
+          "bug": {
+            "precision": 0.8613861386138614,
+            "recall": 0.87,
+            "f1": 0.8656716417910447
+          },
+          "feature": {
+            "precision": 0.7904761904761904,
+            "recall": 0.83,
+            "f1": 0.8097560975609757
+          },
+          "question": {
+            "precision": 0.7021276595744681,
+            "recall": 0.66,
+            "f1": 0.6804123711340206
+          }
+        },
+        "confusion_matrix": [
+          [
+            87,
+            0,
+            13
+          ],
+          [
+            2,
+            83,
+            15
+          ],
+          [
+            12,
+            22,
+            66
+          ]
+        ],
+        "labels": [
+          "bug",
+          "feature",
+          "question"
+        ]
+      },
+      "microsoft/vscode": {
+        "accuracy": 0.7766666666666666,
+        "macro_f1": 0.7742201956119482,
+        "weighted_f1": 0.7742201956119481,
+        "macro_precision": 0.7832778121878681,
+        "macro_recall": 0.7766666666666667,
+        "per_class": {
+          "bug": {
+            "precision": 0.8191489361702128,
+            "recall": 0.77,
+            "f1": 0.7938144329896907
+          },
+          "feature": {
+            "precision": 0.7258064516129032,
+            "recall": 0.9,
+            "f1": 0.8035714285714286
+          },
+          "question": {
+            "precision": 0.8048780487804879,
+            "recall": 0.66,
+            "f1": 0.7252747252747253
+          }
+        },
+        "confusion_matrix": [
+          [
+            77,
+            10,
+            13
+          ],
+          [
+            7,
+            90,
+            3
+          ],
+          [
+            10,
+            24,
+            66
+          ]
+        ],
+        "labels": [
+          "bug",
+          "feature",
+          "question"
+        ]
+      },
+      "bitcoin/bitcoin": {
+        "accuracy": 0.7433333333333333,
+        "macro_f1": 0.739695216146029,
+        "weighted_f1": 0.7396952161460291,
+        "macro_precision": 0.73806768155392,
+        "macro_recall": 0.7433333333333333,
+        "per_class": {
+          "bug": {
+            "precision": 0.72,
+            "recall": 0.72,
+            "f1": 0.72
+          },
+          "feature": {
+            "precision": 0.8348623853211009,
+            "recall": 0.91,
+            "f1": 0.8708133971291866
+          },
+          "question": {
+            "precision": 0.6593406593406593,
+            "recall": 0.6,
+            "f1": 0.6282722513089005
+          }
+        },
+        "confusion_matrix": [
+          [
+            72,
+            4,
+            24
+          ],
+          [
+            2,
+            91,
+            7
+          ],
+          [
+            26,
+            14,
+            60
+          ]
+        ],
+        "labels": [
+          "bug",
+          "feature",
+          "question"
+        ]
+      },
+      "opencv/opencv": {
+        "accuracy": 0.7733333333333333,
+        "macro_f1": 0.772194308210723,
+        "weighted_f1": 0.772194308210723,
+        "macro_precision": 0.7719764485481067,
+        "macro_recall": 0.7733333333333334,
+        "per_class": {
+          "bug": {
+            "precision": 0.7340425531914894,
+            "recall": 0.69,
+            "f1": 0.711340206185567
+          },
+          "feature": {
+            "precision": 0.8018867924528302,
+            "recall": 0.85,
+            "f1": 0.8252427184466019
+          },
+          "question": {
+            "precision": 0.78,
+            "recall": 0.78,
+            "f1": 0.78
+          }
+        },
+        "confusion_matrix": [
+          [
+            69,
+            15,
+            16
+          ],
+          [
+            9,
+            85,
+            6
+          ],
+          [
+            16,
+            6,
+            78
+          ]
+        ],
+        "labels": [
+          "bug",
+          "feature",
+          "question"
+        ]
+      }
+    },
+    "cross_repository": {
+      "mean_macro_f1": 0.7751476631637673,
+      "mean_weighted_f1": 0.7751476631637673,
+      "mean_accuracy": 0.7779999999999999,
+      "mean_macro_precision": 0.777851174517804,
+      "mean_macro_recall": 0.778,
+      "per_class_mean": {
+        "bug": {
+          "precision": 0.7996427983223855,
+          "recall": 0.7999999999999999,
+          "f1": 0.7991176371456415
+        },
+        "feature": {
+          "precision": 0.7814835569550611,
+          "recall": 0.8699999999999999,
+          "f1": 0.8226243918930404
+        },
+        "question": {
+          "precision": 0.752427168275965,
+          "recall": 0.664,
+          "f1": 0.7037009604526203
+        }
+      }
+    },
+    "metadata": {
+      "facebook/react": {
+        "repo": "facebook/react",
+        "model_name": "sentence-transformers/all-mpnet-base-v2",
+        "num_iterations": 1,
+        "num_epochs": 1,
+        "batch_size": [
+          16,
+          2
+        ],
+        "learning_rate": 2e-05,
+        "max_length": 128,
+        "use_amp": true,
+        "train_samples": 300,
+        "model_dir": "C:\\Users\\sreek\\Downloads\\Coding\\AI Projects\\RepoTriage\\models\\setfit_facebook-react"
+      },
+      "tensorflow/tensorflow": {
+        "repo": "tensorflow/tensorflow",
+        "model_name": "sentence-transformers/all-mpnet-base-v2",
+        "num_iterations": 1,
+        "num_epochs": 1,
+        "batch_size": [
+          16,
+          2
+        ],
+        "learning_rate": 2e-05,
+        "max_length": 128,
+        "use_amp": true,
+        "train_samples": 300,
+        "model_dir": "C:\\Users\\sreek\\Downloads\\Coding\\AI Projects\\RepoTriage\\models\\setfit_tensorflow-tensorflow"
+      },
+      "microsoft/vscode": {
+        "repo": "microsoft/vscode",
+        "model_name": "sentence-transformers/all-mpnet-base-v2",
+        "num_iterations": 1,
+        "num_epochs": 1,
+        "batch_size": [
+          16,
+          2
+        ],
+        "learning_rate": 2e-05,
+        "max_length": 128,
+        "use_amp": true,
+        "train_samples": 300,
+        "model_dir": "C:\\Users\\sreek\\Downloads\\Coding\\AI Projects\\RepoTriage\\models\\setfit_microsoft-vscode"
+      },
+      "bitcoin/bitcoin": {
+        "repo": "bitcoin/bitcoin",
+        "model_name": "sentence-transformers/all-mpnet-base-v2",
+        "num_iterations": 1,
+        "num_epochs": 1,
+        "batch_size": [
+          16,
+          2
+        ],
+        "learning_rate": 2e-05,
+        "max_length": 128,
+        "use_amp": true,
+        "train_samples": 300,
+        "model_dir": "C:\\Users\\sreek\\Downloads\\Coding\\AI Projects\\RepoTriage\\models\\setfit_bitcoin-bitcoin"
+      },
+      "opencv/opencv": {
+        "repo": "opencv/opencv",
+        "model_name": "sentence-transformers/all-mpnet-base-v2",
+        "num_iterations": 1,
+        "num_epochs": 1,
+        "batch_size": [
+          16,
+          2
+        ],
+        "learning_rate": 2e-05,
+        "max_length": 128,
+        "use_amp": true,
+        "train_samples": 300,
+        "model_dir": "C:\\Users\\sreek\\Downloads\\Coding\\AI Projects\\RepoTriage\\models\\setfit_opencv-opencv"
+      }
+    },
+    "published_reference_macro_f1": 0.827
+  }
+}
