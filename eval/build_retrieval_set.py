@@ -21,7 +21,7 @@ from pathlib import Path
 from typing import Any
 
 from src.ingest.chunker import Chunker
-from src.ingest.github_client import fetch_single_issue
+from src.ingest.github_client import fetch_single_issue, normalize_issue
 from src.ingest.storage import StorageEngine
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
@@ -146,8 +146,9 @@ def build_ground_truth(
         )
         for repo, t_num in missing_targets:
             owner, rname = repo.split("/", 1)
-            fetched = fetch_single_issue(owner, rname, t_num, fetch_comments=True)
-            if fetched and isinstance(fetched, dict) and fetched.get("title"):
+            raw_item = fetch_single_issue(owner, rname, t_num)
+            if raw_item and isinstance(raw_item, dict) and raw_item.get("number"):
+                fetched = normalize_issue(raw_item, owner, rname)
                 # Save to DB and chunks
                 storage.save_issues([fetched])
                 issue_lookup[(repo, t_num)] = {

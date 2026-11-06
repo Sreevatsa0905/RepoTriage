@@ -1,0 +1,716 @@
+{
+  "timestamp": "2026-11-06T18:30:18.595336+00:00",
+  "query_count": 51,
+  "methods": {
+    "bm25": {
+      "method": "bm25",
+      "query_count": 51,
+      "overall": {
+        "recall@5": 0.6471,
+        "precision@5": 0.1294,
+        "mrr@10": 0.4877,
+        "ndcg@10": 0.5358,
+        "mean_latency_ms": 91.84
+      },
+      "per_repo": {
+        "pallets/flask": {
+          "query_count": 7,
+          "recall@5": 0.7143,
+          "precision@5": 0.1429,
+          "mrr@10": 0.4548,
+          "ndcg@10": 0.5501,
+          "mean_latency_ms": 40.06
+        },
+        "encode/httpx": {
+          "query_count": 15,
+          "recall@5": 0.5333,
+          "precision@5": 0.1067,
+          "mrr@10": 0.4439,
+          "ndcg@10": 0.4802,
+          "mean_latency_ms": 43.56
+        },
+        "pydantic/pydantic": {
+          "query_count": 6,
+          "recall@5": 0.8333,
+          "precision@5": 0.1667,
+          "mrr@10": 0.75,
+          "ndcg@10": 0.7718,
+          "mean_latency_ms": 196.23
+        },
+        "psf/requests": {
+          "query_count": 23,
+          "recall@5": 0.6522,
+          "precision@5": 0.1304,
+          "mrr@10": 0.458,
+          "ndcg@10": 0.5061,
+          "mean_latency_ms": 111.85
+        }
+      },
+      "queries": [
+        {
+          "query_id": "pallets/flask#5817",
+          "repo": "pallets/flask",
+          "target": 5256,
+          "metrics": {
+            "hit_rank": 10,
+            "recall@5": 0.0,
+            "precision@5": 0.0,
+            "mrr@10": 0.1,
+            "ndcg@10": 0.2890648263178879,
+            "latency_ms": 50.6972000002861
+          }
+        },
+        {
+          "query_id": "pallets/flask#5504",
+          "repo": "pallets/flask",
+          "target": 1740,
+          "metrics": {
+            "hit_rank": 4,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 0.25,
+            "ndcg@10": 0.43067655807339306,
+            "latency_ms": 30.633500078693032
+          }
+        },
+        {
+          "query_id": "encode/httpx#1464",
+          "repo": "encode/httpx",
+          "target": 1463,
+          "metrics": {
+            "hit_rank": 1,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 1.0,
+            "ndcg@10": 1.0,
+            "latency_ms": 92.78509998694062
+          }
+        },
+        {
+          "query_id": "encode/httpx#1274",
+          "repo": "encode/httpx",
+          "target": 1253,
+          "metrics": {
+            "hit_rank": 5,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 0.2,
+            "ndcg@10": 0.38685280723454163,
+            "latency_ms": 23.549300036393106
+          }
+        },
+        {
+          "query_id": "encode/httpx#1264",
+          "repo": "encode/httpx",
+          "target": 790,
+          "metrics": {
+            "hit_rank": 1,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 1.0,
+            "ndcg@10": 1.0,
+            "latency_ms": 93.90729991719127
+          }
+        },
+        {
+          "query_id": "pydantic/pydantic#14030",
+          "repo": "pydantic/pydantic",
+          "target": 12801,
+          "metrics": {
+            "hit_rank": 1,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 1.0,
+            "ndcg@10": 1.0,
+            "latency_ms": 540.1504000183195
+          }
+        },
+        {
+          "query_id": "pydantic/pydantic#13984",
+          "repo": "pydantic/pydantic",
+          "target": 11092,
+          "metrics": {
+            "hit_rank": 1,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 1.0,
+            "ndcg@10": 1.0,
+            "latency_ms": 273.9762000273913
+          }
+        },
+        {
+          "query_id": "pydantic/pydantic#13236",
+          "repo": "pydantic/pydantic",
+          "target": 10409,
+          "metrics": {
+            "hit_rank": 1,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 1.0,
+            "ndcg@10": 1.0,
+            "latency_ms": 163.21619995869696
+          }
+        },
+        {
+          "query_id": "pydantic/pydantic#12939",
+          "repo": "pydantic/pydantic",
+          "target": 12936,
+          "metrics": {
+            "hit_rank": 1,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 1.0,
+            "ndcg@10": 1.0,
+            "latency_ms": 21.025000023655593
+          }
+        },
+        {
+          "query_id": "psf/requests#6896",
+          "repo": "psf/requests",
+          "target": 2811,
+          "metrics": {
+            "hit_rank": -1,
+            "recall@5": 0.0,
+            "precision@5": 0.0,
+            "mrr@10": 0.0,
+            "ndcg@10": 0.0,
+            "latency_ms": 1818.4642000123858
+          }
+        },
+        {
+          "query_id": "psf/requests#6442",
+          "repo": "psf/requests",
+          "target": 6432,
+          "metrics": {
+            "hit_rank": -1,
+            "recall@5": 0.0,
+            "precision@5": 0.0,
+            "mrr@10": 0.0,
+            "ndcg@10": 0.0,
+            "latency_ms": 31.057900050655007
+          }
+        },
+        {
+          "query_id": "pallets/flask#5901",
+          "repo": "pallets/flask",
+          "target": 3747,
+          "metrics": {
+            "hit_rank": 3,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 0.3333333333333333,
+            "ndcg@10": 0.5,
+            "latency_ms": 122.28719994891435
+          }
+        },
+        {
+          "query_id": "pallets/flask#4994",
+          "repo": "pallets/flask",
+          "target": 3404,
+          "metrics": {
+            "hit_rank": 1,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 1.0,
+            "ndcg@10": 1.0,
+            "latency_ms": 15.503100003115833
+          }
+        },
+        {
+          "query_id": "pallets/flask#4990",
+          "repo": "pallets/flask",
+          "target": 4734,
+          "metrics": {
+            "hit_rank": 2,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 0.5,
+            "ndcg@10": 0.6309297535714575,
+            "latency_ms": 41.37730004731566
+          }
+        },
+        {
+          "query_id": "pallets/flask#4931",
+          "repo": "pallets/flask",
+          "target": 4928,
+          "metrics": {
+            "hit_rank": 1,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 1.0,
+            "ndcg@10": 1.0,
+            "latency_ms": 17.529499949887395
+          }
+        },
+        {
+          "query_id": "pallets/flask#4817",
+          "repo": "pallets/flask",
+          "target": 3404,
+          "metrics": {
+            "hit_rank": -1,
+            "recall@5": 0.0,
+            "precision@5": 0.0,
+            "mrr@10": 0.0,
+            "ndcg@10": 0.0,
+            "latency_ms": 2.408200060017407
+          }
+        },
+        {
+          "query_id": "encode/httpx#2748",
+          "repo": "encode/httpx",
+          "target": 2114,
+          "metrics": {
+            "hit_rank": 1,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 1.0,
+            "ndcg@10": 1.0,
+            "latency_ms": 29.892099904827774
+          }
+        },
+        {
+          "query_id": "encode/httpx#2632",
+          "repo": "encode/httpx",
+          "target": 1434,
+          "metrics": {
+            "hit_rank": -1,
+            "recall@5": 0.0,
+            "precision@5": 0.0,
+            "mrr@10": 0.0,
+            "ndcg@10": 0.0,
+            "latency_ms": 200.3326000412926
+          }
+        },
+        {
+          "query_id": "encode/httpx#2274",
+          "repo": "encode/httpx",
+          "target": 2169,
+          "metrics": {
+            "hit_rank": 1,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 1.0,
+            "ndcg@10": 1.0,
+            "latency_ms": 10.181199992075562
+          }
+        },
+        {
+          "query_id": "encode/httpx#2131",
+          "repo": "encode/httpx",
+          "target": 2092,
+          "metrics": {
+            "hit_rank": 3,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 0.3333333333333333,
+            "ndcg@10": 0.5,
+            "latency_ms": 37.76890004519373
+          }
+        },
+        {
+          "query_id": "encode/httpx#1615",
+          "repo": "encode/httpx",
+          "target": 1614,
+          "metrics": {
+            "hit_rank": 1,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 1.0,
+            "ndcg@10": 1.0,
+            "latency_ms": 39.303399971686304
+          }
+        },
+        {
+          "query_id": "encode/httpx#1614",
+          "repo": "encode/httpx",
+          "target": 1615,
+          "metrics": {
+            "hit_rank": -1,
+            "recall@5": 0.0,
+            "precision@5": 0.0,
+            "mrr@10": 0.0,
+            "ndcg@10": 0.0,
+            "latency_ms": 15.903200022876263
+          }
+        },
+        {
+          "query_id": "encode/httpx#1561",
+          "repo": "encode/httpx",
+          "target": 1363,
+          "metrics": {
+            "hit_rank": 1,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 1.0,
+            "ndcg@10": 1.0,
+            "latency_ms": 29.21130007598549
+          }
+        },
+        {
+          "query_id": "encode/httpx#1408",
+          "repo": "encode/httpx",
+          "target": 809,
+          "metrics": {
+            "hit_rank": -1,
+            "recall@5": 0.0,
+            "precision@5": 0.0,
+            "mrr@10": 0.0,
+            "ndcg@10": 0.0,
+            "latency_ms": 1.19270000141114
+          }
+        },
+        {
+          "query_id": "encode/httpx#1373",
+          "repo": "encode/httpx",
+          "target": 1434,
+          "metrics": {
+            "hit_rank": -1,
+            "recall@5": 0.0,
+            "precision@5": 0.0,
+            "mrr@10": 0.0,
+            "ndcg@10": 0.0,
+            "latency_ms": 34.473099978640676
+          }
+        },
+        {
+          "query_id": "encode/httpx#1332",
+          "repo": "encode/httpx",
+          "target": 1317,
+          "metrics": {
+            "hit_rank": 8,
+            "recall@5": 0.0,
+            "precision@5": 0.0,
+            "mrr@10": 0.125,
+            "ndcg@10": 0.31546487678572877,
+            "latency_ms": 24.862500024028122
+          }
+        },
+        {
+          "query_id": "encode/httpx#1263",
+          "repo": "encode/httpx",
+          "target": 538,
+          "metrics": {
+            "hit_rank": -1,
+            "recall@5": 0.0,
+            "precision@5": 0.0,
+            "mrr@10": 0.0,
+            "ndcg@10": 0.0,
+            "latency_ms": 2.7321999659761786
+          }
+        },
+        {
+          "query_id": "encode/httpx#1261",
+          "repo": "encode/httpx",
+          "target": 154,
+          "metrics": {
+            "hit_rank": -1,
+            "recall@5": 0.0,
+            "precision@5": 0.0,
+            "mrr@10": 0.0,
+            "ndcg@10": 0.0,
+            "latency_ms": 17.33019994571805
+          }
+        },
+        {
+          "query_id": "pydantic/pydantic#12437",
+          "repo": "pydantic/pydantic",
+          "target": 6533,
+          "metrics": {
+            "hit_rank": -1,
+            "recall@5": 0.0,
+            "precision@5": 0.0,
+            "mrr@10": 0.0,
+            "ndcg@10": 0.0,
+            "latency_ms": 123.11120005324483
+          }
+        },
+        {
+          "query_id": "pydantic/pydantic#12380",
+          "repo": "pydantic/pydantic",
+          "target": 12374,
+          "metrics": {
+            "hit_rank": 2,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 0.5,
+            "ndcg@10": 0.6309297535714575,
+            "latency_ms": 55.900200037285686
+          }
+        },
+        {
+          "query_id": "psf/requests#7222",
+          "repo": "psf/requests",
+          "target": 7219,
+          "metrics": {
+            "hit_rank": 1,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 1.0,
+            "ndcg@10": 1.0,
+            "latency_ms": 13.067400082945824
+          }
+        },
+        {
+          "query_id": "psf/requests#7150",
+          "repo": "psf/requests",
+          "target": 3856,
+          "metrics": {
+            "hit_rank": 2,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 0.5,
+            "ndcg@10": 0.6309297535714575,
+            "latency_ms": 29.610299970954657
+          }
+        },
+        {
+          "query_id": "psf/requests#7003",
+          "repo": "psf/requests",
+          "target": 5950,
+          "metrics": {
+            "hit_rank": 3,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 0.3333333333333333,
+            "ndcg@10": 0.5,
+            "latency_ms": 42.85500000696629
+          }
+        },
+        {
+          "query_id": "psf/requests#6977",
+          "repo": "psf/requests",
+          "target": 6976,
+          "metrics": {
+            "hit_rank": -1,
+            "recall@5": 0.0,
+            "precision@5": 0.0,
+            "mrr@10": 0.0,
+            "ndcg@10": 0.0,
+            "latency_ms": 9.720599977299571
+          }
+        },
+        {
+          "query_id": "psf/requests#6957",
+          "repo": "psf/requests",
+          "target": 6946,
+          "metrics": {
+            "hit_rank": 2,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 0.5,
+            "ndcg@10": 0.6309297535714575,
+            "latency_ms": 6.553400075063109
+          }
+        },
+        {
+          "query_id": "psf/requests#6933",
+          "repo": "psf/requests",
+          "target": 6932,
+          "metrics": {
+            "hit_rank": 1,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 1.0,
+            "ndcg@10": 1.0,
+            "latency_ms": 11.03349996265024
+          }
+        },
+        {
+          "query_id": "psf/requests#6893",
+          "repo": "psf/requests",
+          "target": 6892,
+          "metrics": {
+            "hit_rank": 1,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 1.0,
+            "ndcg@10": 1.0,
+            "latency_ms": 79.58060002420098
+          }
+        },
+        {
+          "query_id": "psf/requests#6872",
+          "repo": "psf/requests",
+          "target": 6730,
+          "metrics": {
+            "hit_rank": -1,
+            "recall@5": 0.0,
+            "precision@5": 0.0,
+            "mrr@10": 0.0,
+            "ndcg@10": 0.0,
+            "latency_ms": 107.63649991713464
+          }
+        },
+        {
+          "query_id": "psf/requests#6835",
+          "repo": "psf/requests",
+          "target": 5977,
+          "metrics": {
+            "hit_rank": 2,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 0.5,
+            "ndcg@10": 0.6309297535714575,
+            "latency_ms": 41.264900006353855
+          }
+        },
+        {
+          "query_id": "psf/requests#6784",
+          "repo": "psf/requests",
+          "target": 6711,
+          "metrics": {
+            "hit_rank": -1,
+            "recall@5": 0.0,
+            "precision@5": 0.0,
+            "mrr@10": 0.0,
+            "ndcg@10": 0.0,
+            "latency_ms": 65.54239999968559
+          }
+        },
+        {
+          "query_id": "psf/requests#6763",
+          "repo": "psf/requests",
+          "target": 6586,
+          "metrics": {
+            "hit_rank": 5,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 0.2,
+            "ndcg@10": 0.38685280723454163,
+            "latency_ms": 29.424000065773726
+          }
+        },
+        {
+          "query_id": "psf/requests#6736",
+          "repo": "psf/requests",
+          "target": 6730,
+          "metrics": {
+            "hit_rank": 1,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 1.0,
+            "ndcg@10": 1.0,
+            "latency_ms": 48.25029999483377
+          }
+        },
+        {
+          "query_id": "psf/requests#6729",
+          "repo": "psf/requests",
+          "target": 6728,
+          "metrics": {
+            "hit_rank": 4,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 0.25,
+            "ndcg@10": 0.43067655807339306,
+            "latency_ms": 49.062400008551776
+          }
+        },
+        {
+          "query_id": "psf/requests#6717",
+          "repo": "psf/requests",
+          "target": 6715,
+          "metrics": {
+            "hit_rank": 1,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 1.0,
+            "ndcg@10": 1.0,
+            "latency_ms": 44.83659996185452
+          }
+        },
+        {
+          "query_id": "psf/requests#6695",
+          "repo": "psf/requests",
+          "target": 3829,
+          "metrics": {
+            "hit_rank": 1,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 1.0,
+            "ndcg@10": 1.0,
+            "latency_ms": 37.784700049087405
+          }
+        },
+        {
+          "query_id": "psf/requests#6660",
+          "repo": "psf/requests",
+          "target": 6565,
+          "metrics": {
+            "hit_rank": 4,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 0.25,
+            "ndcg@10": 0.43067655807339306,
+            "latency_ms": 44.53379998449236
+          }
+        },
+        {
+          "query_id": "psf/requests#6658",
+          "repo": "psf/requests",
+          "target": 6586,
+          "metrics": {
+            "hit_rank": 1,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 1.0,
+            "ndcg@10": 1.0,
+            "latency_ms": 17.763599986210465
+          }
+        },
+        {
+          "query_id": "psf/requests#6611",
+          "repo": "psf/requests",
+          "target": 6026,
+          "metrics": {
+            "hit_rank": -1,
+            "recall@5": 0.0,
+            "precision@5": 0.0,
+            "mrr@10": 0.0,
+            "ndcg@10": 0.0,
+            "latency_ms": 11.412400053814054
+          }
+        },
+        {
+          "query_id": "psf/requests#6534",
+          "repo": "psf/requests",
+          "target": 6344,
+          "metrics": {
+            "hit_rank": -1,
+            "recall@5": 0.0,
+            "precision@5": 0.0,
+            "mrr@10": 0.0,
+            "ndcg@10": 0.0,
+            "latency_ms": 20.474900025874376
+          }
+        },
+        {
+          "query_id": "psf/requests#6524",
+          "repo": "psf/requests",
+          "target": 5000,
+          "metrics": {
+            "hit_rank": 1,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 1.0,
+            "ndcg@10": 1.0,
+            "latency_ms": 10.540299932472408
+          }
+        },
+        {
+          "query_id": "psf/requests#6445",
+          "repo": "psf/requests",
+          "target": 6432,
+          "metrics": {
+            "hit_rank": -1,
+            "recall@5": 0.0,
+            "precision@5": 0.0,
+            "mrr@10": 0.0,
+            "ndcg@10": 0.0,
+            "latency_ms": 1.967799966223538
+          }
+        }
+      ]
+    }
+  }
+}
