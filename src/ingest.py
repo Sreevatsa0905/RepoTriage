@@ -48,8 +48,28 @@ _LINK_NEXT_RE = re.compile(r'<([^>]+)>;\s*rel="next"')
 # Networking helpers
 # ---------------------------------------------------------------------------
 
+def _load_env_token() -> None:
+    """Load GITHUB_TOKEN from project root .env if not already set."""
+    if "GITHUB_TOKEN" in os.environ and os.environ["GITHUB_TOKEN"]:
+        return
+    env_file = Path(__file__).resolve().parent.parent / ".env"
+    if env_file.exists():
+        try:
+            with open(env_file, "r", encoding="utf-8") as f:
+                for line in f:
+                    line = line.strip()
+                    if line and not line.startswith("#") and "=" in line:
+                        k, v = line.split("=", 1)
+                        if k.strip() == "GITHUB_TOKEN":
+                            os.environ["GITHUB_TOKEN"] = v.strip().strip("'\"")
+                            break
+        except Exception as e:
+            logger.debug("Failed reading .env file: %s", e)
+
+
 def _build_headers() -> dict[str, str]:
     """Standard headers for GitHub API requests."""
+    _load_env_token()
     headers = {
         "Accept": "application/vnd.github+json",
         "User-Agent": "RepoTriage/0.1",
@@ -80,7 +100,7 @@ def _handle_rate_limit(response: HTTPResponse) -> None:
         time.sleep(sleep_seconds)
 
 
-def _request_with_retry(url: str, retries: int = MAX_RETRIES) -> tuple[list[dict], str | None]:
+def _request_with_retry(url: str, retries: int = MAX_RETRIES, allow_dict: bool = False) -> tuple[Any, str | None]:
     """
     GET a URL and return (parsed_json, next_url).
 
@@ -96,8 +116,12 @@ def _request_with_retry(url: str, retries: int = MAX_RETRIES) -> tuple[list[dict
                 _handle_rate_limit(resp)
                 body = resp.read().decode("utf-8")
                 data = json.loads(body)
-                if not isinstance(data, list):
-                    raise ValueError(f"Expected JSON array, got {type(data).__name__}")
+                if allow_dict:
+                    if not isinstance(data, (list, dict)):
+                        raise ValueError(f"Expected JSON array or dict, got {type(data).__name__}")
+                else:
+                    if not isinstance(data, list):
+                        raise ValueError(f"Expected JSON array, got {type(data).__name__}")
                 link_next = _parse_link_next(resp.headers.get("Link"))
                 return data, link_next
 
@@ -204,6 +228,71 @@ def fetch_issues(
         url = next_url
 
     return all_issues
+
+
+def fetch_issue_comments(
+    owner: str,
+    repo: str,
+    issue_number: int,
+    max_comments: int = 10,
+) -> list[dict[str, Any]]:
+    """Fetch comments for an issue, capped at max_comments."""
+    url = f"{GITHUB_API_BASE}/repos/{owner}/{repo}/issues/{issue_number}/comments?per_page={max_comments}"
+    try:
+        data, _ = _request_with_retry(url)
+        return data[:max_comments] if isinstance(data, list) else []
+    except Exception as exc:
+        logger.warning("Failed fetching comments for %s/%s#%d: %s", owner, repo, issue_number, exc)
+        return []
+
+
+def fetch_single_issue(
+    owner: str,
+    repo: str,
+    issue_number: int,
+    fetch_comments: bool = True,
+) -> dict[str, Any] | None:
+    """
+    Fetch a single issue by number on-demand with raw JSONL cache check.
+    If the issue is closed with comments, also fetches comments.
+    """
+    cache_path = DATA_DIR / f"{owner}_{repo}_raw_issues.jsonl"
+    if cache_path.exists():
+        with open(cache_path, "r", encoding="utf-8") as f:
+            for line in f:
+                if line.strip():
+                    try:
+                        item = json.loads(line)
+                        if item.get("number") == issue_number:
+                            return normalize_issue(item, owner, repo)
+                    except json.JSONDecodeError:
+                        continue
+
+    # Fetch from API
+    url = f"{GITHUB_API_BASE}/repos/{owner}/{repo}/issues/{issue_number}"
+    try:
+        data, _ = _request_with_retry(url, allow_dict=True)
+        if isinstance(data, dict) and "pull_request" not in data:
+            # Append to cache
+            DATA_DIR.mkdir(parents=True, exist_ok=True)
+            with open(cache_path, "a", encoding="utf-8") as f:
+                f.write(json.dumps(data, ensure_ascii=False) + "\n")
+
+            if fetch_comments and data.get("state") == "closed" and data.get("comments", 0) > 0:
+                comments = fetch_issue_comments(owner, repo, issue_number)
+                if comments:
+                    comm_path = DATA_DIR / f"{owner}_{repo}_raw_comments.jsonl"
+                    with open(comm_path, "a", encoding="utf-8") as f:
+                        for c in comments:
+                            c["issue_number"] = issue_number
+                            c["repo"] = f"{owner}/{repo}"
+                            f.write(json.dumps(c, ensure_ascii=False) + "\n")
+
+            return normalize_issue(data, owner, repo)
+        return None
+    except Exception as exc:
+        logger.warning("Failed fetching single issue %s/%s#%d: %s", owner, repo, issue_number, exc)
+        return None
 
 
 # ---------------------------------------------------------------------------
