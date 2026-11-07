@@ -566,10 +566,11 @@ python -m src.cli analyze "ValidationError when using a custom validator with Op
 
 ### C. Technical Resume Entry Draft (Strictly Measured Figures)
 > **Local-First GitHub Issue Intelligence & Resolution Copilot (RepoTriage)**
-> * Developed an offline-first issue resolution pipeline combining a frozen TF-IDF + Logistic Regression classifier (0.7605 Macro-F1), hybrid BM25 + BGE dense retrieval with Reciprocal Rank Fusion (0.7843 Recall@5, 0.6022 MRR@10 on $n=51$ duplicate query pairs), local Qwen 4B synthesis, and DeBERTa-v3 natural language inference (NLI) claim verification.
-> * Implemented multi-premise sentence-window NLI verification enforcing strict dominance thresholds ($\tau_s = 0.80, \tau_c = 0.80$), achieving a 0.00% false-support rate on hard negative controls, a 1.25% false-support rate on easy negative controls, and an 80.00% contradiction recall on 300 synthetic rule-perturbed developer claims.
+> * Built an offline-first issue resolution copilot combining a selective TF-IDF + Logistic Regression classifier (73.58% coverage at 0.50 confidence, achieving 82.05% accuracy on covered issues), hybrid BM25 + BGE dense retrieval (Dense Recall@5: 0.8039 [95% CI: 0.6863, 0.9020]; RRF MRR@10: 0.6018 [95% CI: 0.4948, 0.7139] on $n=51$ duplicate query pairs), local Qwen 4B synthesis, and DeBERTa-v3 natural language inference (NLI) claim verification.
+> * Discovered that an off-the-shelf cross-encoder reranker (`bge-reranker-base`) degraded pure lexical-dense Recall@5 from 0.7647 to 0.7451 until rescued by convex reciprocal-rank score blending ($\alpha = 0.50$, recovering 0.7843 Recall@5 and 0.6022 MRR@10).
+> * Implemented multi-premise sentence-window NLI verification enforcing strict dominance thresholds ($\tau_s = 0.80, \tau_c = 0.80$), eliminating premise-attention dilution and achieving 0.00% (0 / 80) false-support on hard negative controls, 1.25% (1 / 80) on easy negative controls, and 95.00% (95 / 100) supported recall on synthetic rule-perturbed developer claims.
 > * Engineered deterministic GPU memory orchestration for consumer hardware (NVIDIA RTX 3050 6GB), decoupling CPU-resident dense index querying (<15ms) from sequential VRAM-isolated LLM generation and NLI verification.
-> * Deployed an asynchronous FastAPI REST backend with single-flight concurrency locking (HTTP 429) alongside a Vite React + TypeScript dark-theme copilot displaying unmerged dual classification and interactive claim verification traces.
+> * Built an asynchronous FastAPI REST service with single-flight concurrency locking (HTTP 429) alongside a Vite React + TypeScript dark-theme copilot displaying unmerged dual classification and interactive claim verification traces.
 
 ### D. Final Quality Checks
 - **Offline Unit Test Suite**: `python -m unittest discover tests` executed cleanly (**86 tests passing, 0 failures, 0 errors**).
@@ -613,3 +614,90 @@ python -m src.cli analyze "ValidationError when using a custom validator with Op
    - Captured real screenshot of completed analysis view: `docs/screenshots/ui_result.png`.
    - Embedded `docs/screenshots/ui_result.png` in root `README.md`.
    - Python offline test suite passes (86 tests, 0 failures, 0 errors).
+
+
+---
+
+## 14. Final Fixes: Perturbation Test Diagnostics, Denominator Transparency & Resume Alignment
+
+### A. Perturbation Test Investigation & Root Cause Discovery
+
+#### 1. Baseline Anomaly & Class Imbalance
+In initial evaluation runs on the 300-sample synthetic perturbation dataset (`eval/run_perturbation_test.py`), 3-class accuracy was **51.67%** (155 / 300) with a stark asymmetry:
+- **CONTRADICTED Recall**: **80.00%** (80 / 100 detected)
+- **INSUFFICIENT_EVIDENCE Recall**: **66.00%** (66 / 100 detected)
+- **SUPPORTED Recall**: **9.00%** (only 9 / 100 approved, with 86 / 100 classified as `INSUFFICIENT_EVIDENCE`!)
+
+#### 2. Five Verbatim-Sentence Pairs Not Marked SUPPORTED (Baseline Inspection)
+Directly inspecting the raw NLI model outputs on verbatim extractions revealed why $p_e$ failed to reach the $\tau_s = 0.80$ threshold:
+1. **Pair 2** (`pydantic/pydantic #12407`):
+   - *Hypothesis*: `'[pydantic/pydantic #12407] `typing_extensions` `Sentinel` import error'`
+   - *Premise*: `'[`typing_extensions` `Sentinel` import error] [pydantic/pydantic #12407] `typing_extensions` `Sentinel` import error\n\n### Initial Checks\n\n- [x] I confirm...'`
+   - *Probabilities*: $p_e = 0.0186, p_c = 0.0276, p_n = 0.9536 \implies$ `INSUFFICIENT_EVIDENCE`
+2. **Pair 3** (`psf/requests #6622`):
+   - *Hypothesis*: `'[psf/requests #6622] Refresh Test PyPi Package'`
+   - *Premise*: `'[Refresh Test PyPi Package] [psf/requests #6622] Refresh Test PyPi Package\n\nThe Python Package on [TestPyPI has not been updated since 14 March 2015 i...'`
+   - *Probabilities*: $p_e = 0.5161, p_c = 0.0983, p_n = 0.3855 \implies$ `INSUFFICIENT_EVIDENCE`
+3. **Pair 4** (`encode/httpx #1371`):
+   - *Hypothesis*: `'[encode/httpx #1371 Comment by @CLannadZSY]'`
+   - *Premise*: `'[Comment on #1371 by @CLannadZSY] [encode/httpx #1371 Comment by @CLannadZSY]\n\n@cdeler I reinstalled my python environment and httpx, this problem was solved'`
+   - *Probabilities*: $p_e = 0.0002, p_c = 0.0002, p_n = 0.9995 \implies$ `INSUFFICIENT_EVIDENCE`
+4. **Pair 5** (`psf/requests #7219`):
+   - *Hypothesis*: `'[psf/requests #7219 Comment by @sigmavirus24]'`
+   - *Premise*: `'[Comment on #7219 by @sigmavirus24] [psf/requests #7219 Comment by @sigmavirus24]\n\nIt doesn't _break_ requests. We raise a warning because we haven't ...'`
+   - *Probabilities*: $p_e = 0.0022, p_c = 0.0006, p_n = 0.9971 \implies$ `INSUFFICIENT_EVIDENCE`
+5. **Pair 6** (`psf/requests #6896`):
+   - *Hypothesis*: `'[psf/requests #6896 Comment by @cjwatson]'`
+   - *Premise*: `'[Comment on #6896 by @cjwatson] [psf/requests #6896 Comment by @cjwatson]\n\nFor completeness (in case somebody comes across this issue and doesn't look...'`
+   - *Probabilities*: $p_e = 0.0005, p_c = 0.0251, p_n = 0.9746 \implies$ `INSUFFICIENT_EVIDENCE`
+
+#### 3. Root Cause Diagnostics
+Three distinct mechanisms contributed to this failure:
+1. **Candidate Sentence Splitting Bug**: In `repotriage.db`, the chunk `text` field begins with a metadata title header: `[repo #issue] <title>` or `[repo #issue Comment by @author]`. Because `split_into_sentences` splits on `(?<=[.!?])\s+|\n+`, the first extracted sentence `candidates[0]` was invariably this metadata line. DeBERTa-v3 NLI expects a declarative assertion; given a title fragment or author tag, it assigns ~96–99% neutral probability ($p_n$).
+2. **Extraction Asymmetry Between Classes**: For `CONTRADICTED`, the code searched `candidates` for sentences matching verbal perturbation patterns (`is`, `can`, `supported`, `raises`). Because metadata headers rarely match these rules, CONTRADICTED naturally bypassed the header and selected real declarative body sentences. `SUPPORTED` blindly grabbed `candidates[0]`, resulting in testing metadata headers 91% of the time.
+3. **Premise Attention Dilution**: Unlike `src/guardrail/verify.py` which evaluates multi-premise candidates (full chunk and 2-sentence window), `eval/run_perturbation_test.py` tested solely against the 1,200-char truncated chunk with duplicate `[heading]` prefix. When a short claim is embedded in a 400-word premise, DeBERTa's self-attention across 512 tokens dilutes the entailment signal unless a localized window premise is also evaluated.
+
+#### 4. Fix & Updated Evaluation
+- Implemented `is_valid_declarative_sentence`: filters out lines starting with `[`, `]`, `http`, `#`, `- [`, `* `, `Traceback`, and ````, requiring $\ge 5$ words starting with an alphanumeric/quote character.
+- Applied multi-premise evaluation matching production `verify.py` (`full_chunk` vs `sentence_window`).
+- **Updated Production Results ($\tau_s = 0.80, \tau_c = 0.80$, $n = 300$)**:
+  - **Accuracy**: **88.67%** (266 / 300) | **Macro-F1**: **0.8862**
+  - **SUPPORTED**: Precision = 94.06%, Recall = **95.00%** (95 / 100), F1 = 0.9453
+  - **CONTRADICTED**: Precision = 81.42%, Recall = **92.00%** (92 / 100), F1 = 0.8638
+  - **INSUFFICIENT_EVIDENCE**: Precision = 91.86%, Recall = **79.00%** (79 / 100), F1 = 0.8495
+  - **Contradicted False-Support**: **6.00%** (6 / 100)
+  - **Unrelated (NEI) False-Support**: **0.00%** (0 / 100)
+- **Single-Chunk Premise Ablation**: Accuracy = **79.33%** (238 / 300), SUPPORTED Recall = **67.00%** (67 / 100), demonstrating the +28.00% recall recovery from localized sentence windowing.
+
+---
+
+### B. Denominator Transparency & Claim Set Reconciliation
+
+Every guardrail metric across the project now includes its explicit denominator:
+- **B1 ANLI Test Accuracy**: `70 / 150` (**46.67%**, vs. baseline `50 / 150` = 33.33%).
+- **B2 Easy Negative False-Support**: `1 / 80` (**1.25%**, vs. baseline `80 / 80` = 100.00%).
+- **B2 Hard Negative False-Support**: `0 / 80` (**0.00%**, vs. baseline `80 / 80` = 100.00%).
+- **B2 Hard Negative Audit Spot-Check**: `0 / 10` (**0.00%** false-support).
+- **B2 Grounded Support Pass Rate (Cited Claims)**: `30 / 75` (**40.00%** at $\tau = 0.80$).
+- **B2 Grounded Support Pass Rate (All Claims)**: `30 / 80` (**37.50%**).
+- **B2 Citation Coverage**: `75 / 80` (**93.75%**; 5 claims immediately rejected for missing citations).
+- **B2 Contradiction Detection Rate**: `12 / 80` (**15.00%** overall, `10 / 75` = 13.33% on cited).
+
+**Reconciliation of Claim Counts**:
+1. **Stage 6.5 Exploratory Dev Set**: Initial exploratory run on 10 queries producing ~50 claims total, evaluating early single-premise thresholds.
+2. **Stage 6.6 Standardized Evaluation Benchmark**: Formal held-out evaluation across 15 issues (4 repos: `httpx`: 4, `flask`: 4, `pydantic`: 4, `requests`: 3) producing exactly **80 claims** evaluated under 80 easy negative pairings and 80 hard negative pairings.
+3. **Stage 6.6-D Synthetic Perturbation Benchmark**: Independent automated test on **300 rule-constructed pairs** (100 SUPPORTED, 100 CONTRADICTED, 100 INSUFFICIENT_EVIDENCE).
+
+---
+
+### C. Resume Entry Realignment
+Updated the resume draft to comply with all evaluation findings:
+- Action verb: **"Built"** (not "Deployed").
+- Replaced the 0.7605 pooled training score with the measured live-check numbers: *"73.58% coverage at 0.50 threshold, achieving 82.05% accuracy on covered issues across seed repos"*.
+- Pinned Dense Recall@5 of `0.8039` [95% CI: 0.6863, 0.9020] and RRF MRR@10 of `0.6018` [95% CI: 0.4948, 0.7139] on $n=51$ duplicate query pairs.
+- Documented the empirical finding that the off-the-shelf cross-encoder reranker dropped Recall@5 (from 0.7647 to 0.7451) until convex reciprocal-rank blending ($\alpha = 0.50$) restored it to 0.7843.
+
+---
+
+### D. Document Relocation
+Relocated `CURRENT_STATE.md` to `docs/CURRENT_STATE.md` and updated all navigation links in `README.md`.

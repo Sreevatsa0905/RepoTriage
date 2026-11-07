@@ -60,20 +60,31 @@ flowchart TD
 
 > **Note on Retrieval**: Restricting the candidate pool to issues and comments accounted for the primary jump in Recall@5 (from ~0.45 to ~0.78). RRF and reranker blending provide marginal consistency gains (+0.0392 Recall@5, +0.0538 MRR@10) with 95% paired difference CIs overlapping zero.
 
-### B. Guardrail In-Domain Calibration (B2 Fresh Held-Out Set, 80 Claims)
+### B. Guardrail In-Domain Calibration (B2 Fresh Held-Out Set, $n = 80$ Claims)
 
-| Threshold Setting | Grounded Pass Rate | Easy Neg False-Support | Hard Neg False-Support | Contradiction Detection |
-| :---: | :---: | :---: | :---: | :---: |
-| $\tau_s = 0.50, \tau_c = 0.50$ | 42.67% | 1.25% (1 / 80) | 0.00% (0 / 10) | 15.00% |
-| $\tau_s = 0.70, \tau_c = 0.70$ | 40.00% | 1.25% (1 / 80) | 0.00% (0 / 10) | 15.00% |
-| **$\tau_s = 0.80, \tau_c = 0.80$ (Production)** | **40.00%** | **1.25% (1 / 80)** | **0.00% (0 / 10)** | **15.00%** |
-| $\tau_s = 0.90, \tau_c = 0.90$ | 34.67% | 0.00% (0 / 80) | 0.00% (0 / 10) | 12.00% |
+> [!NOTE]
+> **Claim Sets Reconciliation**:
+> - **Stage 6.5 Exploratory Dev Set**: Initial testing used an exploratory set of 10 issue queries (~50 claims total) from early pipeline prototypes, establishing preliminary pass rates (24.0% at $\tau = 0.30$ under single-chunk premise).
+> - **Stage 6.6 Standardized Evaluation Benchmark**: Constructed a standardized, strictly held-out evaluation set of 15 issues across 4 repositories (`encode/httpx`: 4, `pallets/flask`: 4, `pydantic/pydantic`: 4, `psf/requests`: 3) with zero dev overlap. This produced exactly **80 claims** ($n = 80$, 5.33 claims/issue). 75 of 80 claims (93.75%) cited at least one evidence item, while 5 claims (6.25%) had missing or invalid citations and were immediately rejected as `INSUFFICIENT_EVIDENCE` by rule.
+> - **Stage 6.6-D Synthetic Perturbation Benchmark**: A separate rule-constructed synthetic benchmark of **300 pairs** ($n = 300$, balanced: 100 SUPPORTED, 100 CONTRADICTED, 100 INSUFFICIENT_EVIDENCE).
+
+| Threshold Setting | Grounded Pass Rate (Cited Claims) | Grounded Pass Rate (All Claims) | Easy Neg False-Support | Hard Neg False-Support | Contradiction Detection |
+| :---: | :---: | :---: | :---: | :---: | :---: |
+| $\tau_s = 0.50, \tau_c = 0.50$ | 42.67% (32 / 75) | 40.00% (32 / 80) | 1.25% (1 / 80) | 0.00% (0 / 80) | 15.00% (12 / 80) |
+| $\tau_s = 0.70, \tau_c = 0.70$ | 40.00% (30 / 75) | 37.50% (30 / 80) | 1.25% (1 / 80) | 0.00% (0 / 80) | 15.00% (12 / 80) |
+| **$\tau_s = 0.80, \tau_c = 0.80$ (Production)** | **40.00% (30 / 75)** | **37.50% (30 / 80)** | **1.25% (1 / 80)** | **0.00% (0 / 80)** | **15.00% (12 / 80)** |
+| $\tau_s = 0.90, \tau_c = 0.90$ | 34.67% (26 / 75) | 32.50% (26 / 80) | 0.00% (0 / 80) | 0.00% (0 / 80) | 12.00% (10 / 80) |
+
+*Note: In addition to the full 80-pair hard negative evaluation (0 / 80, 0.00%), a detailed manual audit spot-check was conducted on 10 hard negative pairs (0 / 10 false support, 0.00%).*
 
 ### C. Automated Perturbation Test (Synthetic Rule-Constructed Ground Truth, $n=300$)
-- **Contradiction Recall**: **80.00%** (80 of 100 negated code assertions flagged as `CONTRADICTED`)
-- **Contradiction Precision**: **68.38%** | **F1: 0.7373**
-- **False-Support Rate on Contradicted**: **5.00%** (5 / 100)
-- **False-Support Rate on Unrelated (NEI)**: **2.00%** (2 / 100)
+- **Multi-Premise Production Accuracy ($\tau_s = 0.80, \tau_c = 0.80$)**: **88.67%** (266 / 300) | **Macro-F1: 0.8862**
+- **SUPPORTED Recall**: **95.00%** (95 of 100 verbatim code assertions approved) | **Precision: 94.06%**
+- **CONTRADICTED Recall**: **92.00%** (92 of 100 negated assertions detected) | **Precision: 81.42%**
+- **INSUFFICIENT_EVIDENCE Recall**: **79.00%** (79 of 100 unrelated cross-repo chunks rejected) | **Precision: 91.86%**
+- **False-Support Rate on Contradicted**: **6.00%** (6 / 100)
+- **False-Support Rate on Unrelated (NEI)**: **0.00%** (0 / 100)
+- **Single-Chunk Premise Ablation (Without Windowing)**: Accuracy = 79.33% (238 / 300), SUPPORTED Recall = 67.00% (67 / 100) due to premise attention dilution.
 - **Human Check Status**: **not performed**
 
 ### D. Classifier Live Ingest Generalization ($n=159$ Ingested Issues Across 3 Repos)
@@ -184,7 +195,18 @@ python -m unittest discover tests
 ## 6. Technical Resume Entry Draft
 
 > **Local-First GitHub Issue Intelligence & Resolution Copilot (RepoTriage)**
-> * Developed an offline-first issue resolution pipeline combining a frozen TF-IDF + Logistic Regression classifier (0.7605 Macro-F1), hybrid BM25 + BGE dense retrieval with Reciprocal Rank Fusion (0.7843 Recall@5, 0.6022 MRR@10 on $n=51$ duplicate query pairs), local Qwen 4B synthesis, and DeBERTa-v3 natural language inference (NLI) claim verification.
-> * Implemented multi-premise sentence-window NLI verification enforcing strict dominance thresholds ($\tau_s = 0.80, \tau_c = 0.80$), achieving a 0.00% false-support rate on hard negative controls, a 1.25% false-support rate on easy negative controls, and an 80.00% contradiction recall on 300 synthetic rule-perturbed developer claims.
+> * Built an offline-first issue resolution copilot combining a selective TF-IDF + Logistic Regression classifier (73.58% coverage at 0.50 confidence, achieving 82.05% accuracy on covered issues), hybrid BM25 + BGE dense retrieval (Dense Recall@5: 0.8039 [95% CI: 0.6863, 0.9020]; RRF MRR@10: 0.6018 [95% CI: 0.4948, 0.7139] on $n=51$ duplicate query pairs), local Qwen 4B synthesis, and DeBERTa-v3 natural language inference (NLI) claim verification.
+> * Discovered that an off-the-shelf cross-encoder reranker (`bge-reranker-base`) degraded pure lexical-dense Recall@5 from 0.7647 to 0.7451 until rescued by convex reciprocal-rank score blending ($\alpha = 0.50$, recovering 0.7843 Recall@5 and 0.6022 MRR@10).
+> * Implemented multi-premise sentence-window NLI verification enforcing strict dominance thresholds ($\tau_s = 0.80, \tau_c = 0.80$), eliminating premise-attention dilution and achieving 0.00% (0 / 80) false-support on hard negative controls, 1.25% (1 / 80) on easy negative controls, and 95.00% (95 / 100) supported recall on synthetic rule-perturbed developer claims.
 > * Engineered deterministic GPU memory orchestration for consumer hardware (NVIDIA RTX 3050 6GB), decoupling CPU-resident dense index querying (<15ms) from sequential VRAM-isolated LLM generation and NLI verification.
-> * Deployed an asynchronous FastAPI REST backend with single-flight concurrency locking (HTTP 429) alongside a Vite React + TypeScript dark-theme copilot displaying unmerged dual classification and interactive claim verification traces.
+> * Built an asynchronous FastAPI REST service with single-flight concurrency locking (HTTP 429) alongside a Vite React + TypeScript dark-theme copilot displaying unmerged dual classification and interactive claim verification traces.
+
+---
+
+## 7. Project Documentation & History
+
+Detailed technical specifications, milestone progress, and architecture decision records are maintained in:
+- [System State & Engineering Journal](docs/CURRENT_STATE.md)
+- [Comprehensive Empirical Evaluation Report](EVALUATION.md)
+- [Datasets & Corpus Specification](DATASETS.md)
+- [Model Cards & Memory Specifications](MODEL_CARD.md)

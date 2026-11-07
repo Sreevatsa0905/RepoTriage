@@ -37,7 +37,7 @@ import numpy as np
 
 import src.config
 from src.guardrail.nli import NLIGuardrail
-from src.guardrail.verify import apply_dominance_rule, split_into_sentences
+from src.guardrail.verify import apply_dominance_rule, select_best_evidence_window, split_into_sentences
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 logger = logging.getLogger(__name__)
@@ -83,6 +83,29 @@ def perturb_sentence(sentence: str) -> str | None:
     return None
 
 
+def is_valid_declarative_sentence(s: str) -> bool:
+    """
+    Filter out chunk headers, markdown tables/checkboxes, URLs, and fragments.
+    Ensures extracted hypothesis is a real assertive natural language sentence.
+    """
+    s = s.strip()
+    if len(s) < 35 or len(s) > 200:
+        return False
+    if s.startswith("http") or s.startswith("[") or s.startswith("]"):
+        return False
+    if s.startswith("#") or s.startswith("- [") or s.startswith("* ") or s.startswith("- "):
+        return False
+    if s.startswith("```") or s.startswith("Traceback"):
+        return False
+    words = s.split()
+    if len(words) < 5:
+        return False
+    # Ensure it starts with an alphanumeric or quote character
+    if not (s[0].isalnum() or s[0] in ('"', "'", '`')):
+        return False
+    return True
+
+
 def build_perturbation_dataset(target_count: int = 100) -> list[dict[str, Any]]:
     """Build dataset from real SQLite chunks across repositories."""
     conn = sqlite3.connect(str(DB_PATH))
@@ -117,22 +140,23 @@ def build_perturbation_dataset(target_count: int = 100) -> list[dict[str, Any]]:
             break
 
         repo = ch["repo"]
-        heading = ch.get("heading") or ""
-        prefix = f"[{heading}] " if heading else ""
-        premise_text = prefix + ch["text"][:1200]
+        chunk_raw = ch["text"][:1200].strip()
 
         sentences = split_into_sentences(ch["text"])
-        candidates = [s for s in sentences if 35 <= len(s) <= 200 and not s.startswith("http")]
+        candidates = [s for s in sentences if is_valid_declarative_sentence(s)]
         if not candidates:
             continue
 
         base_sent = candidates[0]
+        base_win = select_best_evidence_window(base_sent, ch["text"], max_sentences=2)
 
         # 1. SUPPORTED
         if seen_supported < target_count:
             dataset.append({
                 "pair_id": f"P_SUP_{seen_supported+1}",
-                "premise": premise_text,
+                "premise": chunk_raw,
+                "chunk_premise": chunk_raw,
+                "window_premise": base_win,
                 "hypothesis": base_sent,
                 "true_label": "SUPPORTED",
                 "repo": repo,
@@ -146,9 +170,12 @@ def build_perturbation_dataset(target_count: int = 100) -> list[dict[str, Any]]:
             for s in candidates:
                 perturbed = perturb_sentence(s)
                 if perturbed:
+                    pert_win = select_best_evidence_window(perturbed, ch["text"], max_sentences=2)
                     dataset.append({
                         "pair_id": f"P_CON_{seen_contradicted+1}",
-                        "premise": premise_text,
+                        "premise": chunk_raw,
+                        "chunk_premise": chunk_raw,
+                        "window_premise": pert_win,
                         "hypothesis": perturbed,
                         "true_label": "CONTRADICTED",
                         "repo": repo,
@@ -167,12 +194,16 @@ def build_perturbation_dataset(target_count: int = 100) -> list[dict[str, Any]]:
             if other_chunks:
                 other_ch = random.choice(other_chunks)
                 other_sents = split_into_sentences(other_ch["text"])
-                other_candidates = [s for s in other_sents if 35 <= len(s) <= 200 and not s.startswith("http")]
+                other_candidates = [s for s in other_sents if is_valid_declarative_sentence(s)]
                 if other_candidates:
+                    nei_sent = other_candidates[0]
+                    nei_win = select_best_evidence_window(nei_sent, ch["text"], max_sentences=2)
                     dataset.append({
                         "pair_id": f"P_NEI_{seen_nei+1}",
-                        "premise": premise_text,
-                        "hypothesis": other_candidates[0],
+                        "premise": chunk_raw,
+                        "chunk_premise": chunk_raw,
+                        "window_premise": nei_win,
+                        "hypothesis": nei_sent,
                         "true_label": "INSUFFICIENT_EVIDENCE",
                         "repo": repo,
                         "url": ch.get("url", ""),
@@ -231,24 +262,51 @@ def main() -> None:
     logger.info("Building automated synthetic perturbation dataset...")
     dataset = build_perturbation_dataset(target_count=100)
 
-    # Score with NLI model
+    # Score with NLI model using Multi-Premise Verification (full chunk and sentence window)
     logger.info("Evaluating %d perturbation pairs with DeBERTa-v3...", len(dataset))
     nli = NLIGuardrail()
-    premises = [d["premise"] for d in dataset]
+    chunk_prems = [d["chunk_premise"] for d in dataset]
+    win_prems = [d["window_premise"] for d in dataset]
     hypotheses = [d["hypothesis"] for d in dataset]
-    scores = nli.predict_pairs(premises, hypotheses, batch_size=16)
+
+    logger.info("Scoring full chunk premises...")
+    scores_chunk = nli.predict_pairs(chunk_prems, hypotheses, batch_size=16)
+    logger.info("Scoring localized window premises...")
+    scores_win = nli.predict_pairs(win_prems, hypotheses, batch_size=16)
     nli.unload_model()
 
-    # Store raw scores on dataset items
-    for item, sc in zip(dataset, scores):
-        item["entailment"] = sc["entailment"]
-        item["contradiction"] = sc["contradiction"]
-        item["neutral"] = sc["neutral"]
+    # Multi-premise selection per pair (matching src.guardrail.verify)
+    scores: list[dict[str, float]] = []
+    winning_types: list[str] = []
+    for sc_c, sc_w, item in zip(scores_chunk, scores_win, dataset):
+        c_max = max(sc_c["entailment"], sc_c["contradiction"])
+        w_max = max(sc_w["entailment"], sc_w["contradiction"])
+        if w_max >= c_max:
+            win_type = "sentence_window"
+            win_score = sc_w
+            item["premise"] = item["window_premise"]
+        else:
+            win_type = "full_chunk"
+            win_score = sc_c
+            item["premise"] = item["chunk_premise"]
+
+        scores.append(win_score)
+        winning_types.append(win_type)
+        item["entailment"] = win_score["entailment"]
+        item["contradiction"] = win_score["contradiction"]
+        item["neutral"] = win_score["neutral"]
+        item["winning_premise_type"] = win_type
 
     classes = ["SUPPORTED", "CONTRADICTED", "INSUFFICIENT_EVIDENCE"]
     y_true = [d["true_label"] for d in dataset]
 
-    # Evaluate at default production threshold (0.80 / 0.80) and ANLI threshold (0.30 / 0.30)
+    # Evaluate single-premise vs multi-premise at production thresholds (0.80 / 0.80)
+    y_pred_single = [
+        apply_dominance_rule(sc["entailment"], sc["contradiction"], tau_s=0.80, tau_c=0.80)
+        for sc in scores_chunk
+    ]
+    metrics_single_prod = compute_metrics(y_true, y_pred_single, classes)
+
     y_pred_prod = [
         apply_dominance_rule(sc["entailment"], sc["contradiction"], tau_s=0.80, tau_c=0.80)
         for sc in scores
@@ -261,7 +319,7 @@ def main() -> None:
     ]
     metrics_030 = compute_metrics(y_true, y_pred_030, classes)
 
-    # Threshold sweep
+    # Threshold sweep over multi-premise scores
     tau_s_list = [0.30, 0.50, 0.70, 0.80, 0.90]
     tau_c_list = [0.50, 0.70, 0.80, 0.90]
     sweep_results: list[dict[str, Any]] = []
@@ -270,8 +328,6 @@ def main() -> None:
         for tc in tau_c_list:
             preds = [apply_dominance_rule(sc["entailment"], sc["contradiction"], ts, tc) for sc in scores]
             m = compute_metrics(y_true, preds, classes)
-            # Easy/hard false support proxies from dataset:
-            # How many true NEI were marked SUPPORTED?
             nei_false_support = sum(1 for yt, yp in zip(y_true, preds) if yt == "INSUFFICIENT_EVIDENCE" and yp == "SUPPORTED")
             con_false_support = sum(1 for yt, yp in zip(y_true, preds) if yt == "CONTRADICTED" and yp == "SUPPORTED")
             sup_pass = sum(1 for yt, yp in zip(y_true, preds) if yt == "SUPPORTED" and yp == "SUPPORTED")
@@ -335,6 +391,7 @@ def main() -> None:
         "caveat": "synthetic perturbation test; labels are known by construction; claims are easier and more templated than real LLM output; not a substitute for human review.",
         "sample_size": len(dataset),
         "production_thresholds": {"tau_s": 0.80, "tau_c": 0.80, "metrics": metrics_prod},
+        "single_chunk_premise_thresholds": {"tau_s": 0.80, "tau_c": 0.80, "metrics": metrics_single_prod},
         "anli_thresholds": {"tau_s": 0.30, "tau_c": 0.30, "metrics": metrics_030},
         "threshold_sweep": sweep_results,
     }
@@ -400,8 +457,15 @@ def main() -> None:
     print("  STAGE 6.6-D: SYNTHETIC PERTURBATION TEST RESULTS")
     print("=" * 70)
     print(f"Total pairs evaluated: {len(dataset)}")
-    print(f"Production Thresholds (0.80 / 0.80): Accuracy = {metrics_prod['accuracy']*100:.2f}%, Macro-F1 = {metrics_prod['macro_f1']:.4f}")
-    print(f"ANLI Thresholds (0.30 / 0.30)      : Accuracy = {metrics_030['accuracy']*100:.2f}%, Macro-F1 = {metrics_030['macro_f1']:.4f}")
+    print(f"Multi-Premise Production (0.80 / 0.80): Accuracy = {metrics_prod['accuracy']*100:.2f}%, Macro-F1 = {metrics_prod['macro_f1']:.4f}")
+    for c in classes:
+        pc = metrics_prod["per_class"][c]
+        print(f"  {c:<22}: Precision = {pc['precision']:.4f}, Recall = {pc['recall']:.4f}, F1 = {pc['f1']:.4f} (Support: {pc['support']})")
+    print(f"\nSingle-Chunk Baseline (0.80 / 0.80) : Accuracy = {metrics_single_prod['accuracy']*100:.2f}%, Macro-F1 = {metrics_single_prod['macro_f1']:.4f}")
+    for c in classes:
+        pc = metrics_single_prod["per_class"][c]
+        print(f"  {c:<22}: Precision = {pc['precision']:.4f}, Recall = {pc['recall']:.4f}, F1 = {pc['f1']:.4f} (Support: {pc['support']})")
+    print(f"\nANLI Thresholds (0.30 / 0.30)        : Accuracy = {metrics_030['accuracy']*100:.2f}%, Macro-F1 = {metrics_030['macro_f1']:.4f}")
     print(f"Sampled 30 claims to {claims_csv_path}")
     print(f"Saved reports to {out_json} and {out_md}\n")
 

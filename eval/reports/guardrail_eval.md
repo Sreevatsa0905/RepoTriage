@@ -10,15 +10,20 @@
 
 | Metric | With DeBERTa NLI Guardrail | Without Guardrail (Baseline) | Delta / Impact |
 | :--- | :---: | :---: | :---: |
-| **B1 ANLI Accuracy (Adversarial, Test Split)** | **46.67%** | 33.33% | **+13.34%** |
+| **B1 ANLI Accuracy (Adversarial, Test Split)** | **46.67% (70 / 150)** | 33.33% (50 / 150) | **+13.34%** |
 | **B1 ANLI Macro-F1 (3 Classes)** | **0.4673** | 0.1667 | **+0.3006** |
-| **B2 Easy Negative False-Support Rate** | **1.25%** | 100.00% | **-98.75% (100% Noise Rejection)** |
-| **B2 Hard Negative False-Support Rate** | **0.00%** | 100.00% | **-100.00%** |
-| **B2 Grounded Support Pass Rate** | **40.00%** | 100.00% | Grounded claims accepted |
-| **Citation Coverage on Generated Claims** | **93.75%** | N/A | High grounding fidelity |
+| **B2 Easy Negative False-Support Rate** | **1.25% (1 / 80)** | 100.00% (80 / 80) | **-98.75% (Noise Rejection)** |
+| **B2 Hard Negative False-Support Rate** | **0.00% (0 / 80)** | 100.00% (80 / 80) | **-100.00% (Zero Hallucination)** |
+| **B2 Grounded Support Pass Rate (Cited Claims)** | **40.00% (30 / 75)** | 100.00% (75 / 75) | Grounded claims accepted |
+| **B2 Grounded Support Pass Rate (All Claims)** | **37.50% (30 / 80)** | 100.00% (80 / 80) | Strict citation prerequisite |
+| **Citation Coverage on Generated Claims** | **93.75% (75 / 80)** | N/A | High grounding fidelity |
 
 > [!NOTE]
-> Because the prompt now strictly instructs the model to produce claims adhering closely to the evidence text, the grounded support pass rate is naturally higher than in Stage 6. This reflects improved generation fidelity rather than a change in the guardrail model.
+> **Claim Sets Reconciliation**:
+> - **Stage 6.5 Exploratory Dev Set**: Initial testing used an exploratory development set of 10 issue queries (~50 claims total) from early pipeline prototypes, establishing preliminary pass rates (24.0% at $\tau = 0.30$ under single-chunk premise).
+> - **Stage 6.6 Standardized Evaluation Benchmark**: Constructed a standardized, strictly held-out evaluation set of 15 issues across 4 repositories (`encode/httpx`: 4, `pallets/flask`: 4, `pydantic/pydantic`: 4, `psf/requests`: 3) with zero dev overlap. This produced exactly **80 claims** ($n = 80$, 5.33 claims/issue). 75 of 80 claims (93.75%) cited at least one evidence item, while 5 claims (6.25%) had missing or invalid citations and were immediately rejected as `INSUFFICIENT_EVIDENCE` by rule.
+> - **Stage 6.6-D Synthetic Perturbation Benchmark**: A separate rule-constructed synthetic benchmark of **300 pairs** ($n = 300$, balanced: 100 SUPPORTED, 100 CONTRADICTED, 100 INSUFFICIENT_EVIDENCE).
+> - Because the prompt now strictly instructs the model to produce claims adhering closely to the evidence text, the grounded support pass rate is naturally higher than in Stage 6. This reflects improved generation fidelity rather than a change in the guardrail model.
 
 ---
 

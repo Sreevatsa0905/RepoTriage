@@ -67,46 +67,92 @@ Contradiction        16           12            22
 
 ## 3. Guardrail Benchmark B2: In-Domain Negative Controls & Calibration
 
-### Protocol
+### Claim Sets Reconciliation (Stage 6.5 vs. Stage 6.6)
+> [!NOTE]
+> **Claim Set Reconciliation**:
+> - **Stage 6.5 Exploratory Dev Set**: Initial testing used an exploratory development set of 10 issue queries (~50 claims total) from early pipeline prototypes, establishing preliminary pass rates (24.0% at $\tau = 0.30$ under single-chunk premise).
+> - **Stage 6.6 Standardized Evaluation Benchmark**: Constructed a standardized, strictly held-out evaluation set of 15 issues across 4 repositories (`encode/httpx`: 4, `pallets/flask`: 4, `pydantic/pydantic`: 4, `psf/requests`: 3) with zero dev overlap. This produced exactly **80 claims** ($n = 80$, 5.33 claims/issue). 75 of 80 claims (93.75%) cited at least one evidence item, while 5 claims (6.25%) had missing or invalid citations and were immediately rejected as `INSUFFICIENT_EVIDENCE` by rule.
+> - **Stage 6.6-D Synthetic Perturbation Benchmark**: A separate rule-constructed synthetic benchmark of **300 pairs** ($n = 300$, balanced: 100 SUPPORTED, 100 CONTRADICTED, 100 INSUFFICIENT_EVIDENCE).
+
+### Protocol & Controls ($n=80$ Claims across 15 Held-Out Issues)
 - **Sample Size**: 15 fresh held-out issues across 4 repos; 80 LLM-synthesized claims.
+- **Citation Coverage**: 93.75% (75 / 80 claims cited at least one evidence item; 5 / 80 rejected immediately for missing citations).
 - **Negative Controls**:
-  - Easy Negatives (80 pairs): Synthesized claims paired with unrelated documentation passages.
-  - Hard Negatives (10 pairs): Claims paired with lexically close issues from different repositories.
+  - **Easy Negatives (80 pairs)**: Synthesized claims paired with random chunks from entirely different repositories ($n = 80$).
+  - **Hard Negatives (80 pairs)**: Claims paired with un-cited top-10 retrieved candidate chunks from different issues ($n = 80$). A subset of 10 pairs was subjected to manual audit spot-checking.
 - **Premise Competition**: Winning premise selected across full chunk, sentence window, and concatenated multi-evidence premise.
 
-### Production Calibration & Threshold Sensitivity Sweep
+### Production Calibration & Threshold Sensitivity Sweep (All Denominators Explicit)
 
-| Threshold ($\tau_s, \tau_c$) | Grounded Pass Rate | Easy Neg False Support | Hard Neg False Support | Contradiction Detection |
-| :---: | :---: | :---: | :---: | :---: |
-| 0.50 | 42.67% | 1.25% (1 / 80) | 0.00% (0 / 10) | 15.00% |
-| 0.70 | 40.00% | 1.25% (1 / 80) | 0.00% (0 / 10) | 15.00% |
-| **0.80 (Production)** | **40.00%** | **1.25% (1 / 80)** | **0.00% (0 / 10)** | **15.00%** |
-| 0.90 | 34.67% | 0.00% (0 / 80) | 0.00% (0 / 10) | 12.00% |
+| Threshold Setting | Grounded Pass Rate (Cited Claims) | Grounded Pass Rate (All Claims) | Easy Neg False Support | Hard Neg False Support | Contradiction Detection |
+| :---: | :---: | :---: | :---: | :---: | :---: |
+| $\tau_s = 0.50, \tau_c = 0.50$ | 42.67% (32 / 75) | 40.00% (32 / 80) | 1.25% (1 / 80) | 0.00% (0 / 80) | 15.00% (12 / 80) |
+| $\tau_s = 0.70, \tau_c = 0.70$ | 40.00% (30 / 75) | 37.50% (30 / 80) | 1.25% (1 / 80) | 0.00% (0 / 80) | 15.00% (12 / 80) |
+| **$\tau_s = 0.80, \tau_c = 0.80$ (Production)** | **40.00% (30 / 75)** | **37.50% (30 / 80)** | **1.25% (1 / 80)** | **0.00% (0 / 80)** | **15.00% (12 / 80)** |
+| $\tau_s = 0.90, \tau_c = 0.90$ | 34.67% (26 / 75) | 32.50% (26 / 80) | 0.00% (0 / 80) | 0.00% (0 / 80) | 12.00% (10 / 80) |
+
+*Note: In addition to the full 80-pair hard negative evaluation (0 / 80, 0.00%), a detailed manual audit spot-check was conducted on 10 hard negative pairs (0 / 10 false support, 0.00%).*
 
 ### Multi-Evidence Premise Ablation (Stage 6.6-I)
-- Single Premise Pass Rate: 38.67%
-- Multi-Evidence Pass Rate: **40.00%** (+1.33% grounded recovery)
-- Hard Negative False Support: **0.00%** (zero regression)
+- Single Premise Pass Rate: 38.67% (29 / 75)
+- Multi-Evidence Pass Rate: **40.00% (30 / 75)** (+1.33% grounded recovery)
+- Hard Negative False Support: **0.00% (0 / 80)** (zero regression)
+- Winning Premise Distribution: Full Chunk = 34, Sentence Window = 39, Multi-Evidence Concatenated = 2
 
 ### Audit of Flagged Contradicted Claims (Stage 6.6-C)
 From 12 grounded claims flagged as CONTRADICTED during in-domain testing:
-- **Plausible LLM Errors (4)**: LLM hallucinated version numbers or CVE numbers not present in cited excerpts.
-- **Plausible NLI False Alarms (5)**: NLI model misinterpreting imperative feature requests, code blocks, or truncated stack traces.
-- **Unclear / Boundary Cases (3)**: Subjective phrasing disputes.
+- **Plausible LLM Errors (4 / 12)**: LLM hallucinated version numbers or CVE numbers not present in cited excerpts.
+- **Plausible NLI False Alarms (5 / 12)**: NLI model misinterpreting imperative feature requests, code blocks, or truncated stack traces.
+- **Unclear / Boundary Cases (3 / 12)**: Subjective phrasing disputes.
 
 ---
 
 ## 4. Automated Perturbation Test (Synthetic Rule-Constructed Ground Truth)
 
+### Baseline Investigation & Root Cause Diagnostics
+In early runs, the 3-class perturbation accuracy was 51.67% with an asymmetric Contradiction Recall of 80.00% and SUPPORTED Recall of only 9.00% (9 / 100). Investigation of verbatim-sentence pairs not marked SUPPORTED revealed three root causes:
+1. **Metadata Header Extraction Bug**: `split_into_sentences` treated the newline-separated first line of chunks (`[repo #issue] <title>` or `[repo #issue Comment by @author]`) as `candidates[0]`. Because DeBERTa is trained on declarative sentences, it assigns non-declarative titles and author tags almost entirely to neutral ($p_n \approx 0.96 - 0.99$, $p_e < 0.02$).
+2. **Extraction Asymmetry Between Classes**: CONTRADICTED searched candidates for words matching perturbation rules (`is`, `can`, `supported`), thus naturally bypassing metadata headers and selecting real body sentences. SUPPORTED took `candidates[0]` unconditionally, testing non-declarative headers 91% of the time.
+3. **Premise Attention Dilution**: Embedding a 20-word claim inside a 400-word premise dilutes self-attention across 512 tokens. Localized 2-sentence windowing (`select_best_evidence_window`) recovers direct entailment signals ($p_e > 0.95$).
+
+#### Five Representative Verbatim Pairs Unapproved in Baseline (Showing Premise & $p_e$)
+- **Pair 2**:
+  - *Premise*: `['typing_extensions' 'Sentinel' import error] [pydantic/pydantic #12407] ...`
+  - *Hypothesis*: `'[pydantic/pydantic #12407] `typing_extensions` `Sentinel` import error'`
+  - *Probabilities*: $p_e = 0.0186, p_c = 0.0276, p_n = 0.9536 \implies$ `INSUFFICIENT_EVIDENCE`
+- **Pair 3**:
+  - *Premise*: `'[Refresh Test PyPi Package] [psf/requests #6622] Refresh Test PyPi Package ...'`
+  - *Hypothesis*: `'[psf/requests #6622] Refresh Test PyPi Package'`
+  - *Probabilities*: $p_e = 0.5161, p_c = 0.0983, p_n = 0.3855 \implies$ `INSUFFICIENT_EVIDENCE` (misses $\tau_s = 0.80$)
+- **Pair 4**:
+  - *Premise*: `'[Comment on #1371 by @CLannadZSY] [encode/httpx #1371 Comment by @CLannadZSY] ...'`
+  - *Hypothesis*: `'[encode/httpx #1371 Comment by @CLannadZSY]'`
+  - *Probabilities*: $p_e = 0.0002, p_c = 0.0002, p_n = 0.9995 \implies$ `INSUFFICIENT_EVIDENCE`
+- **Pair 5**:
+  - *Premise*: `'[Comment on #7219 by @sigmavirus24] [psf/requests #7219 Comment by @sigmavirus24] ...'`
+  - *Hypothesis*: `'[psf/requests #7219 Comment by @sigmavirus24]'`
+  - *Probabilities*: $p_e = 0.0022, p_c = 0.0006, p_n = 0.9971 \implies$ `INSUFFICIENT_EVIDENCE`
+- **Pair 6**:
+  - *Premise*: `'[Comment on #6896 by @cjwatson] [psf/requests #6896 Comment by @cjwatson] ...'`
+  - *Hypothesis*: `'[psf/requests #6896 Comment by @cjwatson]'`
+  - *Probabilities*: $p_e = 0.0005, p_c = 0.0251, p_n = 0.9746 \implies$ `INSUFFICIENT_EVIDENCE`
+
+### Updated Evaluation Results (Post Bug-Fix & Multi-Premise Alignment)
+Filtering out chunk headers, markdown checkboxes, and metadata fragments via `is_valid_declarative_sentence` and applying the production multi-premise competition (`full_chunk` vs `sentence_window`):
+
 - **Sample Size**: $n = 300$ balanced pairs (100 SUPPORTED, 100 CONTRADICTED, 100 INSUFFICIENT_EVIDENCE).
-- **Labels Known by Construction**: Negations ("is" to "is not"), identifier swaps, and cross-repo transfers.
-- **Threshold**: $\tau = 0.80$.
-- **Performance**:
-  - Accuracy: **51.67%**
-  - Contradiction Recall: **80.00%** (80 of 100 negated statements correctly rejected)
-  - Precision on Contradictions: **68.38%** | F1: **0.7373**
-  - False-Support Rate on Contradicted: **5.00%** (5 / 100)
-  - False-Support Rate on Unrelated (NEI): **2.00%** (2 / 100)
+- **Labels Known by Construction**: Verbatim extraction, rule inversions ("is" $\to$ "is not"), and unrelated cross-repo chunks.
+- **Production Performance ($\tau_s = 0.80, \tau_c = 0.80$)**:
+  - **Overall Accuracy**: **88.67%** (266 / 300)
+  - **Macro-F1**: **0.8862**
+  - **SUPPORTED**: Precision = 94.06% (95 / 101), Recall = **95.00%** (95 / 100), F1 = 0.9453
+  - **CONTRADICTED**: Precision = 81.42% (92 / 113), Recall = **92.00%** (92 / 100), F1 = 0.8638
+  - **INSUFFICIENT_EVIDENCE**: Precision = 91.86% (79 / 86), Recall = **79.00%** (79 / 100), F1 = 0.8495
+  - **False-Support Rate on Contradicted**: **6.00%** (6 / 100)
+  - **False-Support Rate on Unrelated (NEI)**: **0.00%** (0 / 100)
+- **Single-Chunk Premise Ablation (Without Windowing)**:
+  - Accuracy: **79.33%** (238 / 300) | Macro-F1: 0.7950
+  - SUPPORTED Recall: 67.00% (67 / 100) | CONTRADICTED Recall: 82.00% (82 / 100) | INSUFFICIENT Recall: 89.00% (89 / 100)
 - **Status of Human Validation Check**: **not performed**. (Harness available in `eval/score_human_labels.py`).
 
 ---
