@@ -47,6 +47,19 @@ class TestEvaluation(unittest.TestCase):
         self.assertAlmostEqual(cross["mean_macro_f1"], 0.70, places=4)
         self.assertAlmostEqual(cross["mean_accuracy"], 0.70, places=4)
 
+    def test_guardrail_metrics_computation(self):
+        from eval.run_guardrail_eval import compute_classification_metrics
+        y_true = ["SUPPORTED", "CONTRADICTED", "INSUFFICIENT_EVIDENCE", "SUPPORTED"]
+        y_pred = ["SUPPORTED", "CONTRADICTED", "SUPPORTED", "SUPPORTED"]
+        classes = ["SUPPORTED", "CONTRADICTED", "INSUFFICIENT_EVIDENCE"]
+
+        metrics = compute_classification_metrics(y_true, y_pred, classes)
+        self.assertEqual(metrics["accuracy"], 0.75)
+        self.assertIn("macro_f1", metrics)
+        self.assertIn("confusion_matrix", metrics)
+        self.assertEqual(len(metrics["confusion_matrix"]), 3)
+
+
 
 if __name__ == "__main__":
     unittest.main()

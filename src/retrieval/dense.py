@@ -90,7 +90,10 @@ class DenseRetriever:
         if self._model is None:
             from sentence_transformers import SentenceTransformer
             logger.info("Loading dense model %s on %s...", self.model_name, self.device)
-            self._model = SentenceTransformer(self.model_name, device=self.device)
+            kwargs: dict[str, Any] = {}
+            if self.device == "cuda":
+                kwargs["model_kwargs"] = {"torch_dtype": torch.float16}
+            self._model = SentenceTransformer(self.model_name, device=self.device, **kwargs)
         return self._model
 
     def unload_model(self) -> None:

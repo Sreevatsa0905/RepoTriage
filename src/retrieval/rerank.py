@@ -43,8 +43,11 @@ class Reranker:
         """Lazy loader for CrossEncoder model."""
         if self._model is None:
             from sentence_transformers import CrossEncoder
-            logger.info("Loading reranker %s on %s...", self.model_name, self.device)
-            self._model = CrossEncoder(self.model_name, device=self.device)
+            logger.info("Loading reranker %s on %s (max_length=512)...", self.model_name, self.device)
+            kwargs: dict[str, Any] = {"max_length": 512}
+            if self.device == "cuda":
+                kwargs["model_kwargs"] = {"torch_dtype": torch.float16}
+            self._model = CrossEncoder(self.model_name, device=self.device, **kwargs)
         return self._model
 
     def unload_model(self) -> None:
@@ -88,9 +91,17 @@ class Reranker:
             return []
 
         model = self._get_model()
-        pairs = [[query, c["text"]] for c in pool]
+        pairs = []
+        for c in pool:
+            heading = (c.get("heading") or "").strip()
+            text = (c.get("text") or "").strip()
+            if heading and not text.startswith(heading):
+                passage = f"{heading}\n{text}"
+            else:
+                passage = text
+            pairs.append([query, passage])
 
-        scores = model.predict(pairs, show_progress_bar=False)
+        scores = model.predict(pairs, show_progress_bar=False, convert_to_numpy=True)
 
         # Sort pool by cross-encoder score descending
         scored_candidates = []

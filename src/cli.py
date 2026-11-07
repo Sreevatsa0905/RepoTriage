@@ -170,6 +170,151 @@ def handle_search(args: argparse.Namespace) -> int:
     return 0
 
 
+def handle_analyze(args: argparse.Namespace) -> int:
+    """Execute end-to-end issue triage, structured generation, and NLI claim verification."""
+    from src.pipeline import RepoTriagePipeline
+
+    text = (args.text or "").strip()
+    issue_url = (args.issue or "").strip() or None
+    repo = _normalize_repo_arg(args.repo)
+
+    if not text and not issue_url:
+        print("Error: Provide issue text as a positional argument or use --issue <url>.", file=sys.stderr)
+        return 1
+
+    print("\n" + "=" * 80)
+    print("  REPOTRIAGE: LOCAL GITHUB ISSUE INTELLIGENCE & RESOLUTION COPILOT")
+    print("=" * 80)
+    if issue_url:
+        print(f"  Issue URL : {issue_url}")
+    if repo:
+        print(f"  Repository: {repo}")
+    if text:
+        preview = text.split("\n", 1)[0][:80]
+        print(f"  Query Text: {preview}...")
+    print("-" * 80)
+    print("  Executing: Classification -> Hybrid Retrieval -> Ollama Synthesis -> NLI Guardrail...")
+
+    pipeline = RepoTriagePipeline()
+    try:
+        report = pipeline.analyze(text=text, repo=repo, issue_url=issue_url, save_trace=True)
+    except Exception as e:
+        print(f"\nAnalysis failed: {e}", file=sys.stderr)
+        return 1
+
+    # 1. Classification Output
+    clf = report["classification"]
+    label = clf["label"].upper()
+    conf = clf["confidence"]
+    print("\n" + "─" * 80)
+    print(f"  1. PREDICTED ISSUE TYPE: [{label}] (Confidence: {conf:.4f})")
+    print("─" * 80)
+    score_parts = [f"{k}: {v:.3f}" for k, v in clf["scores"].items()]
+    print(f"     Scores: {' | '.join(score_parts)}")
+    benchmarks = clf["benchmark_metrics"]
+    print(f"     Benchmarks: Pooled Macro-F1: {benchmarks['pooled_test_macro_f1']} | Cold-Start: {benchmarks['cold_start_macro_f1']}")
+
+    # 2. Similar Issues
+    issues = report.get("similar_issues", [])
+    print("\n" + "─" * 80)
+    print(f"  2. TOP SIMILAR PAST ISSUES ({len(issues)} retrieved)")
+    print("─" * 80)
+    if not issues:
+        print("     (No past issue evidence retrieved)")
+    else:
+        for it in issues:
+            eid = it["evidence_id"]
+            num = it.get("number", "?")
+            head = it.get("heading", "")
+            score = it.get("score", 0.0)
+            url = it.get("url") or ""
+            print(f"     • [{eid}] #{num}: {head}")
+            print(f"       Score: {score:.4f} | URL: {url}")
+
+    # 3. Relevant Docs
+    docs = report.get("doc_excerpts", [])
+    print("\n" + "─" * 80)
+    print(f"  3. RELEVANT DOCUMENTATION EXCERPTS ({len(docs)} retrieved)")
+    print("─" * 80)
+    if not docs:
+        print("     (No doc excerpts retrieved)")
+    else:
+        for d in docs:
+            eid = d["evidence_id"]
+            fpath = d.get("file_path", "")
+            head = d.get("heading", "")
+            score = d.get("score", 0.0)
+            print(f"     • [{eid}] {fpath} > {head} (Score: {score:.4f})")
+
+    # 4. Structured Analysis
+    ana = report["analysis"]
+    print("\n" + "─" * 80)
+    print("  4. STRUCTURED ISSUE TRIAGE & RESOLUTION")
+    print("─" * 80)
+    print(f"  Summary: {ana.get('issue_summary', '')}")
+    if ana.get("affected_components"):
+        print(f"  Affected Components: {', '.join(ana['affected_components'])}")
+    if ana.get("observed_symptoms"):
+        print(f"  Observed Symptoms: {', '.join(ana['observed_symptoms'])}")
+    print(f"  Environment: {ana.get('environment_details', 'not established')}")
+
+    if ana.get("likely_causes"):
+        print("\n  Likely Technical Causes:")
+        for cause in ana["likely_causes"]:
+            print(f"    • {cause}")
+
+    if ana.get("recommended_diagnostics"):
+        print("\n  Recommended Diagnostic Steps:")
+        for diag in ana["recommended_diagnostics"]:
+            print(f"    • {diag}")
+
+    if ana.get("recommended_next_steps"):
+        print("\n  Recommended Next Steps & Fix:")
+        for nxt in ana["recommended_next_steps"]:
+            print(f"    • {nxt}")
+
+    if ana.get("limitations"):
+        print(f"\n  Limitations: {ana['limitations']}")
+
+    # 5. Verified Claims List with NLI Guardrail Badges
+    claims = report.get("verified_claims", [])
+    print("\n" + "─" * 80)
+    print(f"  5. VERIFIED FACTUAL CLAIMS & NLI GUARDRAIL VERDICTS ({len(claims)} claims)")
+    print("─" * 80)
+    for c in claims:
+        verdict = c["verdict"]
+        cid = c["claim_id"]
+        text_claim = c["text"]
+        cites = ", ".join(c["evidence_ids"]) if c["evidence_ids"] else "None (ungrounded)"
+        p_e = c.get("entailment_score", 0.0)
+        p_c = c.get("contradiction_score", 0.0)
+
+        if verdict == "SUPPORTED":
+            badge = "[SUPPORTED]"
+        elif verdict == "CONTRADICTED":
+            badge = "[CONTRADICTED]"
+        else:
+            badge = "[INSUFFICIENT_EVIDENCE]"
+
+        print(f"\n     {badge:<24} | {cid} (Cites: {cites})")
+        print(f"     Statement : \"{text_claim}\"")
+        print(f"     NLI Scores: Entailment={p_e:.4f}, Contradiction={p_c:.4f}")
+        if c.get("best_excerpt"):
+            print(f"     Evidence  : \"{c['best_excerpt'][:160]}...\"")
+
+    timings = report.get("timings_ms", {})
+    print("\n" + "─" * 80)
+    print("  PERFORMANCE TIMINGS:")
+    print(f"     Classifier: {timings.get('classifier_ms', 0)} ms | Retrieval: {timings.get('retrieval_ms', 0)} ms")
+    print(f"     Ollama Gen: {timings.get('generation_ms', 0)} ms | NLI Guard: {timings.get('guardrail_ms', 0)} ms")
+    print(f"     Total Pipeline Latency: {timings.get('total_ms', 0)} ms ({timings.get('total_ms', 0)/1000:.2f} s)")
+    if report.get("trace_file"):
+        print(f"  Execution Trace: {report['trace_file']}")
+    print("=" * 80 + "\n")
+
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="python -m src.cli",
@@ -257,6 +402,31 @@ def build_parser() -> argparse.ArgumentParser:
         help="Retrieval method (default: hybrid_rerank)",
     )
 
+    # Subcommand: analyze
+    analyze_parser = subparsers.add_parser(
+        "analyze",
+        help="Analyze an issue with classification, hybrid retrieval, LLM synthesis, and NLI verification.",
+    )
+    analyze_parser.add_argument(
+        "text",
+        type=str,
+        nargs="?",
+        default="",
+        help="Issue title/description text to analyze",
+    )
+    analyze_parser.add_argument(
+        "--repo",
+        type=str,
+        default=None,
+        help="Target repository filter (e.g. pydantic/pydantic, encode/httpx, pallets/flask, psf/requests)",
+    )
+    analyze_parser.add_argument(
+        "--issue",
+        type=str,
+        default=None,
+        help="Direct GitHub issue URL to analyze (e.g. https://github.com/owner/repo/issues/123)",
+    )
+
     return parser
 
 
@@ -270,6 +440,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         return handle_ingest(args)
     if args.command == "search":
         return handle_search(args)
+    if args.command == "analyze":
+        return handle_analyze(args)
 
     parser.print_help()
     return 1

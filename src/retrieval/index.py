@@ -11,7 +11,7 @@ import logging
 import sqlite3
 import time
 from pathlib import Path
-from typing import Any, Literal
+from typing import Any, Literal, Sequence
 
 from src.retrieval.bm25 import BM25Retriever
 from src.retrieval.dense import DenseRetriever
@@ -24,6 +24,38 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 DB_PATH = PROJECT_ROOT / "data" / "processed" / "repotriage.db"
 
 RetrievalMethod = Literal["bm25", "dense", "hybrid", "hybrid_rerank"]
+
+
+def deduplicate_evidence_candidates(
+    candidates: Sequence[dict[str, Any]],
+    top_k: int | None = None,
+) -> list[dict[str, Any]]:
+    """
+    Collapse issue and comment results to unique parent issue_number (keeping the best-ranked
+    chunk per issue), while deduplicating doc chunks by file_path + heading so doc chunks with
+    issue_number=None are not collapsed together.
+    """
+    seen_issues: set[int] = set()
+    seen_docs: set[tuple[str | None, str | None]] = set()
+    deduped: list[dict[str, Any]] = []
+
+    for c in candidates:
+        issue_num = c.get("issue_number")
+        if issue_num is not None:
+            if issue_num in seen_issues:
+                continue
+            seen_issues.add(issue_num)
+        else:
+            doc_key = (c.get("file_path"), c.get("heading"))
+            if doc_key in seen_docs:
+                continue
+            seen_docs.add(doc_key)
+
+        deduped.append(c)
+        if top_k is not None and len(deduped) >= top_k:
+            break
+
+    return deduped
 
 
 class HybridRetriever:
@@ -171,27 +203,30 @@ class HybridRetriever:
             t_dense = time.perf_counter() - t0
 
         if method == "bm25":
-            final_results = bm25_results[:top_k]
+            final_results = deduplicate_evidence_candidates(bm25_results, top_k=top_k)
             for idx, item in enumerate(final_results, 1):
                 item["evidence_id"] = f"E{idx}"
         elif method == "dense":
-            final_results = dense_results[:top_k]
+            final_results = deduplicate_evidence_candidates(dense_results, top_k=top_k)
             for idx, item in enumerate(final_results, 1):
                 item["evidence_id"] = f"E{idx}"
         elif method == "hybrid":
             t0 = time.perf_counter()
             fused_results = reciprocal_rank_fusion(bm25_results, dense_results, k=60, top_k=50)
             t_rrf = time.perf_counter() - t0
-            final_results = fused_results[:top_k]
+            final_results = deduplicate_evidence_candidates(fused_results, top_k=top_k)
             for idx, item in enumerate(final_results, 1):
                 item["evidence_id"] = f"E{idx}"
         elif method == "hybrid_rerank":
             t0 = time.perf_counter()
-            fused_results = reciprocal_rank_fusion(bm25_results, dense_results, k=60, top_k=30)
+            fused_results = reciprocal_rank_fusion(bm25_results, dense_results, k=60, top_k=50)
             t_rrf = time.perf_counter() - t0
 
+            # Deduplicate fused candidates by parent issue / doc before reranking pool
+            deduped_fused = deduplicate_evidence_candidates(fused_results)
+
             t0 = time.perf_counter()
-            final_results = self.reranker.rerank(query, fused_results, candidate_pool=25, top_k=top_k)
+            final_results = self.reranker.rerank(query, deduped_fused, candidate_pool=25, top_k=top_k)
             t_rerank = time.perf_counter() - t0
 
         total_latency_ms = (time.perf_counter() - start_time) * 1000.0
