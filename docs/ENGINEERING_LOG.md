@@ -2,7 +2,10 @@
 
 **Last Updated**: November 2026  
 **Specification**: `RepoTriage_SPEC.md`  
-**Status**: Complete
+**Status**: Complete  
+
+> [!NOTE]
+> **Chronological log**: Later sections supersede earlier figures; final numbers are in [EVALUATION.md](../EVALUATION.md) and `eval/reports/*.json`.
 
 ---
 
