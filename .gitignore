@@ -44,3 +44,7 @@ tmp/
 Thumbs.db
 
 .vscode/
+
+# Node / Frontend
+frontend/node_modules/
+frontend/dist/

@@ -1,0 +1,13 @@
+# RepoTriage Direct Dependencies
+torch==2.6.0+cu124
+transformers==5.22.1
+sentence-transformers==6.2.0
+rank-bm25==0.2.2
+scikit-learn==1.9.1
+joblib==1.6.0
+pydantic==2.14.3
+fastapi==0.162.0
+uvicorn==0.54.0
+requests==2.34.2
+numpy==2.5.4
+tqdm==4.70.1

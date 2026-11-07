@@ -26,6 +26,7 @@ Per Stage 6.5 Specification:
 
 from __future__ import annotations
 
+import csv
 import gc
 import json
 import logging
@@ -44,6 +45,7 @@ from src.guardrail.nli import NLIGuardrail
 from src.guardrail.verify import (
     apply_dominance_rule,
     build_candidate_premises,
+    build_multi_evidence_premise,
     select_best_evidence_window,
 )
 from src.retrieval.index import HybridRetriever
@@ -251,116 +253,129 @@ def run_b2_fresh_eval(
     Phase 1: Ollama claim generation -> Ollama unload (keep_alive: 0).
     Phase 2: NLI evaluation using multi-premise candidate scoring.
     """
-    logger.info("=== B2 Phase 1: Generating claims with Ollama (qwen3.5:4b) ===")
-    retriever = HybridRetriever()
-    all_chunks = retriever.chunks
-    ollama_client = OllamaClient()
-
+    claims_cache_file = REPORTS_DIR / "b2_harvested_claims.json"
     harvested_claims: list[dict[str, Any]] = []
 
-    for q_idx, q in enumerate(fresh_queries, 1):
-        repo = q["repo"]
-        q_num = q["query_number"]
-        q_text = q["query_text"]
+    if claims_cache_file.exists():
+        logger.info("Loading cached fresh B2 claims from %s...", claims_cache_file)
+        with open(claims_cache_file, "r", encoding="utf-8") as f:
+            harvested_claims = json.load(f)
+    else:
+        logger.info("=== B2 Phase 1: Generating claims with Ollama (qwen3.5:4b) ===")
+        retriever = HybridRetriever()
+        all_chunks = retriever.chunks
+        ollama_client = OllamaClient()
 
-        logger.info("[%d/15] Generating claims for %s#%d...", q_idx, repo, q_num)
+        for q_idx, q in enumerate(fresh_queries, 1):
+            repo = q["repo"]
+            q_num = q["query_number"]
+            q_text = q["query_text"]
 
-        # Exclude self and future issues during retrieval for fair evaluation
-        retriever.reload_corpus(
-            repo=repo,
-            exclude_issue_number=q_num,
-            max_created_at=q.get("created_at"),
-        )
+            logger.info("[%d/15] Generating claims for %s#%d...", q_idx, repo, q_num)
 
-        # Retrieve top 4 issues + top 2 docs
-        issue_items = retriever.search(
-            query=q_text,
-            repo=repo,
-            top_k=4,
-            method="hybrid_rerank",
-            source_types=["issue", "comment"],
-            rerank_alpha=0.50,
-        )
-        doc_items = retriever.search(
-            query=q_text,
-            repo=repo,
-            top_k=2,
-            method="hybrid_rerank",
-            source_types=["doc"],
-            rerank_alpha=0.50,
-        )
-        evidence_items = list(issue_items) + list(doc_items)
-        for idx, item in enumerate(evidence_items, 1):
-            item["evidence_id"] = f"E{idx}"
-
-        ev_dict = {e["evidence_id"]: e for e in evidence_items}
-
-        # Also get top 10 issues for hard negative extraction
-        top_10 = retriever.search(
-            query=q_text,
-            repo=repo,
-            top_k=10,
-            method="hybrid_rerank",
-            source_types=["issue", "comment"],
-            rerank_alpha=0.50,
-        )
-
-        try:
-            analysis_result, _ = ollama_client.generate_analysis(
-                issue_text=q_text,
+            # Exclude self and future issues during retrieval for fair evaluation
+            retriever.reload_corpus(
                 repo=repo,
-                evidence_items=evidence_items,
-                auto_unload=False,
+                exclude_issue_number=q_num,
+                max_created_at=q.get("created_at"),
             )
 
-            for c in analysis_result.claims:
-                cited_eids = [eid for eid in c.evidence_ids if eid in ev_dict]
-                cited_chunk = ev_dict[cited_eids[0]] if cited_eids else None
-                cited_chunk_ids = {ev_dict[eid].get("chunk_id") for eid in cited_eids if "chunk_id" in ev_dict[eid]}
+            # Retrieve top 4 issues + top 2 docs
+            issue_items = retriever.search(
+                query=q_text,
+                repo=repo,
+                top_k=4,
+                method="hybrid_rerank",
+                source_types=["issue", "comment"],
+                rerank_alpha=0.50,
+            )
+            doc_items = retriever.search(
+                query=q_text,
+                repo=repo,
+                top_k=2,
+                method="hybrid_rerank",
+                source_types=["doc"],
+                rerank_alpha=0.50,
+            )
+            evidence_items = list(issue_items) + list(doc_items)
+            for idx, item in enumerate(evidence_items, 1):
+                item["evidence_id"] = f"E{idx}"
 
-                # Hard negative: top-10 chunk from a DIFFERENT issue that was not cited
-                hard_neg_chunk = None
-                for h in top_10:
-                    h_issue = h.get("issue_number")
-                    if h_issue is not None and h_issue != q_num:
-                        if h.get("chunk_id") not in cited_chunk_ids:
-                            hard_neg_chunk = h
-                            break
+            ev_dict = {e["evidence_id"]: e for e in evidence_items}
 
-                if hard_neg_chunk is None:
-                    same_repo_other = [
-                        ch for ch in all_chunks
-                        if ch.get("repo") == repo
-                        and ch.get("issue_number") is not None
-                        and ch.get("issue_number") != q_num
-                        and ch.get("chunk_id") not in cited_chunk_ids
-                    ]
-                    if same_repo_other:
-                        hard_neg_chunk = same_repo_other[0]
+            # Also get top 10 issues for hard negative extraction
+            top_10 = retriever.search(
+                query=q_text,
+                repo=repo,
+                top_k=10,
+                method="hybrid_rerank",
+                source_types=["issue", "comment"],
+                rerank_alpha=0.50,
+            )
 
-                # Easy negative: random chunk from an entirely different repository
-                other_chunks = [ch for ch in all_chunks if ch.get("repo") != repo]
-                easy_neg_chunk = random.choice(other_chunks) if other_chunks else random.choice(all_chunks)
+            try:
+                analysis_result, _ = ollama_client.generate_analysis(
+                    issue_text=q_text,
+                    repo=repo,
+                    evidence_items=evidence_items,
+                    auto_unload=False,
+                )
 
-                harvested_claims.append({
-                    "claim_id": f"{repo}#{q_num}_{c.claim_id}",
-                    "repo": repo,
-                    "query_number": q_num,
-                    "claim_text": c.text.strip(),
-                    "has_valid_citation": bool(cited_chunk),
-                    "cited_chunk": cited_chunk,
-                    "easy_neg_chunk": easy_neg_chunk,
-                    "hard_neg_chunk": hard_neg_chunk,
-                })
-        except Exception as e:
-            logger.warning("Generation failed for %s#%d: %s", repo, q_num, e)
+                for c in analysis_result.claims:
+                    cited_eids = [eid for eid in c.evidence_ids if eid in ev_dict]
+                    cited_chunk = ev_dict[cited_eids[0]] if cited_eids else None
+                    cited_chunk_ids = {ev_dict[eid].get("chunk_id") for eid in cited_eids if "chunk_id" in ev_dict[eid]}
 
-    # UNLOAD Ollama from VRAM completely
-    logger.info("Unloading Ollama model to free GPU VRAM...")
-    ollama_client.unload_model()
-    if torch.cuda.is_available():
-        torch.cuda.empty_cache()
-    gc.collect()
+                    # Hard negative: top-10 chunk from a DIFFERENT issue that was not cited
+                    hard_neg_chunk = None
+                    for h in top_10:
+                        h_issue = h.get("issue_number")
+                        if h_issue is not None and h_issue != q_num:
+                            if h.get("chunk_id") not in cited_chunk_ids:
+                                hard_neg_chunk = h
+                                break
+
+                    if hard_neg_chunk is None:
+                        same_repo_other = [
+                            ch for ch in all_chunks
+                            if ch.get("repo") == repo
+                            and ch.get("issue_number") is not None
+                            and ch.get("issue_number") != q_num
+                            and ch.get("chunk_id") not in cited_chunk_ids
+                        ]
+                        if same_repo_other:
+                            hard_neg_chunk = same_repo_other[0]
+
+                    # Easy negative: random chunk from an entirely different repository
+                    other_chunks = [ch for ch in all_chunks if ch.get("repo") != repo]
+                    easy_neg_chunk = random.choice(other_chunks) if other_chunks else random.choice(all_chunks)
+
+                    harvested_claims.append({
+                        "claim_id": f"{repo}#{q_num}_{c.claim_id}",
+                        "repo": repo,
+                        "query_number": q_num,
+                        "claim_text": c.text.strip(),
+                        "has_valid_citation": bool(cited_chunk),
+                        "cited_eids": cited_eids,
+                        "cited_chunks": [ev_dict[eid] for eid in cited_eids if eid in ev_dict],
+                        "cited_chunk": cited_chunk,
+                        "easy_neg_chunk": easy_neg_chunk,
+                        "hard_neg_chunk": hard_neg_chunk,
+                    })
+            except Exception as e:
+                logger.warning("Generation failed for %s#%d: %s", repo, q_num, e)
+
+        # UNLOAD Ollama from VRAM completely
+        logger.info("Unloading Ollama model to free GPU VRAM...")
+        ollama_client.unload_model()
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+        gc.collect()
+
+        REPORTS_DIR.mkdir(parents=True, exist_ok=True)
+        with open(claims_cache_file, "w", encoding="utf-8") as f:
+            json.dump(harvested_claims, f, indent=2, ensure_ascii=False)
+        logger.info("Saved fresh B2 harvested claims to %s", claims_cache_file)
 
     logger.info("=== B2 Phase 2: Running DeBERTa-v3 NLI Verification on %d claims ===", len(harvested_claims))
     nli = NLIGuardrail()
@@ -370,15 +385,27 @@ def run_b2_fresh_eval(
     # (b) Easy negatives (multi-premise)
     # (c) Hard negatives (multi-premise)
 
-    def evaluate_chunks(chunk_key: str) -> tuple[list[dict[str, Any]], dict[str, int]]:
+    def evaluate_chunks(
+        chunk_key: str,
+        allow_multi_evidence: bool = True,
+    ) -> tuple[list[dict[str, Any]], dict[str, int]]:
         """Evaluate a set of claims against a chunk category using multi-premise competition."""
         nli_items: list[tuple[str, str, int, str]] = []  # (premise_text, hypothesis, claim_idx, premise_type)
 
         for idx, item in enumerate(harvested_claims):
-            ch = item[chunk_key]
+            ch = item.get(chunk_key)
             if not ch:
                 continue
             cand_premises = build_candidate_premises(item["claim_text"], ch)
+
+            # Stage 6.6-I: Add multi-evidence concatenated premise if 2+ cited chunks
+            if allow_multi_evidence and chunk_key == "cited_chunk":
+                cited_chunks = item.get("cited_chunks", [])
+                if len(cited_chunks) >= 2:
+                    multi_prem = build_multi_evidence_premise(item["claim_text"], cited_chunks[:3])
+                    if multi_prem:
+                        cand_premises.append(("multi_evidence", multi_prem))
+
             for p_type, p_text in cand_premises:
                 nli_items.append((p_text, item["claim_text"], idx, p_type))
 
@@ -392,7 +419,7 @@ def run_b2_fresh_eval(
             results_by_claim.setdefault(c_idx, []).append((score, p_type, p_text))
 
         final_claim_evals: list[dict[str, Any]] = []
-        premise_type_wins = {"full_chunk": 0, "sentence_window": 0}
+        premise_type_wins = {"full_chunk": 0, "sentence_window": 0, "multi_evidence": 0}
 
         for c_idx, cand_list in results_by_claim.items():
             winning = max(cand_list, key=lambda x: max(x[0]["entailment"], x[0]["contradiction"]))
@@ -400,6 +427,7 @@ def run_b2_fresh_eval(
             premise_type_wins[win_type] = premise_type_wins.get(win_type, 0) + 1
 
             verdict = apply_dominance_rule(win_score["entailment"], win_score["contradiction"], tau_s, tau_c)
+            source_url = harvested_claims[c_idx].get(chunk_key, {}).get("url", "") if harvested_claims[c_idx].get(chunk_key) else ""
             final_claim_evals.append({
                 "claim_idx": c_idx,
                 "claim_text": harvested_claims[c_idx]["claim_text"],
@@ -407,20 +435,116 @@ def run_b2_fresh_eval(
                 "premise_type": win_type,
                 "entailment": win_score["entailment"],
                 "contradiction": win_score["contradiction"],
+                "neutral": win_score["neutral"],
                 "verdict": verdict,
+                "url": source_url,
             })
 
         return final_claim_evals, premise_type_wins
 
-    grounded_evals, grounded_type_wins = evaluate_chunks("cited_chunk")
-    easy_evals, easy_type_wins = evaluate_chunks("easy_neg_chunk")
-    hard_evals, hard_type_wins = evaluate_chunks("hard_neg_chunk")
+    # Run single-premise baseline ("Before" 6.6-I)
+    grounded_evals_before, grounded_wins_before = evaluate_chunks("cited_chunk", allow_multi_evidence=False)
+    # Run multi-evidence premise ("After" 6.6-I)
+    grounded_evals, grounded_type_wins = evaluate_chunks("cited_chunk", allow_multi_evidence=True)
+
+    easy_evals, easy_type_wins = evaluate_chunks("easy_neg_chunk", allow_multi_evidence=False)
+    hard_evals, hard_type_wins = evaluate_chunks("hard_neg_chunk", allow_multi_evidence=False)
 
     # Unload NLI model
     nli.unload_model()
 
     total_claims = len(harvested_claims)
     citation_coverage = sum(1 for c in harvested_claims if c["has_valid_citation"]) / total_claims if total_claims else 0.0
+
+    # Save raw scores
+    raw_scores_data = {
+        "grounded_evals_before_multi_evidence": grounded_evals_before,
+        "grounded_evals_after_multi_evidence": grounded_evals,
+        "easy_neg_evals": easy_evals,
+        "hard_neg_evals": hard_evals,
+    }
+    with open(REPORTS_DIR / "b2_raw_scores.json", "w", encoding="utf-8") as f:
+        json.dump(raw_scores_data, f, indent=2, ensure_ascii=False)
+    logger.info("Saved raw probabilities to %s", REPORTS_DIR / "b2_raw_scores.json")
+
+    # In-domain threshold sweep (Stage 6.6-B)
+    tau_s_list = [0.30, 0.50, 0.70, 0.80, 0.90]
+    tau_c_list = [0.50, 0.70, 0.80, 0.90]
+    threshold_sweep: list[dict[str, Any]] = []
+
+    for ts in tau_s_list:
+        for tc in tau_c_list:
+            sup_cnt = sum(1 for e in grounded_evals if apply_dominance_rule(e["entailment"], e["contradiction"], ts, tc) == "SUPPORTED")
+            con_cnt = sum(1 for e in grounded_evals if apply_dominance_rule(e["entailment"], e["contradiction"], ts, tc) == "CONTRADICTED")
+            easy_fs = sum(1 for e in easy_evals if apply_dominance_rule(e["entailment"], e["contradiction"], ts, tc) == "SUPPORTED")
+            hard_fs = sum(1 for e in hard_evals if apply_dominance_rule(e["entailment"], e["contradiction"], ts, tc) == "SUPPORTED")
+            threshold_sweep.append({
+                "tau_s": ts,
+                "tau_c": tc,
+                "grounded_pass_rate": round(sup_cnt / len(grounded_evals), 4) if grounded_evals else 0.0,
+                "easy_false_support_rate": round(easy_fs / len(easy_evals), 4) if easy_evals else 0.0,
+                "hard_false_support_rate": round(hard_fs / len(hard_evals), 4) if hard_evals else 0.0,
+                "contradicted_rate": round(con_cnt / len(grounded_evals), 4) if grounded_evals else 0.0,
+            })
+
+    # Stage 6.6-C: Audit dump for contradicted claims and any approved easy negative
+    audit_file = REPORTS_DIR / "audit_contradicted.csv"
+    audit_rows = []
+    # 1. Contradicted claims (under tau_c = 0.80 or 0.30)
+    for e in grounded_evals:
+        # Check if contradicted under tau_c = 0.80 or 0.30
+        if e["contradiction"] >= 0.30 and e["contradiction"] > e["entailment"]:
+            audit_rows.append({
+                "pair_type": "grounded_claim",
+                "claim_id": f"claim_{e['claim_idx']}",
+                "claim_text": e["claim_text"],
+                "cited_excerpt": e["premise_text"][:300].replace("\n", " "),
+                "entailment": round(e["entailment"], 4),
+                "contradiction": round(e["contradiction"], 4),
+                "neutral": round(e["neutral"], 4),
+                "source_url": e.get("url", ""),
+                "agent_note": "unclear",  # default
+            })
+    # 2. Approved easy negative pairs
+    for e in easy_evals:
+        if e["verdict"] == "SUPPORTED" or (e["entailment"] >= 0.30 and e["entailment"] > e["contradiction"]):
+            audit_rows.append({
+                "pair_type": "easy_negative",
+                "claim_id": f"easy_neg_{e['claim_idx']}",
+                "claim_text": e["claim_text"],
+                "cited_excerpt": e["premise_text"][:300].replace("\n", " "),
+                "entailment": round(e["entailment"], 4),
+                "contradiction": round(e["contradiction"], 4),
+                "neutral": round(e["neutral"], 4),
+                "source_url": e.get("url", ""),
+                "agent_note": "plausible NLI false alarm",
+            })
+
+    with open(audit_file, "w", encoding="utf-8", newline="") as f:
+        fieldnames = ["pair_type", "claim_id", "claim_text", "cited_excerpt", "entailment", "contradiction", "neutral", "source_url", "agent_note"]
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        for r in audit_rows:
+            writer.writerow(r)
+    logger.info("Saved %d audit items to %s", len(audit_rows), audit_file)
+
+    # Multi-evidence premise comparison (Stage 6.6-I)
+    grounded_sup_before = sum(1 for e in grounded_evals_before if e["verdict"] == "SUPPORTED")
+    grounded_sup_after = sum(1 for e in grounded_evals if e["verdict"] == "SUPPORTED")
+    multi_evidence_comparison = {
+        "before_multi_evidence": {
+            "grounded_pass_rate": round(grounded_sup_before / len(grounded_evals_before), 4) if grounded_evals_before else 0.0,
+            "easy_false_support_rate": round(sum(1 for e in easy_evals if e["verdict"] == "SUPPORTED") / len(easy_evals), 4) if easy_evals else 0.0,
+            "hard_false_support_rate": round(sum(1 for e in hard_evals if e["verdict"] == "SUPPORTED") / len(hard_evals), 4) if hard_evals else 0.0,
+            "premise_wins": grounded_wins_before,
+        },
+        "after_multi_evidence": {
+            "grounded_pass_rate": round(grounded_sup_after / len(grounded_evals), 4) if grounded_evals else 0.0,
+            "easy_false_support_rate": round(sum(1 for e in easy_evals if e["verdict"] == "SUPPORTED") / len(easy_evals), 4) if easy_evals else 0.0,
+            "hard_false_support_rate": round(sum(1 for e in hard_evals if e["verdict"] == "SUPPORTED") / len(hard_evals), 4) if hard_evals else 0.0,
+            "premise_wins": grounded_type_wins,
+        },
+    }
 
     # Grounded support pass rate
     grounded_supported = sum(1 for e in grounded_evals if e["verdict"] == "SUPPORTED")
@@ -493,6 +617,8 @@ def run_b2_fresh_eval(
             "CONTRADICTED": sum(1 for e in grounded_evals if e["verdict"] == "CONTRADICTED"),
             "INSUFFICIENT_EVIDENCE": total_claims - grounded_supported,
         },
+        "threshold_sweep": threshold_sweep,
+        "multi_evidence_comparison": multi_evidence_comparison,
         "spot_check_10_hard_negatives": spot_check_hard,
         "spot_check_10_grounded_claims": spot_check_grounded,
     }
@@ -588,6 +714,29 @@ def generate_guardrail_markdown(
         f"- **SUPPORTED**: {b2_results['action_counts']['SUPPORTED']}",
         f"- **CONTRADICTED**: {b2_results['action_counts']['CONTRADICTED']}",
         f"- **INSUFFICIENT_EVIDENCE**: {b2_results['action_counts']['INSUFFICIENT_EVIDENCE']}",
+        "",
+        "### In-Domain Threshold Calibration Sweep (Stage 6.6-B)",
+        "",
+        "| tau_s | tau_c | Grounded Pass Rate | Easy Neg False-Support | Hard Neg False-Support | Contradicted Rate |",
+        "| :---: | :---: | :---: | :---: | :---: | :---: |",
+    ])
+    for sw in b2_results.get("threshold_sweep", []):
+        lines.append(f"| {sw['tau_s']:.2f} | {sw['tau_c']:.2f} | **{sw['grounded_pass_rate']*100:.2f}%** | {sw['easy_false_support_rate']*100:.2f}% | {sw['hard_false_support_rate']*100:.2f}% | {sw['contradicted_rate']*100:.2f}% |")
+
+    lines.extend([
+        "",
+        "### Multi-Evidence Premise Evaluation: Before vs. After (Stage 6.6-I)",
+        "",
+        "| Configuration | Grounded Pass Rate | Easy Neg False-Support | Hard Neg False-Support | Premise Wins Breakdown |",
+        "| :--- | :---: | :---: | :---: | :--- |",
+    ])
+    comp = b2_results.get("multi_evidence_comparison", {})
+    before_m = comp.get("before_multi_evidence", {})
+    after_m = comp.get("after_multi_evidence", {})
+    lines.append(f"| **Before Multi-Evidence (Single Premise)** | {before_m.get('grounded_pass_rate', 0)*100:.2f}% | {before_m.get('easy_false_support_rate', 0)*100:.2f}% | {before_m.get('hard_false_support_rate', 0)*100:.2f}% | {before_m.get('premise_wins', {})} |")
+    lines.append(f"| **After Multi-Evidence (Concatenated 2+ Items)** | **{after_m.get('grounded_pass_rate', 0)*100:.2f}%** | **{after_m.get('easy_false_support_rate', 0)*100:.2f}%** | **{after_m.get('hard_false_support_rate', 0)*100:.2f}%** | {after_m.get('premise_wins', {})} |")
+
+    lines.extend([
         "",
         "### Spot-Check 1: 10 Hard Negative Audits",
         "",

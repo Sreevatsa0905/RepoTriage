@@ -1,6 +1,6 @@
 {
-  "timestamp": "2026-11-07T08:27:44.416875+00:00",
-  "total_time_seconds": 561.11,
+  "timestamp": "2026-11-07T09:49:25.906256+00:00",
+  "total_time_seconds": 41.81,
   "b1_public_benchmark": {
     "dataset": "facebook/anli (adversarial NLI, out-of-domain)",
     "sample_size": 300,
@@ -104,129 +104,314 @@
   },
   "b2_indomain_control": {
     "dataset_type": "Fresh 15 held-out issues (zero overlap with dev set)",
-    "total_claims_generated": 97,
-    "citation_coverage": 0.9175,
-    "claims_per_issue": 6.47,
+    "total_claims_generated": 80,
+    "citation_coverage": 0.9375,
+    "claims_per_issue": 5.33,
     "tau_s": 0.3,
     "tau_c": 0.3,
-    "grounded_pairs_evaluated": 89,
-    "grounded_supported_count": 40,
-    "grounded_support_rate": 0.4494,
+    "grounded_pairs_evaluated": 75,
+    "grounded_supported_count": 30,
+    "grounded_support_rate": 0.4,
     "grounded_premise_type_wins": {
-      "full_chunk": 54,
-      "sentence_window": 35
+      "full_chunk": 34,
+      "sentence_window": 39,
+      "multi_evidence": 2
     },
-    "easy_negatives_evaluated": 97,
+    "easy_negatives_evaluated": 80,
     "easy_false_support_count": 1,
-    "easy_false_support_rate": 0.0103,
-    "hard_negatives_evaluated": 97,
-    "hard_false_support_count": 1,
-    "hard_false_support_rate": 0.0103,
+    "easy_false_support_rate": 0.0125,
+    "hard_negatives_evaluated": 80,
+    "hard_false_support_count": 0,
+    "hard_false_support_rate": 0.0,
     "safety_switch_triggered": false,
     "no_guardrail_baseline_false_support": 1.0,
     "action_counts": {
-      "SUPPORTED": 40,
-      "CONTRADICTED": 15,
-      "INSUFFICIENT_EVIDENCE": 57
+      "SUPPORTED": 30,
+      "CONTRADICTED": 12,
+      "INSUFFICIENT_EVIDENCE": 50
+    },
+    "threshold_sweep": [
+      {
+        "tau_s": 0.3,
+        "tau_c": 0.5,
+        "grounded_pass_rate": 0.4,
+        "easy_false_support_rate": 0.0125,
+        "hard_false_support_rate": 0.0,
+        "contradicted_rate": 0.1467
+      },
+      {
+        "tau_s": 0.3,
+        "tau_c": 0.7,
+        "grounded_pass_rate": 0.4,
+        "easy_false_support_rate": 0.0125,
+        "hard_false_support_rate": 0.0,
+        "contradicted_rate": 0.1333
+      },
+      {
+        "tau_s": 0.3,
+        "tau_c": 0.8,
+        "grounded_pass_rate": 0.4,
+        "easy_false_support_rate": 0.0125,
+        "hard_false_support_rate": 0.0,
+        "contradicted_rate": 0.1333
+      },
+      {
+        "tau_s": 0.3,
+        "tau_c": 0.9,
+        "grounded_pass_rate": 0.4,
+        "easy_false_support_rate": 0.0125,
+        "hard_false_support_rate": 0.0,
+        "contradicted_rate": 0.12
+      },
+      {
+        "tau_s": 0.5,
+        "tau_c": 0.5,
+        "grounded_pass_rate": 0.3867,
+        "easy_false_support_rate": 0.0125,
+        "hard_false_support_rate": 0.0,
+        "contradicted_rate": 0.1467
+      },
+      {
+        "tau_s": 0.5,
+        "tau_c": 0.7,
+        "grounded_pass_rate": 0.3867,
+        "easy_false_support_rate": 0.0125,
+        "hard_false_support_rate": 0.0,
+        "contradicted_rate": 0.1333
+      },
+      {
+        "tau_s": 0.5,
+        "tau_c": 0.8,
+        "grounded_pass_rate": 0.3867,
+        "easy_false_support_rate": 0.0125,
+        "hard_false_support_rate": 0.0,
+        "contradicted_rate": 0.1333
+      },
+      {
+        "tau_s": 0.5,
+        "tau_c": 0.9,
+        "grounded_pass_rate": 0.3867,
+        "easy_false_support_rate": 0.0125,
+        "hard_false_support_rate": 0.0,
+        "contradicted_rate": 0.12
+      },
+      {
+        "tau_s": 0.7,
+        "tau_c": 0.5,
+        "grounded_pass_rate": 0.3733,
+        "easy_false_support_rate": 0.0125,
+        "hard_false_support_rate": 0.0,
+        "contradicted_rate": 0.1467
+      },
+      {
+        "tau_s": 0.7,
+        "tau_c": 0.7,
+        "grounded_pass_rate": 0.3733,
+        "easy_false_support_rate": 0.0125,
+        "hard_false_support_rate": 0.0,
+        "contradicted_rate": 0.1333
+      },
+      {
+        "tau_s": 0.7,
+        "tau_c": 0.8,
+        "grounded_pass_rate": 0.3733,
+        "easy_false_support_rate": 0.0125,
+        "hard_false_support_rate": 0.0,
+        "contradicted_rate": 0.1333
+      },
+      {
+        "tau_s": 0.7,
+        "tau_c": 0.9,
+        "grounded_pass_rate": 0.3733,
+        "easy_false_support_rate": 0.0125,
+        "hard_false_support_rate": 0.0,
+        "contradicted_rate": 0.12
+      },
+      {
+        "tau_s": 0.8,
+        "tau_c": 0.5,
+        "grounded_pass_rate": 0.3733,
+        "easy_false_support_rate": 0.0125,
+        "hard_false_support_rate": 0.0,
+        "contradicted_rate": 0.1467
+      },
+      {
+        "tau_s": 0.8,
+        "tau_c": 0.7,
+        "grounded_pass_rate": 0.3733,
+        "easy_false_support_rate": 0.0125,
+        "hard_false_support_rate": 0.0,
+        "contradicted_rate": 0.1333
+      },
+      {
+        "tau_s": 0.8,
+        "tau_c": 0.8,
+        "grounded_pass_rate": 0.3733,
+        "easy_false_support_rate": 0.0125,
+        "hard_false_support_rate": 0.0,
+        "contradicted_rate": 0.1333
+      },
+      {
+        "tau_s": 0.8,
+        "tau_c": 0.9,
+        "grounded_pass_rate": 0.3733,
+        "easy_false_support_rate": 0.0125,
+        "hard_false_support_rate": 0.0,
+        "contradicted_rate": 0.12
+      },
+      {
+        "tau_s": 0.9,
+        "tau_c": 0.5,
+        "grounded_pass_rate": 0.3467,
+        "easy_false_support_rate": 0.0,
+        "hard_false_support_rate": 0.0,
+        "contradicted_rate": 0.1467
+      },
+      {
+        "tau_s": 0.9,
+        "tau_c": 0.7,
+        "grounded_pass_rate": 0.3467,
+        "easy_false_support_rate": 0.0,
+        "hard_false_support_rate": 0.0,
+        "contradicted_rate": 0.1333
+      },
+      {
+        "tau_s": 0.9,
+        "tau_c": 0.8,
+        "grounded_pass_rate": 0.3467,
+        "easy_false_support_rate": 0.0,
+        "hard_false_support_rate": 0.0,
+        "contradicted_rate": 0.1333
+      },
+      {
+        "tau_s": 0.9,
+        "tau_c": 0.9,
+        "grounded_pass_rate": 0.3467,
+        "easy_false_support_rate": 0.0,
+        "hard_false_support_rate": 0.0,
+        "contradicted_rate": 0.12
+      }
+    ],
+    "multi_evidence_comparison": {
+      "before_multi_evidence": {
+        "grounded_pass_rate": 0.3867,
+        "easy_false_support_rate": 0.0125,
+        "hard_false_support_rate": 0.0,
+        "premise_wins": {
+          "full_chunk": 36,
+          "sentence_window": 39,
+          "multi_evidence": 0
+        }
+      },
+      "after_multi_evidence": {
+        "grounded_pass_rate": 0.4,
+        "easy_false_support_rate": 0.0125,
+        "hard_false_support_rate": 0.0,
+        "premise_wins": {
+          "full_chunk": 34,
+          "sentence_window": 39,
+          "multi_evidence": 2
+        }
+      }
     },
     "spot_check_10_hard_negatives": [
       {
         "index": 1,
-        "claim": "Using `httpx.Client(proxies={'https://': 'https://user:pass@proxy.com'})` causes an SSL error when the proxy requires TLS.",
+        "claim": "Using `httpx.Client` with a proxy URL scheme of `https://...` results in the client attempting to establish an HTTPS connection to the proxy server.",
         "hard_premise_preview": "[SSL errors do not provide much information.] [encode/httpx #2272] SSL errors do not provide much information. https://github.com/encode/htt...",
         "premise_type": "full_chunk",
-        "entailment": 0.0051,
-        "contradiction": 0.0013,
+        "entailment": 0.0089,
+        "contradiction": 0.0021,
         "verdict": "INSUFFICIENT_EVIDENCE",
         "audit": "Valid Rejection"
       },
       {
         "index": 2,
-        "claim": "The error message `[SSL: UNEXPECTED_MESSAGE] unexpected message (_ssl.c:1131)` appears in issues involving HTTPS proxies with httpx.",
+        "claim": "When httpx connects via a proxy that requires TLS, it attempts to perform a TLS handshake on the proxy connection itself before tunneling the request.",
         "hard_premise_preview": "[SSL errors do not provide much information.] [encode/httpx #2272] SSL errors do not provide much information. https://github.com/encode/htt...",
         "premise_type": "full_chunk",
-        "entailment": 0.2239,
-        "contradiction": 0.0007,
+        "entailment": 0.0166,
+        "contradiction": 0.001,
         "verdict": "INSUFFICIENT_EVIDENCE",
         "audit": "Valid Rejection"
       },
       {
         "index": 3,
-        "claim": "A similar issue reported `[SSL: WRONG_VERSION_NUMBER] wrong version number (_ssl.c:997)` when using `http://` scheme for a proxy that supports TLS.",
-        "hard_premise_preview": "[Comment on #1373 by @ghost] [encode/httpx #1373 Comment by @ghost] **EDIT**: Never mind, I see this is a different issue tracked in #1434. ...",
-        "premise_type": "full_chunk",
-        "entailment": 0.002,
-        "contradiction": 0.0015,
-        "verdict": "INSUFFICIENT_EVIDENCE",
-        "audit": "Valid Rejection"
-      },
-      {
-        "index": 4,
-        "claim": "Another issue reported `[SSL: WRONG_VERSION_NUMBER] wrong version number (_ssl.c:1131)` when using `http://` scheme for a proxy that supports TLS.",
+        "claim": "The error `[SSL: UNEXPECTED_MESSAGE] unexpected message` indicates a mismatch between the TLS protocol version expected by httpx and the one negotiated or sent by the proxy server.",
         "hard_premise_preview": "[SSL errors do not provide much information.] Error: httpx.ProxyError: [SSL: WRONG_VERSION_NUMBER] wrong version number (_ssl.c:997) Full de...",
         "premise_type": "sentence_window",
         "entailment": 0.0001,
-        "contradiction": 0.7993,
+        "contradiction": 0.9976,
         "verdict": "CONTRADICTED",
         "audit": "Valid Rejection"
       },
       {
+        "index": 4,
+        "claim": "A similar error `[SSL: WRONG_VERSION_NUMBER]` has been reported when using `httpx.Client` with a proxy configured via `https://...` scheme.",
+        "hard_premise_preview": "[Comment on #1373 by @ghost] [encode/httpx #1373 Comment by @ghost] **EDIT**: Never mind, I see this is a different issue tracked in #1434. ...",
+        "premise_type": "full_chunk",
+        "entailment": 0.0017,
+        "contradiction": 0.0009,
+        "verdict": "INSUFFICIENT_EVIDENCE",
+        "audit": "Valid Rejection"
+      },
+      {
         "index": 5,
-        "claim": "Using `https://` scheme for the proxy URL is recommended because some proxies do not support connecting via HTTPS.",
+        "claim": "Documentation states that if an HTTPS proxy is used but the server does not support connecting via HTTPS, the user should change the proxy scheme to `http://...`.",
         "hard_premise_preview": "[SSL errors do not provide much information.] [encode/httpx #2272] SSL errors do not provide much information. https://github.com/encode/htt...",
         "premise_type": "full_chunk",
-        "entailment": 0.0035,
-        "contradiction": 0.0012,
+        "entailment": 0.0034,
+        "contradiction": 0.0011,
         "verdict": "INSUFFICIENT_EVIDENCE",
         "audit": "Valid Rejection"
       },
       {
         "index": 6,
-        "claim": "The error `[SSL: WRONG_VERSION_NUMBER] wrong version number (_ssl.c:1124)` occurs when using `TUNNEL_ONLY` mode with a custom HTTP proxy.",
-        "hard_premise_preview": "[SSL errors do not provide much information.] Error: httpx.ProxyError: [SSL: WRONG_VERSION_NUMBER] wrong version number (_ssl.c:997) Full de...",
-        "premise_type": "sentence_window",
-        "entailment": 0.0,
-        "contradiction": 0.9985,
-        "verdict": "CONTRADICTED",
+        "claim": "The error occurs in `httpcore._backends.sync.py` during the `start_tls` operation when wrapping a socket for the proxy connection.",
+        "hard_premise_preview": "[SSL errors do not provide much information.] [encode/httpx #2272] SSL errors do not provide much information. https://github.com/encode/htt...",
+        "premise_type": "full_chunk",
+        "entailment": 0.0024,
+        "contradiction": 0.0006,
+        "verdict": "INSUFFICIENT_EVIDENCE",
         "audit": "Valid Rejection"
       },
       {
         "index": 7,
-        "claim": "The error `[SSL: WRONG_VERSION_NUMBER] wrong version number (_ssl.c:1124)` occurs when using `TUNNEL_ONLY` mode with a custom HTTP proxy.",
-        "hard_premise_preview": "[SSL errors do not provide much information.] Error: httpx.ProxyError: [SSL: WRONG_VERSION_NUMBER] wrong version number (_ssl.c:997) Full de...",
-        "premise_type": "sentence_window",
-        "entailment": 0.0,
-        "contradiction": 0.9985,
-        "verdict": "CONTRADICTED",
+        "claim": "The current httpx setup.py specifies a dependency on `rfc3986` version 1.5.0.",
+        "hard_premise_preview": "[RFE: please update for `rfc3986` 2.x] [encode/httpx #2386] RFE: please update for `rfc3986` 2.x https://github.com/encode/httpx/blob/8088fc...",
+        "premise_type": "full_chunk",
+        "entailment": 0.0005,
+        "contradiction": 0.0024,
+        "verdict": "INSUFFICIENT_EVIDENCE",
         "audit": "Valid Rejection"
       },
       {
         "index": 8,
-        "claim": "The error `[SSL: WRONG_VERSION_NUMBER] wrong version number (_ssl.c:1124)` occurs when using `TUNNEL_ONLY` mode with a custom HTTP proxy.",
-        "hard_premise_preview": "[SSL errors do not provide much information.] Error: httpx.ProxyError: [SSL: WRONG_VERSION_NUMBER] wrong version number (_ssl.c:997) Full de...",
-        "premise_type": "sentence_window",
+        "claim": "Multiple issues have been filed requesting support for `rfc3986` 2.x.",
+        "hard_premise_preview": "[RFE: please provide support for `httpcore` >= 0.17] [encode/httpx #2625] RFE: please provide support for `httpcore` >= 0.17 https://github....",
+        "premise_type": "full_chunk",
         "entailment": 0.0,
-        "contradiction": 0.9985,
+        "contradiction": 0.9858,
         "verdict": "CONTRADICTED",
         "audit": "Valid Rejection"
       },
       {
         "index": 9,
-        "claim": "Currently `rfc3986` 2.0.0 is not supported.",
-        "hard_premise_preview": "[RFE: please update for `rfc3986` 2.x] [encode/httpx #2386] RFE: please update for `rfc3986` 2.x https://github.com/encode/httpx/blob/8088fc...",
-        "premise_type": "full_chunk",
-        "entailment": 0.0122,
-        "contradiction": 0.2421,
+        "claim": "The MyPy error indicates that the type of proxies is expected to be a union of URL, str, Proxy, or Dict, but received Optional[Proxy].",
+        "hard_premise_preview": "[HeaderTypes should include None?] \"Union[Headers, Dict[str, str], Dict[bytes, bytes], Sequence[Tuple[str, str]], Sequence[Tuple[bytes, byte...",
+        "premise_type": "sentence_window",
+        "entailment": 0.0018,
+        "contradiction": 0.0031,
         "verdict": "INSUFFICIENT_EVIDENCE",
         "audit": "Valid Rejection"
       },
       {
         "index": 10,
-        "claim": "Multiple feature requests have been submitted to request support for rfc3986 version 2.x.",
-        "hard_premise_preview": "[RFE: please provide support for `httpcore` >= 0.17] [encode/httpx #2625] RFE: please provide support for `httpcore` >= 0.17 https://github....",
+        "claim": "The documentation states that the proxies parameter is optional.",
+        "hard_premise_preview": "[HeaderTypes should include None?] [encode/httpx #1380] HeaderTypes should include None? While trying to call `AsyncClient` like this: ```py...",
         "premise_type": "full_chunk",
-        "entailment": 0.0001,
-        "contradiction": 0.0127,
+        "entailment": 0.001,
+        "contradiction": 0.0017,
         "verdict": "INSUFFICIENT_EVIDENCE",
         "audit": "Valid Rejection"
       }
@@ -234,8 +419,68 @@
     "spot_check_10_grounded_claims": [
       {
         "index": 1,
-        "claim": "Currently `rfc3986` 2.0.0 is not supported.",
-        "cited_premise_preview": "[RFE: provide suport for `rfc3986` 2.0.0] Currently `rfc3986` 2.0.0 is not supported. https://github.com/encode/httpx/blob/3af5146788f2945c8...",
+        "claim": "Issue #2432 discusses passing a tuple to the proxies argument, which is considered misuse rather than a bug.",
+        "cited_premise_preview": "[Comment on #2432 by @FuckingToasters] [encode/httpx #2432 Comment by @FuckingToasters] > You would see this exception if you specified the ...",
+        "premise_type": "full_chunk",
+        "entailment": 0.9946,
+        "contradiction": 0.0009,
+        "verdict": "SUPPORTED",
+        "strictly_contained": "Yes (exact match)"
+      },
+      {
+        "index": 2,
+        "claim": "The recommended usage pattern for a `Client` is to use it as a context manager (`with` block) to ensure connections are cleaned up.",
+        "cited_premise_preview": "[Usage] [encode/httpx - docs/advanced/clients.md] Usage The recommended way to use a `Client` is as a context manager. This will ensure that...",
+        "premise_type": "full_chunk",
+        "entailment": 0.9985,
+        "contradiction": 0.0001,
+        "verdict": "SUPPORTED",
+        "strictly_contained": "Yes (exact match)"
+      },
+      {
+        "index": 3,
+        "claim": "An alternative usage pattern involves explicitly calling `.close()` within a `try/finally` block.",
+        "cited_premise_preview": "[Usage] [encode/httpx - docs/advanced/clients.md] Usage The recommended way to use a `Client` is as a context manager. This will ensure that...",
+        "premise_type": "full_chunk",
+        "entailment": 0.9976,
+        "contradiction": 0.0001,
+        "verdict": "SUPPORTED",
+        "strictly_contained": "Yes (exact match)"
+      },
+      {
+        "index": 4,
+        "claim": "In Python 3.6, the handling order of `__aexit__` and `CancelledError` differs from Python 3.7+, potentially causing different runtime behavior.",
+        "cited_premise_preview": "[Comment on #2047 by @aworkin] [encode/httpx #2047 Comment by @aworkin] I like that idea, it ensures the request is closed cleanly for Pytho...",
+        "premise_type": "full_chunk",
+        "entailment": 0.8521,
+        "contradiction": 0.0,
+        "verdict": "SUPPORTED",
+        "strictly_contained": "Yes (exact match)"
+      },
+      {
+        "index": 5,
+        "claim": "CVE-2015-2296 affects requests versions from 2.1.0 through 2.5.3.",
+        "cited_premise_preview": "[[Security] Medium Severity Vulnerability (CVE-2015-2296) in Requests v2.32.3] The resolve_redirects function in sessions.py in requests 2.1...",
+        "premise_type": "sentence_window",
+        "entailment": 0.9966,
+        "contradiction": 0.0001,
+        "verdict": "SUPPORTED",
+        "strictly_contained": "Yes (exact match)"
+      },
+      {
+        "index": 6,
+        "claim": "The project has not had any notable roadmap since the early releases of Requests 2.x.",
+        "cited_premise_preview": "[Comment on #6704 by @nateprewitt] The project hasn't had any notable form of roadmap since the early releases of Requests 2.x. Almost all w...",
+        "premise_type": "sentence_window",
+        "entailment": 0.9985,
+        "contradiction": 0.0001,
+        "verdict": "SUPPORTED",
+        "strictly_contained": "Yes (exact match)"
+      },
+      {
+        "index": 7,
+        "claim": "Almost all work on Requests 3.x stopped in 2017.",
+        "cited_premise_preview": "[Comment on #6704 by @nateprewitt] Almost all work on Requests 3.x stopped in 2017, so that's not a recent development. I think urllib3 2.0 ...",
         "premise_type": "sentence_window",
         "entailment": 0.9976,
         "contradiction": 0.0001,
@@ -243,49 +488,19 @@
         "strictly_contained": "Yes (exact match)"
       },
       {
-        "index": 2,
-        "claim": "The release process requires updating the changelog, bumping the version in `__version__.py`, and creating a pull request.",
-        "cited_premise_preview": "[Releasing] [encode/httpx - docs/contributing.md] Releasing *This section is targeted at HTTPX maintainers.* Before releasing a new version,...",
-        "premise_type": "full_chunk",
-        "entailment": 0.9614,
-        "contradiction": 0.0002,
-        "verdict": "SUPPORTED",
-        "strictly_contained": "Yes (exact match)"
-      },
-      {
-        "index": 3,
-        "claim": "The AsyncClient.__aenter__() method sets self._state to ClientState.OPENED after passing the state check.",
-        "cited_premise_preview": "[作者你好，0.19.0版本AsyncClient.__aenter__() 方法增加了调用控制。如果是Singleton instance 则无法重新发送请求] [encode/httpx #1874] 作者你好，0.19.0版本AsyncClient.__aenter__()...",
-        "premise_type": "full_chunk",
-        "entailment": 0.4976,
-        "contradiction": 0.0001,
-        "verdict": "SUPPORTED",
-        "strictly_contained": "Partially supported"
-      },
-      {
-        "index": 4,
-        "claim": "The recommended way to use a Client is as a context manager to ensure connections are properly cleaned up.",
-        "cited_premise_preview": "[Usage] [encode/httpx - docs/advanced/clients.md] Usage The recommended way to use a `Client` is as a context manager. This will ensure that...",
-        "premise_type": "full_chunk",
-        "entailment": 0.998,
-        "contradiction": 0.0,
-        "verdict": "SUPPORTED",
-        "strictly_contained": "Yes (exact match)"
-      },
-      {
-        "index": 5,
-        "claim": "Using a client instance explicitly closed without a context manager is an alternative to using it as a context manager.",
-        "cited_premise_preview": "[Usage] [encode/httpx - docs/advanced/clients.md] Usage The recommended way to use a `Client` is as a context manager. This will ensure that...",
+        "index": 8,
+        "claim": "There are no immediate plans for new features or changes as adding features has never been a goal for Requests.",
+        "cited_premise_preview": "[Comment on #6704 by @nateprewitt] [psf/requests #6704 Comment by @nateprewitt] The project hasn't had any notable form of roadmap since the...",
         "premise_type": "full_chunk",
         "entailment": 0.9971,
-        "contradiction": 0.0004,
+        "contradiction": 0.0001,
         "verdict": "SUPPORTED",
         "strictly_contained": "Yes (exact match)"
       },
       {
-        "index": 6,
-        "claim": "CVE-2015-2296 applies to requests version 2.32.3.",
-        "cited_premise_preview": "[[Security] Medium Severity Vulnerability (CVE-2015-2296) in Requests v2.32.3] A potential medium-severity security issue has been identifie...",
+        "index": 9,
+        "claim": "The project continues to release bug fixes and general maintenance changes.",
+        "cited_premise_preview": "[Comment on #6704 by @nateprewitt] We'll continue to release bugfixes and general maintenance changes as we have, and if there is a point we...",
         "premise_type": "sentence_window",
         "entailment": 0.9961,
         "contradiction": 0.0,
@@ -293,44 +508,14 @@
         "strictly_contained": "Yes (exact match)"
       },
       {
-        "index": 7,
-        "claim": "CVE-2015-2296 affects requests versions 2.1.0 through 2.5.3.",
-        "cited_premise_preview": "[[Security] Medium Severity Vulnerability (CVE-2015-2296) in Requests v2.32.3] The resolve_redirects function in sessions.py in requests 2.1...",
-        "premise_type": "sentence_window",
-        "entailment": 0.9951,
-        "contradiction": 0.0002,
-        "verdict": "SUPPORTED",
-        "strictly_contained": "Yes (exact match)"
-      },
-      {
-        "index": 8,
-        "claim": "A security issue regarding CVE-2015-2296 in requests v2.32.3 was reported in GitHub issue #6942.",
-        "cited_premise_preview": "[[Security] Medium Severity Vulnerability (CVE-2015-2296) in Requests v2.32.3] [psf/requests #6942] [Security] Medium Severity Vulnerability...",
-        "premise_type": "full_chunk",
-        "entailment": 0.9922,
-        "contradiction": 0.0004,
-        "verdict": "SUPPORTED",
-        "strictly_contained": "Yes (exact match)"
-      },
-      {
-        "index": 9,
-        "claim": "A security issue regarding CVE-2015-2296 in requests v2.32.3 was reported in GitHub issue #6946.",
-        "cited_premise_preview": "[[Security] Medium Severity Vulnerability (CVE-2015-2296) in Requests v2.32.3] [psf/requests #6946] [Security] Medium Severity Vulnerability...",
-        "premise_type": "full_chunk",
-        "entailment": 0.9878,
-        "contradiction": 0.0006,
-        "verdict": "SUPPORTED",
-        "strictly_contained": "Yes (exact match)"
-      },
-      {
         "index": 10,
-        "claim": "The idna package version 2.5 is vulnerable to CVE-2024-3651.",
-        "cited_premise_preview": "[<spam>] [psf/requests #7324] <spam> (Part 1/2) ## Vulnerability Report Hi there! We found 3 known vulnerabilities in this project's depende...",
-        "premise_type": "full_chunk",
-        "entailment": 0.3186,
-        "contradiction": 0.0008,
+        "claim": "Requests already supports version 3.13.",
+        "cited_premise_preview": "[Comment on #6905 by @nateprewitt] As you can see in the [setup.py](https://github.com/psf/requests/blob/1764cc938efc3cc9720188dfa6c3852c452...",
+        "premise_type": "sentence_window",
+        "entailment": 0.9971,
+        "contradiction": 0.0,
         "verdict": "SUPPORTED",
-        "strictly_contained": "Partially supported"
+        "strictly_contained": "Yes (exact match)"
       }
     ]
   }

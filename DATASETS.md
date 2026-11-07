@@ -1,73 +1,72 @@
-# RepoTriage Datasets & Corpus Documentation
+# RepoTriage Corpus & Ingestion Datasets Specification
 
-This document describes the corpora, external datasets, and processed retrieval indexes powering RepoTriage.
+This document details the corpus composition, ingestion methodology, chunking parameters, and source attribution for RepoTriage.
 
 ---
 
-## 1. Stage 1 Seed Repositories Corpus (Retrieval & Grounding)
+## 1. Multi-Repository Production Corpus
 
-Acquired via `src.ingest` and `src.cli ingest` as specified in Stage 1 of `RepoTriage_SPEC.md`.
+The live corpus is persisted in SQLite (`data/processed/repotriage.db`) and processed JSON Lines (`data/processed/`). All seed repositories were acquired via GitHub REST API pagination (prioritizing closed issues with comments) and shallow git clones (`git clone --depth 1`) for documentation.
 
-### Summary Counts Table
+- **Ingestion Date**: November 6–7, 2026
+- **Corpus Limit**: Target ~400 genuine issues per repo + on-demand canonical duplicate resolution
+- **Chunk Parameters**: 250–350 tokens, ~40 token overlap, structure-aware markdown (`#`, `##`, `###`) and reStructuredText (`===`, `---`, `~~~`, `^^^`) heading retention.
 
-| Repository | Issues Ingested | Comments Ingested | Doc Files Ingested | Issue Chunks | Comment Chunks | Doc Chunks | Total Chunks |
+### Real Database Ingestion Counts
+
+| Repository | Issues | Comments | Doc Files | Issue Chunks | Comment Chunks | Doc Chunks | Total Chunks |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| **`pallets/flask`** | 400 | 735 | 77 | 466 | 742 | 437 | **1,645** |
-| **`encode/httpx`** | 400 | 1,047 | 24 | 556 | 1,346 | 252 | **2,154** |
-| **`pydantic/pydantic`** | 400 | 868 | 93 | 531 | 910 | 859 | **2,300** |
-| **TOTAL** | **1,200** | **2,650** | **194** | **1,553** | **2,998** | **1,548** | **6,099** |
-
-*All counts verified directly from `data/processed/repotriage.db`.*
+| **`encode/httpx`** | 405 | 1,047 | 24 | 561 | 1,346 | 252 | **2,159** |
+| **`pallets/flask`** | 404 | 735 | 77 | 476 | 742 | 437 | **1,655** |
+| **`psf/requests`** | 408 | 892 | 16 | 538 | 912 | 136 | **1,586** |
+| **`pydantic/pydantic`** | 403 | 868 | 93 | 535 | 910 | 859 | **2,304** |
+| **Total** | **1,620** | **3,542** | **210** | **2,110** | **3,910** | **1,684** | **7,704** |
 
 ---
 
 ## 2. Ingestion & Preprocessing Details
 
-### A. Issue Acquisition (`src/ingest/github_client.py`)
-- **API Endpoint**: `https://api.github.com/repos/{owner}/{repo}/issues`
-- **Filtering**: Strict exclusion of Pull Requests (`pull_request` key omitted from all records).
-- **Strategy**: Target count of 400 issues per repository, prioritizing closed issues first to capture resolved discussions, debugging threads, and resolution comments.
-- **Comments**: Fetched for closed issues with $\ge 1$ comment (capped at 10 comments per issue).
-- **On-Demand Single Fetch**: `fetch_single_issue(owner, repo, issue_number)` checks raw JSONL cache first, and retrieves referenced canonical duplicate issues on demand if outside the 400-issue window.
-- **Raw Cache**: Cached atomically to `data/raw/{owner}_{repo}_raw_issues.jsonl` and `data/raw/{owner}_{repo}_raw_comments.jsonl`.
+### GitHub Issue & Comment Acquisition
+- **API Endpoint**: `/repos/{owner}/{repo}/issues?state=all&per_page=100`
+- **Filtering**: Strict exclusion of Pull Requests via `pull_request` key check.
+- **Comment Cap**: Capped at ~10 comments per closed issue to focus on consensus resolution and root causes while mitigating spam.
+- **On-Demand Canonical Fetching**: When duplicate issues reference canonical issues `#N` outside the initial 400-issue window, `fetch_single_issue(owner, repo, issue_number)` pulls the target issue and its discussion into the corpus and index.
 
-### B. Documentation Loading (`src/ingest/docs_loader.py`)
-- **Cloning**: Shallow git clone (`git clone --depth 1`) into `data/raw/repos/{owner}_{repo}`. Skipped if existing clone is present.
-- **Patterns**: Scanned `README*`, `CONTRIBUTING*`, `docs/**/*.{md,mdx,rst}`, and `doc/**/*.{md,rst}`.
-- **Format Support**:
-  - Markdown (`.md`, `.mdx`): parsed via `#`, `##`, `###` headings with GitHub-compatible slug anchor URLs.
-  - reStructuredText (`.rst`): parsed via underline headings (`===`, `---`, `~~~`, `^^^`), preserving section structure (essential for `pallets/flask`).
-
-### C. Chunking (`src/ingest/chunker.py`)
-- **Window Size**: 250–350 tokens per chunk with ~40 token sliding overlap.
-- **Context Retention**:
-  - Issue chunks attach `[{repo} #{number}] {title}` to every chunk window.
-  - Comment chunks attach `[{repo} #{number} Comment by @{user}]` to every chunk window.
-  - Doc chunks attach `[{repo} - {file_path}] {heading}` and preserve anchor URLs (`#{slug}`).
-- **Schema**:
-  - `chunk_id` (16-char SHA256 hex)
-  - `repo` (`owner/repo`)
-  - `source_type` (`issue | comment | doc`)
-  - `issue_number` (integer or null)
-  - `file_path` (string or null)
-  - `heading` (string)
-  - `url` (canonical web link with anchor where available)
-  - `content_hash` (SHA256 hex)
-  - `text` (chunk text)
-  - `token_count` (estimated token count)
-
-### D. Storage & Indexing (`src/ingest/storage.py`)
-- **SQLite Database**: `data/processed/repotriage.db`
-  - Tables: `issues`, `comments`, `doc_files`, `chunks`.
-  - Indexes: `idx_issues_repo`, `idx_issues_number`, `idx_comments_issue`, `idx_doc_files_repo`, `idx_chunks_repo`, `idx_chunks_type`, `idx_chunks_hash`.
-- **JSONL Exports**: `data/processed/{owner}_{repo}_chunks.jsonl`.
+### Documentation Loader
+- **Seed Repositories**: Cloned into `data/raw/repos/` via `git clone --depth 1`.
+- **File Matching**: `README*`, `CONTRIBUTING*`, and `docs/**/*.{md,mdx,rst}`.
+- **Format Handling**: Custom parsers extract hierarchical document sections across Markdown and reStructuredText formats without losing anchor metadata.
 
 ---
 
-## 3. External Classification Benchmark (NLBSE 2024)
+## 3. NLBSE 2024 Issue Classification Benchmark
 
-Stored in `data/external/nlbse2024/` (detailed in [`DATASET.md`](file:///DATASET.md)):
-- **Training split**: 1,500 records (`issues_train.csv`)
-- **Testing split**: 1,500 records (`issues_test.csv`)
-- **Repositories**: `facebook/react`, `tensorflow/tensorflow`, `microsoft/vscode`, `bitcoin/bitcoin`, `opencv/opencv`
-- **Classes**: `bug`, `feature`, `question`
+The frozen issue classifier was pre-trained and evaluated on the NLBSE 2024 Issue Classification Challenge dataset.
+
+### Dataset Overview
+- **Paper**: *The NLBSE'24 Tool Competition on Issue Report Classification*
+- **Source**: 5 open-source repositories (`facebook/react`, `tensorflow/tensorflow`, `microsoft/vscode`, `bitcoin/bitcoin`, `opencv/opencv`).
+- **Target Classes**: `bug`, `feature`, `question`.
+- **Training Set**: 1,500 balanced issue reports (300 per repository, 100 per class).
+- **Test Set**: 1,500 balanced issue reports (300 per repository, 100 per class).
+
+### Label Mappings & Live Generalization Set
+For live evaluation on the ingested production repositories:
+- `bug` $\rightarrow$ `bug`
+- `enhancement`, `feature`, `feature request` $\rightarrow$ `feature`
+- `question` $\rightarrow$ `question`
+- Ambiguous labels (`wontfix`, `duplicate`, `help wanted`) are discarded from evaluation splits.
+- A threshold filter $\tau = 0.50$ is applied to route low-confidence predictions to `uncertain`.
+
+---
+
+## 4. Licenses & Attribution
+
+All repository source materials, issue discussions, and documentation were obtained from publicly accessible GitHub repositories under their respective open-source licenses:
+
+1. **`encode/httpx`**: BSD 3-Clause License (Copyright Encode OSS Ltd).
+2. **`pallets/flask`**: BSD 3-Clause License (Copyright Pallets).
+3. **`psf/requests`**: Apache License 2.0 (Copyright Python Software Foundation).
+4. **`pydantic/pydantic`**: MIT License (Copyright Samuel Colvin & Pydantic contributors).
+5. **NLBSE 2024 Repositories**: React (MIT), TensorFlow (Apache 2.0), VS Code (MIT), Bitcoin (MIT), OpenCV (Apache 2.0).
+6. **ANLI Benchmark**: CC BY-NC 4.0 (Facebook AI Research).

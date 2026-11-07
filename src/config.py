@@ -43,3 +43,11 @@ def load_env() -> None:
 
 # Automatically load environment upon module import
 load_env()
+
+# Stage 6.6-B: Production calibrated guardrail thresholds
+PRODUCTION_TAU_S: float = 0.80
+PRODUCTION_TAU_C: float = 0.80
+
+# Out-of-domain ANLI benchmark thresholds (tuned on ANLI dev split)
+ANLI_TAU_S: float = 0.30
+ANLI_TAU_C: float = 0.30

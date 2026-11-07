@@ -16,6 +16,7 @@ from src.guardrail.verify import (
     ClaimVerificationEngine,
     apply_dominance_rule,
     build_candidate_premises,
+    build_multi_evidence_premise,
     select_best_evidence_window,
     split_into_sentences,
 )
@@ -171,6 +172,18 @@ class TestCandidatePremises(unittest.TestCase):
         if window_pairs:
             self.assertTrue(window_pairs[0][1].startswith("[Custom Validation in v2]"))
             self.assertIn("@field_validator", window_pairs[0][1])
+
+    def test_build_multi_evidence_premise(self):
+        chunks = [
+            {"heading": "Part 1", "text": "Feature A is enabled by passing flag=True."},
+            {"heading": "Part 2", "text": "Feature B is required when Feature A is active."},
+        ]
+        multi = build_multi_evidence_premise("Flag enables Feature A and Feature B", chunks)
+        self.assertIsNotNone(multi)
+        self.assertIn("[Part 1]", multi)
+        self.assertIn("[Part 2]", multi)
+        self.assertIn("Feature A", multi)
+        self.assertIn("Feature B", multi)
 
 
 class TestSentenceWindowSelection(unittest.TestCase):

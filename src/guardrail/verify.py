@@ -26,8 +26,14 @@ from src.guardrail.nli import NLIGuardrail
 logger = logging.getLogger(__name__)
 
 VerdictType = Literal["SUPPORTED", "CONTRADICTED", "INSUFFICIENT_EVIDENCE"]
-DEFAULT_TAU_S = 0.30
-DEFAULT_TAU_C = 0.30
+# Stage 6.6-B: Calibrated in-domain production thresholds
+# Raised from 0.30 to 0.80 to prevent spurious support on tangential overlap
+DEFAULT_TAU_S = 0.80
+DEFAULT_TAU_C = 0.80
+
+# Dedicated thresholds for the out-of-domain adversarial ANLI benchmark
+ANLI_TAU_S = 0.30
+ANLI_TAU_C = 0.30
 
 
 def apply_dominance_rule(
@@ -129,6 +135,38 @@ def build_candidate_premises(
     return candidates
 
 
+def build_multi_evidence_premise(
+    claim_text: str,
+    evidence_chunks: Sequence[dict[str, Any]],
+    max_tokens: int = 512,
+) -> str | None:
+    """
+    Stage 6.6-I: Build concatenated multi-evidence premise for claims citing 2+ items.
+    Takes best window (or full chunk if short) from each cited item (at most 3),
+    prefixed with its heading, concatenated and cleanly truncated to ~400 words.
+    """
+    if len(evidence_chunks) < 2:
+        return None
+
+    parts = []
+    for chunk in evidence_chunks[:3]:
+        heading = (chunk.get("heading") or "").strip()
+        prefix = f"[{heading}] " if heading else ""
+        raw_text = (chunk.get("text") or "").strip()
+        words = raw_text.split()
+        if len(words) <= 50:
+            part_body = raw_text
+        else:
+            part_body = select_best_evidence_window(claim_text, raw_text, max_sentences=2)
+        parts.append(prefix + part_body)
+
+    combined_text = "\n\n".join(parts)
+    combined_words = combined_text.split()
+    if len(combined_words) > 400:
+        combined_text = " ".join(combined_words[:400])
+    return combined_text.strip()
+
+
 class ClaimVerificationEngine:
     """Orchestrates NLI premise-hypothesis verification for generated claims."""
 
@@ -193,6 +231,15 @@ class ClaimVerificationEngine:
                 cand_premises = build_candidate_premises(clean_text, ev_chunk)
                 for p_type, p_text in cand_premises:
                     nli_queue.append((p_text, clean_text, c_idx, eid, p_type, p_text))
+
+            # Stage 6.6-I: Add multi-evidence combined premise if 2+ cited items
+            if len(valid_cites) >= 2:
+                multi_premise = build_multi_evidence_premise(
+                    clean_text, [evidence_map[eid] for eid in valid_cites[:3]]
+                )
+                if multi_premise:
+                    multi_eid = "+".join(valid_cites[:3])
+                    nli_queue.append((multi_premise, clean_text, c_idx, multi_eid, "multi_evidence", multi_premise))
 
             verification_results.append({
                 "claim_id": claim.claim_id,
