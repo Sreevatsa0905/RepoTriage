@@ -295,7 +295,7 @@ export const IssueCopilot: React.FC<IssueCopilotProps> = ({ repositories = [] })
               Executing Multi-Stage Triage Pipeline
             </h3>
             <span className="text-xs text-indigo-300 bg-indigo-950/80 px-2.5 py-1 rounded-full border border-indigo-800">
-              Estimated duration: ~25-35s (local hardware)
+              Estimated duration: ~30-45s (local hardware)
             </span>
           </div>
 

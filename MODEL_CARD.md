@@ -18,7 +18,7 @@ This document specifies the models powering RepoTriage, their memory footprints,
 
 ## 2. RTX 3050 6GB Laptop GPU Memory Management
 
-Consumer GPUs with 4GB to 6GB of VRAM cannot simultaneously hold a 4B parameter LLM, a dense embedder, a cross-encoder reranker, and a DeBERTa NLI verifier without triggering Out-Of-Memory (OOM) faults or catastrophic CUDA paging.
+Consumer GPUs with 6 GB of VRAM cannot simultaneously hold a 4B parameter LLM, a dense embedder, a cross-encoder reranker, and a DeBERTa NLI verifier without triggering Out-Of-Memory (OOM) faults or catastrophic CUDA paging.
 
 ### Sequential Memory Lifecycle
 RepoTriage implements a deterministic, multi-stage memory orchestration pipeline:

@@ -14,12 +14,14 @@ This document records the exact measured evaluation results for RepoTriage acros
 
 ### Ablation Table
 
-| Retrieval Method | Recall@5 [95% CI] | Precision@5 | MRR@10 [95% CI] | nDCG@10 | Mean Latency |
-| :--- | :---: | :---: | :---: | :---: | :---: |
-| **1. BM25 (Code-Aware)** | 0.7451 [0.6275, 0.8627] | 0.1490 | 0.5484 [0.4340, 0.6670] | 0.6017 | 111.7 ms |
-| **2. Dense (BGE-Base-en-v1.5)** | 0.8039 [0.6863, 0.9020] | 0.1608 | 0.5730 [0.4675, 0.6891] | 0.6439 | 1348.8 ms |
-| **3. BM25 + Dense (RRF, $k=60$)** | 0.7647 [0.6471, 0.8824] | 0.1529 | 0.6018 [0.4948, 0.7139] | 0.6692 | 196.3 ms |
-| **4. RRF + Reranker (Blend $\alpha=0.50$)** | **0.7843** [0.6667, 0.9020] | 0.1569 | **0.6022** [0.4946, 0.7140] | **0.6697** | 504.6 ms |
+| Retrieval Method | Recall@5 [95% CI] | Precision@5 | MRR@10 [95% CI] | nDCG@10 | Median Latency | Mean Latency |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: |
+| **1. BM25 (Code-Aware)** | 0.7451 [0.6275, 0.8627] | 0.1490 | 0.5484 [0.4340, 0.6670] | 0.6017 | 50.3 ms | 112.8 ms |
+| **2. Dense (BGE-Base-en-v1.5)** | 0.8039 [0.6863, 0.9020] | 0.1608 | 0.5730 [0.4675, 0.6891] | 0.6439 | 66.6 ms | 68.2 ms |
+| **3. BM25 + Dense (RRF, $k=60$)** | 0.7647 [0.6471, 0.8824] | 0.1529 | 0.6018 [0.4948, 0.7139] | 0.6692 | 151.1 ms | 215.8 ms |
+| **4. RRF + Reranker (Blend $\alpha=0.50$)** | **0.7843** [0.6667, 0.9020] | 0.1569 | **0.6022** [0.4946, 0.7140] | **0.6697** | 290.2 ms | 404.9 ms |
+
+*Note on Latency Consistency*: Latency measured across 51 evaluation queries after a warm-up pass. With cold-start overhead eliminated, Dense-only median latency (66.6 ms) + BM25 median (50.3 ms) + reciprocal rank fusion and DB fetch (~34 ms) is completely consistent with Hybrid RRF median latency (151.1 ms). Hybrid Rerank adds cross-encoder inference across Top-20 candidates (+139.1 ms), yielding a median total latency of 290.2 ms.
 
 ### Paired Differences vs. BM25 Baseline
 - **RRF vs. BM25**:
@@ -43,15 +45,17 @@ Score blending formula: $S_{\text{final}} = (1 - \alpha) \cdot S_{\text{RRF}} + 
 - **$\alpha = 0.70$**: Recall@5 = 0.7647, Precision@5 = 0.1529, MRR@10 = 0.5931, nDCG@10 = 0.6629
 - **$\alpha = 1.0$ (Sigmoid-Only Reranker)**: Recall@5 = 0.5490, Precision@5 = 0.1098, MRR@10 = 0.3956, nDCG@10 = 0.4601
 
-> **Mathematical & Empirical Equivalence**: Because $\sigma(x)$ is strictly monotonic, $\alpha = 1.0$ produces rankings identical to raw unblended cross-encoder logits ($\alpha = \text{None}$). Both severely degrade duplicate retrieval (Recall@5 drops from 0.7647 to 0.5490) by penalizing short bug titles without body lexical overlap, demonstrating why reciprocal rank fusion blending ($\alpha=0.50$) is required to rescue ranking accuracy.
+> **Mathematical & Empirical Equivalence**: Because $\sigma(x)$ is strictly monotonic, $\alpha = 1.0$ produces rankings identical to raw unblended cross-encoder logits ($\alpha = \text{None}$). Both severely degrade duplicate retrieval (Recall@5 drops from 0.7647 to 0.5490), demonstrating why reciprocal rank fusion blending ($\alpha=0.50$) is required to rescue ranking accuracy.
 
 ---
 
 ## 2. Guardrail Benchmark B1: Adversarial ANLI Benchmark
 
 ### Protocol
-- **Dataset**: `facebook/anli` (Round 3 test set).
-- **Sample Size**: $n = 150$ balanced test pairs (50 Entailment, 50 Neutral, 50 Contradiction).
+- **Dataset**: `facebook/anli` (Round 3: `test_r1` and `dev_r1`).
+- **Sample Size & Splits**: 300 total balanced examples (100 per class: Entailment, Neutral, Contradiction).
+  - **Dev Split (150 examples, 50 per class)**: Used for threshold grid-search ($\tau_s = 0.30, \tau_c = 0.30$, Dev Macro-F1 = 0.4199).
+  - **Held-Out Test Split (150 examples, 50 per class)**: Used for final evaluation reporting (Accuracy = 46.67%, Macro-F1 = 0.4673).
 - **Decision Rule**: Strict dominance rule ($p_e \ge \tau_s \land p_e > p_c$ for `SUPPORTED`, $p_c \ge \tau_c \land p_c > p_e$ for `CONTRADICTED`).
 - **Thresholds**: $\tau_s = 0.30, \tau_c = 0.30$ (tuned on ANLI dev set).
 

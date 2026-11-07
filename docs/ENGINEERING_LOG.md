@@ -1,8 +1,8 @@
-# RepoTriage — Current Repository State
+# Engineering Log
 
 **Last Updated**: November 2026  
 **Specification**: `RepoTriage_SPEC.md`  
-**Current Milestone**: Stages 0, 1, 2, and 3 COMPLETE.
+**Status**: Complete
 
 ---
 
@@ -470,10 +470,10 @@ python -m src.cli analyze "ValidationError when using a custom validator with Op
 - Saved report to `eval/reports/classifier_live_check.json`.
 
 ### G. Warm-API Latency Verification (6.6-G)
-- Measured warm end-to-end `/api/analyze` execution on local hardware (NVIDIA RTX 3050 Laptop GPU with 4GB VRAM):
+- Measured warm end-to-end `/api/analyze` execution on local hardware (NVIDIA RTX 3050 Laptop GPU with 6 GB VRAM):
   - **Run 1 (warm cache)**: Total HTTP elapsed: **43.52s** | Pipeline: **43,331 ms** (Classifier: 238.7 ms, Retrieval: 10,996.7 ms, LLM Generation: 28,278.5 ms, Guardrail: 3,110.5 ms).
   - **Run 2 (consecutive call)**: Total HTTP elapsed: **30.73s** | Pipeline: **30,725 ms** (Classifier: 4.74 ms, Retrieval: 6,526.5 ms, LLM Generation: 20,974.2 ms, Guardrail: 2,637.3 ms).
-- **Memory Residency**: Because the 4GB VRAM budget cannot simultaneously hold the 4B parameter LLM alongside the dense embedder, cross-encoder reranker, and DeBERTa NLI cross-encoder, the pipeline explicitly unloads PyTorch models (`unload_model()`, `torch.cuda.empty_cache()`) between sequential stages. Retrieval models and the NLI guardrail are reloaded from disk cache for each analysis request rather than staying permanently resident across requests in the interactive pipeline. Standalone search evaluation (`eval.run_retrieval_eval`), by contrast, keeps retrieval models resident across queries (mean latency: BM25 111.7ms, RRF 196.3ms, RRF+Reranker 504.6ms).
+- **Memory Residency**: Because the 6 GB VRAM budget cannot simultaneously hold the 4B parameter LLM alongside the dense embedder, cross-encoder reranker, and DeBERTa NLI cross-encoder without risk of memory fragmentation, the pipeline explicitly unloads PyTorch models (`unload_model()`, `torch.cuda.empty_cache()`) between sequential stages. Retrieval models and the NLI guardrail are reloaded from disk cache for each analysis request rather than staying permanently resident across requests in the interactive pipeline. Standalone search evaluation (`eval.run_retrieval_eval`), by contrast, keeps retrieval models resident across queries (measured warm median latency: BM25 50.3ms, Dense 66.6ms, RRF 151.1ms, RRF+Reranker 290.2ms).
 
 ### H. Public Ground-Truth Benchmark B1b (6.6-H)
 - Skipped: Hugging Face datasets v3 has deprecated `.py` loading scripts (`fever.py`, `scifact.py`, `hover.py`), resulting in 404/DatasetScriptNotSupported errors.
@@ -572,9 +572,9 @@ python -m src.cli analyze "ValidationError when using a custom validator with Op
 
 > **Local-First GitHub Issue Intelligence & Resolution Copilot (RepoTriage)**
 > * Built an offline-first issue resolution copilot combining a selective TF-IDF + Logistic Regression classifier (73.58% coverage at 0.50 confidence, achieving 82.05% accuracy on covered issues), hybrid BM25 + BGE dense retrieval (Dense Recall@5: 0.8039 [95% CI: 0.6863, 0.9020]; RRF MRR@10: 0.6018 [95% CI: 0.4948, 0.7139] on $n=51$ duplicate query pairs), local Qwen 4B synthesis, and DeBERTa-v3 natural language inference (NLI) claim verification.
-> * Discovered that an off-the-shelf cross-encoder reranker (`bge-reranker-base`) degraded duplicate-issue retrieval Recall@5 from 0.7647 (RRF) and 0.8039 (Dense) down to 0.5490 (pure reranking $\alpha=\text{None}$ / $\alpha=1.0$) by penalizing short bug titles without body overlap, resolved via convex reciprocal-rank score blending ($\alpha = 0.50$, recovering 0.7843 Recall@5 and 0.6022 MRR@10).
-> * Implemented multi-premise sentence-window NLI verification enforcing strict dominance thresholds ($\tau_s = 0.80, \tau_c = 0.80$), eliminating premise-attention dilution and achieving 0.00% (0 / 80) false-support on hard negative controls, 1.25% (1 / 80) on easy negative controls, and 95.00% (95 / 100) supported recall on synthetic rule-perturbed developer claims.
-> * Engineered deterministic sequential GPU memory management for consumer hardware (NVIDIA RTX 3050 Laptop GPU 4GB VRAM), sequentially loading and unloading PyTorch embedding/reranking models before Ollama inference to guarantee zero-OOM execution across pipeline stages.
+> * Discovered that an off-the-shelf cross-encoder reranker (`bge-reranker-base`) degraded duplicate-issue retrieval Recall@5 from 0.7647 (RRF) and 0.8039 (Dense) down to 0.5490 (pure reranking $\alpha=\text{None}$ / $\alpha=1.0$), resolved via convex reciprocal-rank score blending ($\alpha = 0.50$, recovering 0.7843 Recall@5 and 0.6022 MRR@10).
+> * Implemented multi-premise sentence-window NLI verification enforcing strict dominance thresholds ($\tau_s = 0.80, \tau_c = 0.80$), achieving 0.00% (0 / 80) false-support on hard negative controls, 1.25% (1 / 80) on easy negative controls, and 95.00% (95 / 100) supported recall on synthetic rule-perturbed developer claims.
+> * Engineered deterministic sequential GPU memory management for consumer hardware (NVIDIA RTX 3050 Laptop GPU with 6 GB VRAM), sequentially loading and unloading PyTorch embedding/reranking models before Ollama inference to guarantee zero-OOM execution across pipeline stages.
 > * Built an asynchronous FastAPI REST service with single-flight concurrency locking (HTTP 429) alongside a Vite React + TypeScript dark-theme copilot displaying unmerged dual classification and interactive claim verification traces.
 
 ### D. Final Quality Checks
@@ -702,7 +702,7 @@ Updated the resume draft to comply with all evaluation findings:
 - Action verb: **"Built"** (not "Deployed").
 - Replaced the 0.7605 pooled training score with the measured live-check numbers: *"73.58% coverage at 0.50 threshold, achieving 82.05% accuracy on covered issues across seed repos"*.
 - Pinned Dense Recall@5 of `0.8039` [95% CI: 0.6863, 0.9020] and RRF MRR@10 of `0.6018` [95% CI: 0.4948, 0.7139] on $n=51$ duplicate query pairs.
-- Documented the empirical finding that the off-the-shelf cross-encoder reranker dropped Recall@5 (from 0.7647 to 0.7451) until convex reciprocal-rank blending ($\alpha = 0.50$) restored it to 0.7843.
+- Documented the empirical finding that the off-the-shelf cross-encoder reranker dropped Recall@5 (from 0.7647 down to 0.5490) until convex reciprocal-rank blending ($\alpha = 0.50$) restored it to 0.7843.
 
 ---
 

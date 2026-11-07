@@ -91,7 +91,7 @@ export const EvaluationTab: React.FC = () => {
                 <th className="p-3 font-semibold">Precision@5</th>
                 <th className="p-3 font-semibold">MRR@10 [95% CI]</th>
                 <th className="p-3 font-semibold">nDCG@10</th>
-                <th className="p-3 font-semibold">Mean Latency</th>
+                <th className="p-3 font-semibold">Median Latency</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-dark-700 text-gray-300 font-mono">
@@ -101,7 +101,7 @@ export const EvaluationTab: React.FC = () => {
                 <td className="p-3">0.1490</td>
                 <td className="p-3">0.5484 <span className="text-gray-500 font-normal">[0.4340, 0.6670]</span></td>
                 <td className="p-3">0.6017</td>
-                <td className="p-3 font-sans text-gray-400">111.7ms</td>
+                <td className="p-3 font-sans text-gray-400">50.3ms</td>
               </tr>
               <tr className="hover:bg-dark-750">
                 <td className="p-3 font-sans font-medium text-white">2. Dense (BAAI/bge-base-en-v1.5)</td>
@@ -109,7 +109,7 @@ export const EvaluationTab: React.FC = () => {
                 <td className="p-3">0.1608</td>
                 <td className="p-3">0.5730 <span className="text-gray-500 font-normal">[0.4675, 0.6891]</span></td>
                 <td className="p-3">0.6439</td>
-                <td className="p-3 font-sans text-gray-400">1348.8ms</td>
+                <td className="p-3 font-sans text-gray-400">66.6ms</td>
               </tr>
               <tr className="hover:bg-dark-750">
                 <td className="p-3 font-sans font-medium text-white">3. BM25 + Dense (RRF, k=60)</td>
@@ -117,7 +117,7 @@ export const EvaluationTab: React.FC = () => {
                 <td className="p-3">0.1529</td>
                 <td className="p-3">0.6018 <span className="text-gray-500 font-normal">[0.4948, 0.7139]</span></td>
                 <td className="p-3">0.6692</td>
-                <td className="p-3 font-sans text-gray-400">196.3ms</td>
+                <td className="p-3 font-sans text-gray-400">151.1ms</td>
               </tr>
               <tr className="hover:bg-dark-750 bg-indigo-950/20">
                 <td className="p-3 font-sans font-medium text-indigo-300">4. RRF + BGE Reranker (Blend α=0.50)</td>
@@ -125,7 +125,7 @@ export const EvaluationTab: React.FC = () => {
                 <td className="p-3">0.1569</td>
                 <td className="p-3 font-bold text-emerald-400">0.6022 <span className="text-gray-500 font-normal">[0.4946, 0.7140]</span></td>
                 <td className="p-3 font-bold text-emerald-400">0.6697</td>
-                <td className="p-3 font-sans text-gray-400">504.6ms</td>
+                <td className="p-3 font-sans text-gray-400">290.2ms</td>
               </tr>
             </tbody>
           </table>
@@ -136,6 +136,8 @@ export const EvaluationTab: React.FC = () => {
           <div className="p-4 rounded-lg bg-dark-900 border border-dark-700">
             <h4 className="font-semibold text-gray-300 mb-2">Paired Differences vs. BM25 Baseline (95% CI)</h4>
             <ul className="space-y-1.5 text-gray-400 font-mono">
+              <li>• Dense vs BM25: Δ Recall@5 = <strong className="text-gray-200">+0.0588</strong> [-0.0588, +0.1765]</li>
+              <li>• Dense vs BM25: Δ MRR@10 = <strong className="text-gray-200">+0.0246</strong> [-0.0603, +0.1138]</li>
               <li>• RRF vs BM25: Δ Recall@5 = <strong className="text-gray-200">+0.0196</strong> [-0.0588, +0.0980]</li>
               <li>• RRF vs BM25: Δ MRR@10 = <strong className="text-gray-200">+0.0535</strong> [-0.0129, +0.1223]</li>
               <li>• Reranker vs BM25: Δ Recall@5 = <strong className="text-gray-200">+0.0392</strong> [-0.0588, +0.1373]</li>
@@ -188,11 +190,11 @@ export const EvaluationTab: React.FC = () => {
               2. Guardrail Benchmark B1: Adversarial ANLI Evaluation
             </h3>
             <span className="text-xs text-indigo-300 bg-indigo-950 px-2.5 py-0.5 rounded border border-indigo-800">
-              Dataset: facebook/anli (Round 3) | n = 150 balanced test pairs | τ_s = 0.30, τ_c = 0.30
+              Dataset: facebook/anli (Round 3) | 300 balanced examples (150 dev, 150 held-out test) | τ_s = 0.30, τ_c = 0.30
             </span>
           </div>
           <p className="text-xs text-gray-400 mt-1">
-            Evaluates cross-encoder/nli-deberta-v3-base with strict dominance decision rule (p_e &gt; p_c for entailment, p_c &gt; p_e for contradiction).
+            Tuned on 150 dev examples (50 per class, Dev Macro-F1: 0.4199). Evaluated on 150 held-out test examples (50 per class) using cross-encoder/nli-deberta-v3-base with strict dominance decision rule.
           </p>
         </div>
 

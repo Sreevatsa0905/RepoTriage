@@ -1,17 +1,17 @@
 # Retrieval Ablation Evaluation Report
-**Timestamp**: 2026-11-07T12:32:25.884580+00:00  
+**Timestamp**: 2026-11-07T13:24:59.417062+00:00  
 **Queries Evaluated**: 51 verified duplicate/cross-reference pairs  
 **Candidate Pool**: `issues only (source_types=['issue', 'comment'])` (docs excluded to eliminate candidate crowding)  
 **Temporal & Self-Exclusion Leakage Check**: 100% Passed (query issues & post-query chunks strictly excluded)  
 
 ## 1. Headline 4-Way Ablation Results (Issues-Only Pool)
 
-| Retrieval Method | Recall@5 | Precision@5 | MRR@10 | nDCG@10 | Mean Latency (ms) |
-| :--- | :---: | :---: | :---: | :---: | :---: |
-| **1. BM25 Only** | **0.7451** | 0.1490 | **0.5484** | **0.6017** | 111.67 ms |
-| **2. BGE Dense Only** | **0.8039** | 0.1608 | **0.5730** | **0.6439** | 1348.81 ms |
-| **3. BM25 + BGE (RRF k=60)** | **0.7647** | 0.1529 | **0.6018** | **0.6692** | 196.32 ms |
-| **4. RRF + BGE Reranker (Blend α=0.50)** | **0.7843** | 0.1569 | **0.6022** | **0.6697** | 504.63 ms |
+| Retrieval Method | Recall@5 | Precision@5 | MRR@10 | nDCG@10 | Median Latency | Mean Latency |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: |
+| **1. BM25 Only** | **0.7451** | 0.1490 | **0.5484** | **0.6017** | 50.31 ms | 112.79 ms |
+| **2. BGE Dense Only** | **0.8039** | 0.1608 | **0.5730** | **0.6439** | 66.61 ms | 68.19 ms |
+| **3. BM25 + BGE (RRF k=60)** | **0.7647** | 0.1529 | **0.6018** | **0.6692** | 151.11 ms | 215.82 ms |
+| **4. RRF + BGE Reranker (Blend α=0.50)** | **0.7843** | 0.1569 | **0.6022** | **0.6697** | 290.19 ms | 404.87 ms |
 
 ## 2. Before (Mixed Pool) vs. After (Issues-Only Pool) Comparison
 
@@ -29,11 +29,11 @@
 
 | Blending Strategy | Recall@5 | Precision@5 | MRR@10 | nDCG@10 | Mean Latency |
 | :--- | :---: | :---: | :---: | :---: | :---: |
-| **Reranker Only (α=None)** | 0.5490 | 0.1098 | 0.3956 | 0.4601 | 387.33 ms |
-| **Blend α = 0.3** | 0.7843 | 0.1569 | 0.5812 | 0.6540 | 324.78 ms |
-| **Blend α = 0.5** **(Headline Fixed)** | 0.7843 | 0.1569 | 0.6022 | 0.6697 | 319.51 ms |
-| **Blend α = 0.7** | 0.7647 | 0.1529 | 0.5931 | 0.6629 | 403.14 ms |
-| **Blend α = 1.0** | 0.5490 | 0.1098 | 0.3956 | 0.4601 | 414.94 ms |
+| **Reranker Only (α=None)** | 0.5490 | 0.1098 | 0.3956 | 0.4601 | 425.42 ms |
+| **Blend α = 0.3** | 0.7843 | 0.1569 | 0.5812 | 0.6540 | 367.56 ms |
+| **Blend α = 0.5** **(Headline Fixed)** | 0.7843 | 0.1569 | 0.6022 | 0.6697 | 417.08 ms |
+| **Blend α = 0.7** | 0.7647 | 0.1529 | 0.5931 | 0.6629 | 386.14 ms |
+| **Blend α = 1.0** | 0.5490 | 0.1098 | 0.3956 | 0.4601 | 389.20 ms |
 
 ## 4. Per-Repository Breakdown (Issues-Only Pool)
 

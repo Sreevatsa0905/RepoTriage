@@ -27,6 +27,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+import numpy as np
+
 from src.retrieval.index import HybridRetriever, RetrievalMethod
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
@@ -92,6 +94,23 @@ def evaluate_method(
     source_types = source_types or ["issue", "comment"]
     logger.info("Evaluating method: %s (source_types=%s, alpha=%s) on %d queries...",
                 method, source_types, rerank_alpha, len(ground_truth))
+
+    # Warm-up pass to ensure PyTorch models, tokenizers, and disk caches are warm
+    if ground_truth:
+        try:
+            warmup_repo = ground_truth[0]["repo"]
+            retriever.reload_corpus(repo=warmup_repo)
+            retriever.search(
+                query="warmup retrieval latency pass",
+                repo=warmup_repo,
+                top_k=top_k,
+                method=method,
+                source_types=source_types,
+                rerank_alpha=rerank_alpha,
+                return_trace=False,
+            )
+        except Exception as e:
+            logger.debug("Warmup query skipped: %s", e)
 
     query_results: list[dict[str, Any]] = []
     latencies: list[float] = []
@@ -165,6 +184,7 @@ def evaluate_method(
         "precision@5": round(sum(q["metrics"]["precision@5"] for q in query_results) / n, 4),
         "mrr@10": round(sum(q["metrics"]["mrr@10"] for q in query_results) / n, 4),
         "ndcg@10": round(sum(q["metrics"]["ndcg@10"] for q in query_results) / n, 4),
+        "median_latency_ms": round(float(np.median(latencies)), 2),
         "mean_latency_ms": round(sum(latencies) / n, 2),
     }
 
@@ -177,6 +197,7 @@ def evaluate_method(
             "precision@5": round(sum(stats["precision@5"]) / count, 4),
             "mrr@10": round(sum(stats["mrr@10"]) / count, 4),
             "ndcg@10": round(sum(stats["ndcg@10"]) / count, 4),
+            "median_latency_ms": round(float(np.median(stats["latency_ms"])), 2),
             "mean_latency_ms": round(sum(stats["latency_ms"]) / count, 2),
         }
 
@@ -262,8 +283,8 @@ def generate_markdown_report(data: dict[str, Any]) -> str:
         "",
         "## 1. Headline 4-Way Ablation Results (Issues-Only Pool)",
         "",
-        "| Retrieval Method | Recall@5 | Precision@5 | MRR@10 | nDCG@10 | Mean Latency (ms) |",
-        "| :--- | :---: | :---: | :---: | :---: | :---: |",
+        "| Retrieval Method | Recall@5 | Precision@5 | MRR@10 | nDCG@10 | Median Latency | Mean Latency |",
+        "| :--- | :---: | :---: | :---: | :---: | :---: | :---: |",
     ]
 
     method_labels = {
@@ -278,8 +299,9 @@ def generate_markdown_report(data: dict[str, Any]) -> str:
             continue
         stats = data["methods"][m_key]["overall"]
         label = method_labels.get(m_key, m_key)
+        med_lat = stats.get('median_latency_ms', stats.get('mean_latency_ms', 0))
         lines.append(
-            f"| **{label}** | **{stats['recall@5']:.4f}** | {stats['precision@5']:.4f} | **{stats['mrr@10']:.4f}** | **{stats['ndcg@10']:.4f}** | {stats['mean_latency_ms']:.2f} ms |"
+            f"| **{label}** | **{stats['recall@5']:.4f}** | {stats['precision@5']:.4f} | **{stats['mrr@10']:.4f}** | **{stats['ndcg@10']:.4f}** | {med_lat:.2f} ms | {stats['mean_latency_ms']:.2f} ms |"
         )
 
     lines.extend([

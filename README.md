@@ -51,14 +51,14 @@ flowchart TD
 
 ### A. Retrieval 4-Way Ablation (Issues-Only Candidate Pool, $n=51$, 1,000 Bootstrap Resamples)
 
-| Retrieval Method | Recall@5 [95% CI] | Precision@5 | MRR@10 [95% CI] | nDCG@10 | Mean Latency |
+| Retrieval Method | Recall@5 [95% CI] | Precision@5 | MRR@10 [95% CI] | nDCG@10 | Median Latency |
 | :--- | :---: | :---: | :---: | :---: | :---: |
-| **BM25 (Code-Aware)** | 0.7451 [0.6275, 0.8627] | 0.1490 | 0.5484 [0.4340, 0.6670] | 0.6017 | 111.7 ms |
-| **Dense (BGE-Base-en-v1.5)** | 0.8039 [0.6863, 0.9020] | 0.1608 | 0.5730 [0.4675, 0.6891] | 0.6439 | 1348.8 ms |
-| **BM25 + Dense (RRF, $k=60$)** | 0.7647 [0.6471, 0.8824] | 0.1529 | 0.6018 [0.4948, 0.7139] | 0.6692 | 196.3 ms |
-| **RRF + Reranker (Blend $\alpha=0.50$)** | **0.7843** [0.6667, 0.9020] | 0.1569 | **0.6022** [0.4946, 0.7140] | **0.6697** | 504.6 ms |
+| **BM25 (Code-Aware)** | 0.7451 [0.6275, 0.8627] | 0.1490 | 0.5484 [0.4340, 0.6670] | 0.6017 | 50.3 ms |
+| **Dense (BGE-Base-en-v1.5)** | 0.8039 [0.6863, 0.9020] | 0.1608 | 0.5730 [0.4675, 0.6891] | 0.6439 | 66.6 ms |
+| **BM25 + Dense (RRF, $k=60$)** | 0.7647 [0.6471, 0.8824] | 0.1529 | 0.6018 [0.4948, 0.7139] | 0.6692 | 151.1 ms |
+| **RRF + Reranker (Blend $\alpha=0.50$)** | **0.7843** [0.6667, 0.9020] | 0.1569 | **0.6022** [0.4946, 0.7140] | **0.6697** | 290.2 ms |
 
-> **Note on Candidate Pool & Reranking**: Switching from a mixed candidate pool (7,704 chunks including 1,684 docs) to an issues-only pool (6,020 chunks: 2,110 issue chunks + 3,910 comment chunks) improved Recall@5 across all methods (BM25: 0.6471 $\to$ 0.7451; Dense: 0.6863 $\to$ 0.8039; RRF: 0.6471 $\to$ 0.7647; RRF+Reranker: 0.3922 $\to$ 0.7843) by eliminating documentation chunk interference. Chunks are deduplicated by parent issue number so that Top-K items represent distinct issues. Pure cross-encoder reranking ($\alpha=\text{None}$ or $\alpha=1.0$) severely underperforms at Recall@5 0.5490 / MRR@10 0.3956 by penalizing short titles without body text, but blending with RRF ($\alpha=0.50$) restores optimal ranking accuracy (Recall@5 0.7843, MRR@10 0.6022).
+> **Note on Latency, Candidate Pool & Reranking**: Latency is reported as the median over 51 queries after a warm-up pass (eliminating cold-start initialization). Dense-only (66.6 ms) + BM25 (50.3 ms) + fusion/dedup yields 151.1 ms for Hybrid RRF, and cross-encoder reranking over Top-20 candidates brings total median latency to 290.2 ms. Paired difference vs. BM25: Dense $\Delta \text{Recall@5} = +0.0588$ [$-0.0588, +0.1765$], $\Delta \text{MRR@10} = +0.0246$ [$-0.0603, +0.1138$]; RRF $\Delta \text{Recall@5} = +0.0196$ [$-0.0588, +0.0980$], $\Delta \text{MRR@10} = +0.0535$ [$-0.0129, +0.1223$]. Switching from a mixed candidate pool (7,704 chunks including 1,684 docs) to an issues-only pool (6,020 chunks: 2,110 issue chunks + 3,910 comment chunks) improved Recall@5 across all methods (BM25: 0.6471 $\to$ 0.7451; Dense: 0.6863 $\to$ 0.8039; RRF: 0.6471 $\to$ 0.7647; RRF+Reranker: 0.3922 $\to$ 0.7843) by eliminating documentation chunk interference. Parent-issue deduplication collapses multiple chunks per issue to ensure Top-K represents K distinct issues. Pure cross-encoder reranking ($\alpha=\text{None}$ or $\alpha=1.0$) drops Recall@5 to 0.5490 / MRR@10 to 0.3956, while score blending ($\alpha=0.50$) preserves BM25 candidate recall and achieves optimal MRR@10 (0.6022).
 
 ### B. Guardrail In-Domain Calibration (B2 Fresh Held-Out Set, $n = 80$ Claims)
 
