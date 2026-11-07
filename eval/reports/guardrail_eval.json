@@ -1,6 +1,6 @@
 {
-  "timestamp": "2026-11-07T06:02:01.876807+00:00",
-  "total_time_seconds": 412.3,
+  "timestamp": "2026-11-07T08:27:44.416875+00:00",
+  "total_time_seconds": 561.11,
   "b1_public_benchmark": {
     "dataset": "facebook/anli (adversarial NLI, out-of-domain)",
     "sample_size": 300,
@@ -8,7 +8,7 @@
     "test_split_size": 150,
     "tuned_tau_s": 0.3,
     "tuned_tau_c": 0.3,
-    "dev_macro_f1": 0.4268,
+    "dev_macro_f1": 0.4199,
     "test_metrics": {
       "accuracy": 0.4667,
       "macro_f1": 0.4673,
@@ -103,114 +103,234 @@
     }
   },
   "b2_indomain_control": {
-    "total_claims_generated": 89,
-    "citation_coverage": 0.9888,
+    "dataset_type": "Fresh 15 held-out issues (zero overlap with dev set)",
+    "total_claims_generated": 97,
+    "citation_coverage": 0.9175,
+    "claims_per_issue": 6.47,
     "tau_s": 0.3,
     "tau_c": 0.3,
-    "grounded_pairs_evaluated": 88,
-    "grounded_support_rate": 0.4545,
-    "easy_negatives_evaluated": 89,
-    "easy_false_support_count": 0,
-    "easy_false_support_rate": 0.0,
-    "hard_negatives_evaluated": 89,
-    "hard_false_support_count": 5,
-    "hard_false_support_rate": 0.0562,
-    "no_guardrail_false_support_rate": 1.0,
+    "grounded_pairs_evaluated": 89,
+    "grounded_supported_count": 40,
+    "grounded_support_rate": 0.4494,
+    "grounded_premise_type_wins": {
+      "full_chunk": 54,
+      "sentence_window": 35
+    },
+    "easy_negatives_evaluated": 97,
+    "easy_false_support_count": 1,
+    "easy_false_support_rate": 0.0103,
+    "hard_negatives_evaluated": 97,
+    "hard_false_support_count": 1,
+    "hard_false_support_rate": 0.0103,
+    "safety_switch_triggered": false,
+    "no_guardrail_baseline_false_support": 1.0,
     "action_counts": {
       "SUPPORTED": 40,
-      "CONTRADICTED": 6,
-      "INSUFFICIENT_EVIDENCE": 49
+      "CONTRADICTED": 15,
+      "INSUFFICIENT_EVIDENCE": 57
     },
     "spot_check_10_hard_negatives": [
       {
         "index": 1,
-        "claim": "Requests with self-signed certs broken: specifying a cert bundle in 2.28.1 works fine, but in 2.32.5 fails with requests.exceptions.SSLError.",
-        "hard_negative_premise": "[psf/requests #7033] requests with self signed certs broken specifying a cert bundle in 2.28.1 works fine, but in 2.32.5 fails with requests.exception...",
-        "entailment": 0.9976,
-        "contradiction": 0.0001,
-        "guardrail_verdict": "SUPPORTED",
-        "spot_check_audit": "Incidental Overlap"
+        "claim": "Using `httpx.Client(proxies={'https://': 'https://user:pass@proxy.com'})` causes an SSL error when the proxy requires TLS.",
+        "hard_premise_preview": "[SSL errors do not provide much information.] [encode/httpx #2272] SSL errors do not provide much information. https://github.com/encode/htt...",
+        "premise_type": "full_chunk",
+        "entailment": 0.0051,
+        "contradiction": 0.0013,
+        "verdict": "INSUFFICIENT_EVIDENCE",
+        "audit": "Valid Rejection"
       },
       {
         "index": 2,
-        "claim": "verify=False crashes on py3.13 on windows (FileNotFoundError).",
-        "hard_negative_premise": "[psf/requests #6947] verify=False crashes on py3.13 on windows (FileNotFoundError) I have a tests where I do `self._session.verify = False` to my requ...",
-        "entailment": 0.9922,
-        "contradiction": 0.0003,
-        "guardrail_verdict": "SUPPORTED",
-        "spot_check_audit": "Incidental Overlap"
+        "claim": "The error message `[SSL: UNEXPECTED_MESSAGE] unexpected message (_ssl.c:1131)` appears in issues involving HTTPS proxies with httpx.",
+        "hard_premise_preview": "[SSL errors do not provide much information.] [encode/httpx #2272] SSL errors do not provide much information. https://github.com/encode/htt...",
+        "premise_type": "full_chunk",
+        "entailment": 0.2239,
+        "contradiction": 0.0007,
+        "verdict": "INSUFFICIENT_EVIDENCE",
+        "audit": "Valid Rejection"
       },
       {
         "index": 3,
-        "claim": "Failed to ignore the SSL certificate verification when using verify=False option.",
-        "hard_negative_premise": "If ``REQUESTS_CA_BUNDLE`` is not set, ``CURL_CA_BUNDLE`` will be used as fallback. Requests can also ignore verifying the SSL certificate if you set `...",
-        "entailment": 0.0006,
-        "contradiction": 0.9956,
-        "guardrail_verdict": "REJECTED (INSUFFICIENT)",
-        "spot_check_audit": "Valid Rejection"
+        "claim": "A similar issue reported `[SSL: WRONG_VERSION_NUMBER] wrong version number (_ssl.c:997)` when using `http://` scheme for a proxy that supports TLS.",
+        "hard_premise_preview": "[Comment on #1373 by @ghost] [encode/httpx #1373 Comment by @ghost] **EDIT**: Never mind, I see this is a different issue tracked in #1434. ...",
+        "premise_type": "full_chunk",
+        "entailment": 0.002,
+        "contradiction": 0.0015,
+        "verdict": "INSUFFICIENT_EVIDENCE",
+        "audit": "Valid Rejection"
       },
       {
         "index": 4,
-        "claim": "HTTPS warnings are emitted incorrectly or tests fail due to SSL handshake issues in specific environments.",
-        "hard_negative_premise": "[ 96%] ...sssssssssss..... [100%] =================================== FAILURES =================================== _______________________ TestRequest...",
-        "entailment": 0.0135,
-        "contradiction": 0.011,
-        "guardrail_verdict": "REJECTED (INSUFFICIENT)",
-        "spot_check_audit": "Valid Rejection"
+        "claim": "Another issue reported `[SSL: WRONG_VERSION_NUMBER] wrong version number (_ssl.c:1131)` when using `http://` scheme for a proxy that supports TLS.",
+        "hard_premise_preview": "[SSL errors do not provide much information.] Error: httpx.ProxyError: [SSL: WRONG_VERSION_NUMBER] wrong version number (_ssl.c:997) Full de...",
+        "premise_type": "sentence_window",
+        "entailment": 0.0001,
+        "contradiction": 0.7993,
+        "verdict": "CONTRADICTED",
+        "audit": "Valid Rejection"
       },
       {
         "index": 5,
-        "claim": "Multiple concurrent client certs broken with v2.32.3.",
-        "hard_negative_premise": "[psf/requests #6726] Multiple concurrent client certs broken with v2.32.3 (Part 2/2) DeprecationWarning: ssl.PROTOCOL_TLSv1_2 is deprecated self.ssl_c...",
-        "entailment": 0.9912,
-        "contradiction": 0.0039,
-        "guardrail_verdict": "SUPPORTED",
-        "spot_check_audit": "Incidental Overlap"
+        "claim": "Using `https://` scheme for the proxy URL is recommended because some proxies do not support connecting via HTTPS.",
+        "hard_premise_preview": "[SSL errors do not provide much information.] [encode/httpx #2272] SSL errors do not provide much information. https://github.com/encode/htt...",
+        "premise_type": "full_chunk",
+        "entailment": 0.0035,
+        "contradiction": 0.0012,
+        "verdict": "INSUFFICIENT_EVIDENCE",
+        "audit": "Valid Rejection"
       },
       {
         "index": 6,
-        "claim": "The incoming issue reports a ValueError stating that the timeout value for 'connect' is an object object instead of an int, float, or None.",
-        "hard_negative_premise": ":param timeout: (optional) How long to wait for the server to send data before giving up, as a float, or a :ref:`(connect timeout, read timeout) <time...",
+        "claim": "The error `[SSL: WRONG_VERSION_NUMBER] wrong version number (_ssl.c:1124)` occurs when using `TUNNEL_ONLY` mode with a custom HTTP proxy.",
+        "hard_premise_preview": "[SSL errors do not provide much information.] Error: httpx.ProxyError: [SSL: WRONG_VERSION_NUMBER] wrong version number (_ssl.c:997) Full de...",
+        "premise_type": "sentence_window",
         "entailment": 0.0,
-        "contradiction": 0.9995,
-        "guardrail_verdict": "REJECTED (INSUFFICIENT)",
-        "spot_check_audit": "Valid Rejection"
+        "contradiction": 0.9985,
+        "verdict": "CONTRADICTED",
+        "audit": "Valid Rejection"
       },
       {
         "index": 7,
-        "claim": "The error occurs when upgrading from requests 2.29.0 to 2.30.0 in the jenkins-job-builder automation.",
-        "hard_negative_premise": "To reproduce the error. requirements,txt > requests- uses the latest release (2.30.0) and causes the lambda function to throw the error above. require...",
-        "entailment": 0.0002,
-        "contradiction": 0.0002,
-        "guardrail_verdict": "REJECTED (INSUFFICIENT)",
-        "spot_check_audit": "Valid Rejection"
+        "claim": "The error `[SSL: WRONG_VERSION_NUMBER] wrong version number (_ssl.c:1124)` occurs when using `TUNNEL_ONLY` mode with a custom HTTP proxy.",
+        "hard_premise_preview": "[SSL errors do not provide much information.] Error: httpx.ProxyError: [SSL: WRONG_VERSION_NUMBER] wrong version number (_ssl.c:997) Full de...",
+        "premise_type": "sentence_window",
+        "entailment": 0.0,
+        "contradiction": 0.9985,
+        "verdict": "CONTRADICTED",
+        "audit": "Valid Rejection"
       },
       {
         "index": 8,
-        "claim": "A similar issue (#6744) with google-cloud-bigquery shows the same stack trace involving TimeoutSauce(connect=timeout, read=timeout) and urllib3/util/timeout.py.",
-        "hard_negative_premise": "self._blocking_poll(timeout=timeout) File \"/usr/local/lib/python3.10/site-packages/google/cloud/bigquery/job/query.py\", line 1318, in _blocking_poll s...",
-        "entailment": 0.0003,
-        "contradiction": 0.0008,
-        "guardrail_verdict": "REJECTED (INSUFFICIENT)",
-        "spot_check_audit": "Valid Rejection"
+        "claim": "The error `[SSL: WRONG_VERSION_NUMBER] wrong version number (_ssl.c:1124)` occurs when using `TUNNEL_ONLY` mode with a custom HTTP proxy.",
+        "hard_premise_preview": "[SSL errors do not provide much information.] Error: httpx.ProxyError: [SSL: WRONG_VERSION_NUMBER] wrong version number (_ssl.c:997) Full de...",
+        "premise_type": "sentence_window",
+        "entailment": 0.0,
+        "contradiction": 0.9985,
+        "verdict": "CONTRADICTED",
+        "audit": "Valid Rejection"
       },
       {
         "index": 9,
-        "claim": "The user in the incoming issue suspects this might be related to issue #6432.",
-        "hard_negative_premise": "[psf/requests #7085 Comment by @n-badtke-cg]\n\nThe container image for Apache Airflow with version 3.1.3-python3.12 is including these versions of the ...",
-        "entailment": 0.0013,
-        "contradiction": 0.9937,
-        "guardrail_verdict": "REJECTED (INSUFFICIENT)",
-        "spot_check_audit": "Valid Rejection"
+        "claim": "Currently `rfc3986` 2.0.0 is not supported.",
+        "hard_premise_preview": "[RFE: please update for `rfc3986` 2.x] [encode/httpx #2386] RFE: please update for `rfc3986` 2.x https://github.com/encode/httpx/blob/8088fc...",
+        "premise_type": "full_chunk",
+        "entailment": 0.0122,
+        "contradiction": 0.2421,
+        "verdict": "INSUFFICIENT_EVIDENCE",
+        "audit": "Valid Rejection"
       },
       {
         "index": 10,
-        "claim": "Issue #7035 discusses handling of check_compatibility and converting ValueError to warnings, but notes that forcing warnings->errors is a separate issue.",
-        "hard_negative_premise": "The ValueError gets turned into a warning [here](https://github.com/psf/requests/blob/da9113c0466850a425e554630a732ec1f7d045fc/src/requests/__init__.p...",
-        "entailment": 0.0004,
+        "claim": "Multiple feature requests have been submitted to request support for rfc3986 version 2.x.",
+        "hard_premise_preview": "[RFE: please provide support for `httpcore` >= 0.17] [encode/httpx #2625] RFE: please provide support for `httpcore` >= 0.17 https://github....",
+        "premise_type": "full_chunk",
+        "entailment": 0.0001,
+        "contradiction": 0.0127,
+        "verdict": "INSUFFICIENT_EVIDENCE",
+        "audit": "Valid Rejection"
+      }
+    ],
+    "spot_check_10_grounded_claims": [
+      {
+        "index": 1,
+        "claim": "Currently `rfc3986` 2.0.0 is not supported.",
+        "cited_premise_preview": "[RFE: provide suport for `rfc3986` 2.0.0] Currently `rfc3986` 2.0.0 is not supported. https://github.com/encode/httpx/blob/3af5146788f2945c8...",
+        "premise_type": "sentence_window",
+        "entailment": 0.9976,
         "contradiction": 0.0001,
-        "guardrail_verdict": "REJECTED (INSUFFICIENT)",
-        "spot_check_audit": "Valid Rejection"
+        "verdict": "SUPPORTED",
+        "strictly_contained": "Yes (exact match)"
+      },
+      {
+        "index": 2,
+        "claim": "The release process requires updating the changelog, bumping the version in `__version__.py`, and creating a pull request.",
+        "cited_premise_preview": "[Releasing] [encode/httpx - docs/contributing.md] Releasing *This section is targeted at HTTPX maintainers.* Before releasing a new version,...",
+        "premise_type": "full_chunk",
+        "entailment": 0.9614,
+        "contradiction": 0.0002,
+        "verdict": "SUPPORTED",
+        "strictly_contained": "Yes (exact match)"
+      },
+      {
+        "index": 3,
+        "claim": "The AsyncClient.__aenter__() method sets self._state to ClientState.OPENED after passing the state check.",
+        "cited_premise_preview": "[作者你好，0.19.0版本AsyncClient.__aenter__() 方法增加了调用控制。如果是Singleton instance 则无法重新发送请求] [encode/httpx #1874] 作者你好，0.19.0版本AsyncClient.__aenter__()...",
+        "premise_type": "full_chunk",
+        "entailment": 0.4976,
+        "contradiction": 0.0001,
+        "verdict": "SUPPORTED",
+        "strictly_contained": "Partially supported"
+      },
+      {
+        "index": 4,
+        "claim": "The recommended way to use a Client is as a context manager to ensure connections are properly cleaned up.",
+        "cited_premise_preview": "[Usage] [encode/httpx - docs/advanced/clients.md] Usage The recommended way to use a `Client` is as a context manager. This will ensure that...",
+        "premise_type": "full_chunk",
+        "entailment": 0.998,
+        "contradiction": 0.0,
+        "verdict": "SUPPORTED",
+        "strictly_contained": "Yes (exact match)"
+      },
+      {
+        "index": 5,
+        "claim": "Using a client instance explicitly closed without a context manager is an alternative to using it as a context manager.",
+        "cited_premise_preview": "[Usage] [encode/httpx - docs/advanced/clients.md] Usage The recommended way to use a `Client` is as a context manager. This will ensure that...",
+        "premise_type": "full_chunk",
+        "entailment": 0.9971,
+        "contradiction": 0.0004,
+        "verdict": "SUPPORTED",
+        "strictly_contained": "Yes (exact match)"
+      },
+      {
+        "index": 6,
+        "claim": "CVE-2015-2296 applies to requests version 2.32.3.",
+        "cited_premise_preview": "[[Security] Medium Severity Vulnerability (CVE-2015-2296) in Requests v2.32.3] A potential medium-severity security issue has been identifie...",
+        "premise_type": "sentence_window",
+        "entailment": 0.9961,
+        "contradiction": 0.0,
+        "verdict": "SUPPORTED",
+        "strictly_contained": "Yes (exact match)"
+      },
+      {
+        "index": 7,
+        "claim": "CVE-2015-2296 affects requests versions 2.1.0 through 2.5.3.",
+        "cited_premise_preview": "[[Security] Medium Severity Vulnerability (CVE-2015-2296) in Requests v2.32.3] The resolve_redirects function in sessions.py in requests 2.1...",
+        "premise_type": "sentence_window",
+        "entailment": 0.9951,
+        "contradiction": 0.0002,
+        "verdict": "SUPPORTED",
+        "strictly_contained": "Yes (exact match)"
+      },
+      {
+        "index": 8,
+        "claim": "A security issue regarding CVE-2015-2296 in requests v2.32.3 was reported in GitHub issue #6942.",
+        "cited_premise_preview": "[[Security] Medium Severity Vulnerability (CVE-2015-2296) in Requests v2.32.3] [psf/requests #6942] [Security] Medium Severity Vulnerability...",
+        "premise_type": "full_chunk",
+        "entailment": 0.9922,
+        "contradiction": 0.0004,
+        "verdict": "SUPPORTED",
+        "strictly_contained": "Yes (exact match)"
+      },
+      {
+        "index": 9,
+        "claim": "A security issue regarding CVE-2015-2296 in requests v2.32.3 was reported in GitHub issue #6946.",
+        "cited_premise_preview": "[[Security] Medium Severity Vulnerability (CVE-2015-2296) in Requests v2.32.3] [psf/requests #6946] [Security] Medium Severity Vulnerability...",
+        "premise_type": "full_chunk",
+        "entailment": 0.9878,
+        "contradiction": 0.0006,
+        "verdict": "SUPPORTED",
+        "strictly_contained": "Yes (exact match)"
+      },
+      {
+        "index": 10,
+        "claim": "The idna package version 2.5 is vulnerable to CVE-2024-3651.",
+        "cited_premise_preview": "[<spam>] [psf/requests #7324] <spam> (Part 1/2) ## Vulnerability Report Hi there! We found 3 known vulnerabilities in this project's depende...",
+        "premise_type": "full_chunk",
+        "entailment": 0.3186,
+        "contradiction": 0.0008,
+        "verdict": "SUPPORTED",
+        "strictly_contained": "Partially supported"
       }
     ]
   }

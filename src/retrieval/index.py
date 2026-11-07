@@ -164,6 +164,8 @@ class HybridRetriever:
         repo: str | None = None,
         top_k: int = 6,
         method: RetrievalMethod = "hybrid_rerank",
+        source_types: list[str] | None = None,
+        rerank_alpha: float | None = 0.50,
         return_trace: bool = False,
     ) -> dict[str, Any] | list[dict[str, Any]]:
         """
@@ -193,13 +195,13 @@ class HybridRetriever:
 
         if method in ("bm25", "hybrid", "hybrid_rerank"):
             t0 = time.perf_counter()
-            bm25_results = self.bm25.search(query, top_k=50)
+            bm25_results = self.bm25.search(query, top_k=50, source_types=source_types)
             t_bm25 = time.perf_counter() - t0
 
         if method in ("dense", "hybrid", "hybrid_rerank"):
             self._ensure_dense_ready()
             t0 = time.perf_counter()
-            dense_results = self.dense.search(query, top_k=50)
+            dense_results = self.dense.search(query, top_k=50, source_types=source_types)
             t_dense = time.perf_counter() - t0
 
         if method == "bm25":
@@ -226,7 +228,13 @@ class HybridRetriever:
             deduped_fused = deduplicate_evidence_candidates(fused_results)
 
             t0 = time.perf_counter()
-            final_results = self.reranker.rerank(query, deduped_fused, candidate_pool=25, top_k=top_k)
+            final_results = self.reranker.rerank(
+                query,
+                deduped_fused,
+                candidate_pool=25,
+                top_k=top_k,
+                alpha=rerank_alpha,
+            )
             t_rerank = time.perf_counter() - t0
 
         total_latency_ms = (time.perf_counter() - start_time) * 1000.0

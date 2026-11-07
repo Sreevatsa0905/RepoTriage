@@ -49,19 +49,30 @@ class NLIGuardrail:
         if self._model is not None and self._tokenizer is not None:
             return
 
+        import src.config  # ensures HF_TOKEN & env loaded
         from transformers import AutoModelForSequenceClassification, AutoTokenizer
 
         logger.info("Loading NLI model %s on %s...", self.model_name, self.device)
-        self._tokenizer = AutoTokenizer.from_pretrained(self.model_name)
 
         model_kwargs: dict[str, Any] = {}
         if self.device == "cuda":
             model_kwargs["torch_dtype"] = torch.float16
 
-        self._model = AutoModelForSequenceClassification.from_pretrained(
-            self.model_name,
-            **model_kwargs,
-        ).to(self.device)
+        try:
+            self._tokenizer = AutoTokenizer.from_pretrained(self.model_name, local_files_only=True)
+            self._model = AutoModelForSequenceClassification.from_pretrained(
+                self.model_name,
+                local_files_only=True,
+                **model_kwargs,
+            ).to(self.device)
+        except Exception:
+            self._tokenizer = AutoTokenizer.from_pretrained(self.model_name, local_files_only=False)
+            self._model = AutoModelForSequenceClassification.from_pretrained(
+                self.model_name,
+                local_files_only=False,
+                **model_kwargs,
+            ).to(self.device)
+
         self._model.eval()
 
         # Dynamic label mapping from config.id2label

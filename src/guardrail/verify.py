@@ -1,12 +1,17 @@
 """
-Claim Verification Engine using Evidence Windows and NLI Guardrail
-=================================================================
-Per RepoTriage_SPEC.md Section 7 & Stage 5 requirements:
-- Splits compound statements into atomic sentences.
-- Hard safety rule: any claim with missing or invalid citations is NEVER SUPPORTED.
-- Extracts top 1-3 sentence premise windows from cited evidence items.
-- Evaluates NLI (premise=evidence, hypothesis=claim).
-- Emits verdicts: SUPPORTED (>= tau_s), CONTRADICTED (>= tau_c), else INSUFFICIENT_EVIDENCE.
+Claim Verification Engine using Multi-Premise NLI Guardrail
+===========================================================
+Per RepoTriage_SPEC.md & Stage 6.5 Refinements:
+- Dominance rule:
+    * SUPPORTED if entailment >= tau_s AND entailment > contradiction
+    * CONTRADICTED if contradiction >= tau_c AND contradiction > entailment
+    * otherwise INSUFFICIENT_EVIDENCE
+- Multi-premise evaluation (pipeline and B2):
+    (a) Full chunk prefixed with [heading], truncated cleanly to ~512 tokens
+    (b) Top-2 sentence window prefixed with [heading]
+- Selects the single premise with highest max(entailment, contradiction)
+- Tracks winning premise type ('full_chunk' vs 'sentence_window')
+- Hard rule: Missing or invalid citations can NEVER be SUPPORTED.
 """
 
 from __future__ import annotations
@@ -21,15 +26,34 @@ from src.guardrail.nli import NLIGuardrail
 logger = logging.getLogger(__name__)
 
 VerdictType = Literal["SUPPORTED", "CONTRADICTED", "INSUFFICIENT_EVIDENCE"]
-DEFAULT_TAU_S = 0.50
-DEFAULT_TAU_C = 0.50
+DEFAULT_TAU_S = 0.30
+DEFAULT_TAU_C = 0.30
+
+
+def apply_dominance_rule(
+    entailment: float,
+    contradiction: float,
+    tau_s: float,
+    tau_c: float,
+) -> VerdictType:
+    """
+    Apply strict dominance decision rule.
+    - SUPPORTED if entailment >= tau_s AND entailment > contradiction
+    - CONTRADICTED if contradiction >= tau_c AND contradiction > entailment
+    - Otherwise INSUFFICIENT_EVIDENCE
+    """
+    if entailment >= tau_s and entailment > contradiction:
+        return "SUPPORTED"
+    elif contradiction >= tau_c and contradiction > entailment:
+        return "CONTRADICTED"
+    else:
+        return "INSUFFICIENT_EVIDENCE"
 
 
 def split_into_sentences(text: str) -> list[str]:
     """Split text into individual sentences on standard boundaries."""
     if not text or not text.strip():
         return []
-    # Split on periods, exclamation marks, question marks, or newlines followed by space or capital
     raw_sentences = re.split(r"(?<=[.!?])\s+|\n+", text.strip())
     cleaned = [s.strip() for s in raw_sentences if len(s.strip()) > 3]
     return cleaned if cleaned else [text.strip()]
@@ -38,10 +62,10 @@ def split_into_sentences(text: str) -> list[str]:
 def select_best_evidence_window(
     claim_text: str,
     evidence_text: str,
-    max_sentences: int = 3,
+    max_sentences: int = 2,
 ) -> str:
     """
-    Select the most relevant 1-3 sentence window from evidence text
+    Select the most relevant 1-2 sentence window from evidence text
     based on token overlap with the claim statement.
     """
     sentences = split_into_sentences(evidence_text)
@@ -52,7 +76,6 @@ def select_best_evidence_window(
     if not claim_tokens:
         return " ".join(sentences[:max_sentences])
 
-    # Score each sentence by token overlap
     scores = []
     for s in sentences:
         s_tokens = set(re.findall(r"\w+", s.lower()))
@@ -61,11 +84,49 @@ def select_best_evidence_window(
 
     best_idx = int(scores.index(max(scores))) if scores else 0
 
-    # Expand window around best sentence (up to max_sentences contiguous sentences)
-    start_idx = max(0, best_idx - 1)
+    start_idx = max(0, best_idx)
     end_idx = min(len(sentences), start_idx + max_sentences)
+    # If at end, grab preceding sentence to maintain window size
+    if end_idx - start_idx < max_sentences and start_idx > 0:
+        start_idx = max(0, end_idx - max_sentences)
+
     window = " ".join(sentences[start_idx:end_idx])
     return window.strip()
+
+
+def build_candidate_premises(
+    claim_text: str,
+    evidence_chunk: dict[str, Any],
+    max_tokens: int = 512,
+) -> list[tuple[str, str]]:
+    """
+    Build candidate premises for in-domain NLI verification:
+    (a) Full chunk prefixed with [heading], truncated cleanly to max_tokens (~400 words)
+    (b) Top-2 sentence window prefixed with [heading]
+
+    Returns list of tuples: [('full_chunk', premise_a), ('sentence_window', premise_b)]
+    """
+    heading = (evidence_chunk.get("heading") or "").strip()
+    prefix = f"[{heading}] " if heading else ""
+    raw_text = (evidence_chunk.get("text") or "").strip()
+
+    # (a) Full chunk (cleanly word-truncated)
+    words = raw_text.split()
+    truncated_words = words[:400]
+    full_chunk_text = prefix + " ".join(truncated_words)
+
+    # (b) Top-2 sentence window
+    window_body = select_best_evidence_window(claim_text, raw_text, max_sentences=2)
+    window_text = prefix + window_body
+
+    candidates = [
+        ("full_chunk", full_chunk_text),
+    ]
+    # Only add window if meaningfully distinct from full chunk
+    if window_body and window_body != raw_text:
+        candidates.append(("sentence_window", window_text))
+
+    return candidates
 
 
 class ClaimVerificationEngine:
@@ -89,23 +150,8 @@ class ClaimVerificationEngine:
         tau_c: float | None = None,
     ) -> list[dict[str, Any]]:
         """
-        Verify each claim against cited evidence items.
-
-        Parameters
-        ----------
-        claims : Sequence[Claim]
-            List of generated claims.
-        evidence_items : Sequence[dict]
-            Retrieved evidence chunks with 'evidence_id' (e.g. 'E1'..'En').
-        tau_s : float | None
-            Entailment threshold for SUPPORTED verdict (defaults to self.tau_s).
-        tau_c : float | None
-            Contradiction threshold for CONTRADICTED verdict (defaults to self.tau_c).
-
-        Returns
-        -------
-        list[dict]
-            Detailed verification reports for each claim.
+        Verify each claim against cited evidence items using multi-premise evaluation
+        and strict dominance thresholding.
         """
         th_s = tau_s if tau_s is not None else self.tau_s
         th_c = tau_c if tau_c is not None else self.tau_c
@@ -117,8 +163,8 @@ class ClaimVerificationEngine:
 
         verification_results: list[dict[str, Any]] = []
 
-        # Pairs to evaluate via NLI: (premise, hypothesis, claim_idx, eid, window)
-        nli_queue: list[tuple[str, str, int, str, str]] = []
+        # List of items to evaluate: (premise, hypothesis, claim_idx, eid, premise_type, premise_text)
+        nli_queue: list[tuple[str, str, int, str, str, str]] = []
 
         for c_idx, claim in enumerate(claims):
             clean_text = claim.text.strip()
@@ -137,17 +183,17 @@ class ClaimVerificationEngine:
                     "neutral_score": 1.0,
                     "best_evidence_id": None,
                     "best_excerpt": "",
+                    "best_premise_type": "none",
                 })
                 continue
 
-            # For each cited evidence item, extract best premise window
+            # For each cited evidence item, construct (full_chunk, sentence_window) premises
             for eid in valid_cites:
                 ev_chunk = evidence_map[eid]
-                ev_text = ev_chunk.get("text", "")
-                window = select_best_evidence_window(clean_text, ev_text, max_sentences=3)
-                nli_queue.append((window, clean_text, c_idx, eid, window))
+                cand_premises = build_candidate_premises(clean_text, ev_chunk)
+                for p_type, p_text in cand_premises:
+                    nli_queue.append((p_text, clean_text, c_idx, eid, p_type, p_text))
 
-            # Placeholder to be filled after NLI batch scoring
             verification_results.append({
                 "claim_id": claim.claim_id,
                 "text": clean_text,
@@ -158,6 +204,7 @@ class ClaimVerificationEngine:
                 "neutral_score": 1.0,
                 "best_evidence_id": None,
                 "best_excerpt": "",
+                "best_premise_type": "none",
             })
 
         if nli_queue:
@@ -166,39 +213,36 @@ class ClaimVerificationEngine:
 
             scores = self.nli.predict_pairs(premises, hypotheses)
 
-            # Map scores back to each claim, taking the maximum entailment or contradiction
-            claim_scores_map: dict[int, list[tuple[dict[str, float], str, str]]] = {}
-            for (prem, hypo, c_idx, eid, window), score in zip(nli_queue, scores):
+            # Map scores back to each claim: {c_idx: [(score, eid, p_type, p_text), ...]}
+            claim_scores_map: dict[int, list[tuple[dict[str, float], str, str, str]]] = {}
+            for (p_text, hyp, c_idx, eid, p_type, _), score in zip(nli_queue, scores):
                 if c_idx not in claim_scores_map:
                     claim_scores_map[c_idx] = []
-                claim_scores_map[c_idx].append((score, eid, window))
+                claim_scores_map[c_idx].append((score, eid, p_type, p_text))
 
             for c_idx, items in claim_scores_map.items():
-                # Find maximum contradiction and maximum entailment across cited windows
-                best_item = max(items, key=lambda x: (x[0]["contradiction"], x[0]["entailment"]))
-                max_contra_item = max(items, key=lambda x: x[0]["contradiction"])
-                max_entail_item = max(items, key=lambda x: x[0]["entailment"])
+                # Choose single premise with highest max(entailment, contradiction)
+                winning_item = max(
+                    items,
+                    key=lambda x: max(x[0]["entailment"], x[0]["contradiction"]),
+                )
+                win_score, win_eid, win_ptype, win_ptext = winning_item
 
-                p_c = max_contra_item[0]["contradiction"]
-                p_e = max_entail_item[0]["entailment"]
+                p_e = win_score["entailment"]
+                p_c = win_score["contradiction"]
+                p_n = win_score["neutral"]
 
-                if p_c >= th_c:
-                    verdict: VerdictType = "CONTRADICTED"
-                    winning = max_contra_item
-                elif p_e >= th_s:
-                    verdict: VerdictType = "SUPPORTED"
-                    winning = max_entail_item
-                else:
-                    verdict: VerdictType = "INSUFFICIENT_EVIDENCE"
-                    winning = max_entail_item
+                # Apply dominance rule to the winning premise ONLY
+                verdict = apply_dominance_rule(p_e, p_c, th_s, th_c)
 
                 verification_results[c_idx].update({
                     "verdict": verdict,
                     "entailment_score": round(p_e, 4),
                     "contradiction_score": round(p_c, 4),
-                    "neutral_score": round(winning[0]["neutral"], 4),
-                    "best_evidence_id": winning[1],
-                    "best_excerpt": winning[2],
+                    "neutral_score": round(p_n, 4),
+                    "best_evidence_id": win_eid,
+                    "best_excerpt": win_ptext,
+                    "best_premise_type": win_ptype,
                 })
 
         return verification_results

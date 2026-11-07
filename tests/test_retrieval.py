@@ -113,5 +113,27 @@ class TestBM25Retriever(unittest.TestCase):
         self.assertEqual(results[0]["bm25_rank"], 1)
 
 
+    def test_bm25_source_types_filtering(self):
+        chunks = [
+            {"chunk_id": "c1", "text": "ValidationError in issue discussion", "source_type": "issue"},
+            {"chunk_id": "c2", "text": "ValidationError in documentation guide", "source_type": "doc"},
+            {"chunk_id": "c3", "text": "ValidationError in user comment", "source_type": "comment"},
+            {"chunk_id": "c4", "text": "Unrelated network timeout failure", "source_type": "issue"},
+            {"chunk_id": "c5", "text": "FastAPI database session cleanup", "source_type": "doc"},
+        ]
+        retriever = BM25Retriever(chunks)
+
+        # Filter for issue and comment only
+        results_issues = retriever.search("ValidationError", top_k=10, source_types=["issue", "comment"])
+        self.assertEqual(len(results_issues), 2)
+        found_types = {r["source_type"] for r in results_issues}
+        self.assertEqual(found_types, {"issue", "comment"})
+
+        # Filter for doc only
+        results_docs = retriever.search("ValidationError", top_k=10, source_types=["doc"])
+        self.assertEqual(len(results_docs), 1)
+        self.assertEqual(results_docs[0]["source_type"], "doc")
+
+
 if __name__ == "__main__":
     unittest.main()

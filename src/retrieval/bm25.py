@@ -92,7 +92,12 @@ class BM25Retriever:
         self.corpus_tokens = [tokenize_code_text(c["text"]) for c in chunks]
         self.bm25 = BM25Okapi(self.corpus_tokens) if self.corpus_tokens else None
 
-    def search(self, query: str, top_k: int = 50) -> list[dict[str, Any]]:
+    def search(
+        self,
+        query: str,
+        top_k: int = 50,
+        source_types: Sequence[str] | None = None,
+    ) -> list[dict[str, Any]]:
         """Search chunks and return top_k results with BM25 scores and ranks."""
         if not self.bm25 or not self.chunks:
             return []
@@ -102,7 +107,15 @@ class BM25Retriever:
             return []
 
         scores = self.bm25.get_scores(query_tokens)
-        top_indices = sorted(range(len(scores)), key=lambda i: scores[i], reverse=True)[:top_k]
+
+        # Filter by source_types before truncating to top_k
+        if source_types:
+            st_set = set(source_types)
+            candidate_indices = [i for i, c in enumerate(self.chunks) if c.get("source_type") in st_set]
+        else:
+            candidate_indices = list(range(len(self.chunks)))
+
+        top_indices = sorted(candidate_indices, key=lambda i: scores[i], reverse=True)[:top_k]
 
         results = []
         for rank, idx in enumerate(top_indices, 1):

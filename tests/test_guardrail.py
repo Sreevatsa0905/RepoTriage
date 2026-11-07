@@ -14,6 +14,8 @@ from src.generate.schema import Claim
 from src.guardrail.nli import NLIGuardrail
 from src.guardrail.verify import (
     ClaimVerificationEngine,
+    apply_dominance_rule,
+    build_candidate_premises,
     select_best_evidence_window,
     split_into_sentences,
 )
@@ -114,6 +116,61 @@ class TestNLIComponents(unittest.TestCase):
         self.assertEqual(len(verifications), 1)
         self.assertEqual(verifications[0]["verdict"], "CONTRADICTED")
         self.assertAlmostEqual(verifications[0]["contradiction_score"], 0.88, places=2)
+
+    def test_strict_dominance_rule(self):
+        """Test dominance decision rule edge cases."""
+        # 1. Entailment dominates
+        self.assertEqual(
+            apply_dominance_rule(entailment=0.75, contradiction=0.10, tau_s=0.30, tau_c=0.30),
+            "SUPPORTED",
+        )
+        # 2. Contradiction dominates
+        self.assertEqual(
+            apply_dominance_rule(entailment=0.10, contradiction=0.75, tau_s=0.30, tau_c=0.30),
+            "CONTRADICTED",
+        )
+        # 3. Both exceed threshold, but contradiction > entailment -> CONTRADICTED
+        self.assertEqual(
+            apply_dominance_rule(entailment=0.35, contradiction=0.60, tau_s=0.30, tau_c=0.30),
+            "CONTRADICTED",
+        )
+        # 4. Both exceed threshold, but entailment > contradiction -> SUPPORTED
+        self.assertEqual(
+            apply_dominance_rule(entailment=0.60, contradiction=0.35, tau_s=0.30, tau_c=0.30),
+            "SUPPORTED",
+        )
+        # 5. Tie when both exceed threshold -> INSUFFICIENT_EVIDENCE (neither strictly strictly dominates)
+        self.assertEqual(
+            apply_dominance_rule(entailment=0.50, contradiction=0.50, tau_s=0.30, tau_c=0.30),
+            "INSUFFICIENT_EVIDENCE",
+        )
+        # 6. Below thresholds -> INSUFFICIENT_EVIDENCE
+        self.assertEqual(
+            apply_dominance_rule(entailment=0.20, contradiction=0.25, tau_s=0.30, tau_c=0.30),
+            "INSUFFICIENT_EVIDENCE",
+        )
+
+
+class TestCandidatePremises(unittest.TestCase):
+    """Test candidate premise construction with heading prefixes and windowing."""
+
+    def test_build_candidate_premises_with_heading(self):
+        chunk = {
+            "heading": "Custom Validation in v2",
+            "text": "In Pydantic v2, custom validation is achieved using @field_validator. It replaces the v1 validator decorator. Extra options are available.",
+        }
+        candidates = build_candidate_premises("custom validation with @field_validator", chunk)
+        self.assertGreaterEqual(len(candidates), 1)
+
+        # Full chunk premise
+        full_chunk_pair = next(c for c in candidates if c[0] == "full_chunk")
+        self.assertTrue(full_chunk_pair[1].startswith("[Custom Validation in v2]"))
+
+        # Sentence window premise (if distinct)
+        window_pairs = [c for c in candidates if c[0] == "sentence_window"]
+        if window_pairs:
+            self.assertTrue(window_pairs[0][1].startswith("[Custom Validation in v2]"))
+            self.assertIn("@field_validator", window_pairs[0][1])
 
 
 class TestSentenceWindowSelection(unittest.TestCase):

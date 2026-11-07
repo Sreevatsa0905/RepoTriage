@@ -88,12 +88,26 @@ class DenseRetriever:
     def _get_model(self):
         """Lazy loader for SentenceTransformer model."""
         if self._model is None:
+            import src.config  # ensures HF_TOKEN & env loaded
             from sentence_transformers import SentenceTransformer
             logger.info("Loading dense model %s on %s...", self.model_name, self.device)
             kwargs: dict[str, Any] = {}
             if self.device == "cuda":
                 kwargs["model_kwargs"] = {"torch_dtype": torch.float16}
-            self._model = SentenceTransformer(self.model_name, device=self.device, **kwargs)
+            try:
+                self._model = SentenceTransformer(
+                    self.model_name,
+                    device=self.device,
+                    local_files_only=True,
+                    **kwargs,
+                )
+            except Exception:
+                self._model = SentenceTransformer(
+                    self.model_name,
+                    device=self.device,
+                    local_files_only=False,
+                    **kwargs,
+                )
         return self._model
 
     def unload_model(self) -> None:
@@ -165,7 +179,12 @@ class DenseRetriever:
         )
         return q_emb.astype(np.float32)
 
-    def search(self, query: str, top_k: int = 50) -> list[dict[str, Any]]:
+    def search(
+        self,
+        query: str,
+        top_k: int = 50,
+        source_types: Sequence[str] | None = None,
+    ) -> list[dict[str, Any]]:
         """
         Search corpus using exact cosine similarity over normalized embeddings.
         Returns top_k chunks with dense_score and dense_rank.
@@ -177,7 +196,12 @@ class DenseRetriever:
         # Cosine similarity for unit vectors is simply dot product
         scores = np.dot(self.active_embeddings, q_vec)
 
-        top_indices = np.argsort(-scores)[:top_k]
+        if source_types:
+            st_set = set(source_types)
+            candidate_indices = [i for i, c in enumerate(self.chunks) if c.get("source_type") in st_set]
+            top_indices = sorted(candidate_indices, key=lambda i: scores[i], reverse=True)[:top_k]
+        else:
+            top_indices = np.argsort(-scores)[:top_k]
 
         results = []
         for rank, idx in enumerate(top_indices, 1):

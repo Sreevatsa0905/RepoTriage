@@ -1,33 +1,41 @@
 {
-  "timestamp": "2026-11-07T05:34:47.521521+00:00",
+  "timestamp": "2026-11-07T08:08:20.364879+00:00",
   "query_count": 51,
+  "candidate_pool": "issues only (source_types=['issue', 'comment'])",
+  "fixed_rerank_alpha": 0.5,
   "methods": {
     "bm25": {
       "method": "bm25",
       "query_count": 51,
+      "source_types": [
+        "issue",
+        "comment"
+      ],
+      "rerank_alpha": 0.5,
+      "leakage_check_passed": true,
       "overall": {
-        "recall@5": 0.6471,
-        "precision@5": 0.1294,
-        "mrr@10": 0.494,
-        "ndcg@10": 0.5449,
-        "mean_latency_ms": 86.57
+        "recall@5": 0.7451,
+        "precision@5": 0.149,
+        "mrr@10": 0.5484,
+        "ndcg@10": 0.6017,
+        "mean_latency_ms": 141.34
       },
       "per_repo": {
         "pallets/flask": {
           "query_count": 7,
-          "recall@5": 0.7143,
-          "precision@5": 0.1429,
-          "mrr@10": 0.4548,
-          "ndcg@10": 0.5501,
-          "mean_latency_ms": 46.44
+          "recall@5": 1.0,
+          "precision@5": 0.2,
+          "mrr@10": 0.7381,
+          "ndcg@10": 0.8044,
+          "mean_latency_ms": 51.42
         },
         "encode/httpx": {
           "query_count": 15,
-          "recall@5": 0.5333,
-          "precision@5": 0.1067,
-          "mrr@10": 0.455,
-          "ndcg@10": 0.4889,
-          "mean_latency_ms": 41.82
+          "recall@5": 0.7333,
+          "precision@5": 0.1467,
+          "mrr@10": 0.5078,
+          "ndcg@10": 0.5632,
+          "mean_latency_ms": 61.15
         },
         "pydantic/pydantic": {
           "query_count": 6,
@@ -35,7 +43,7 @@
           "precision@5": 0.1667,
           "mrr@10": 0.75,
           "ndcg@10": 0.7718,
-          "mean_latency_ms": 157.04
+          "mean_latency_ms": 218.9
         },
         "psf/requests": {
           "query_count": 23,
@@ -43,7 +51,7 @@
           "precision@5": 0.1304,
           "mrr@10": 0.4645,
           "ndcg@10": 0.5206,
-          "mean_latency_ms": 109.58
+          "mean_latency_ms": 200.77
         }
       },
       "queries": [
@@ -52,12 +60,12 @@
           "repo": "pallets/flask",
           "target": 5256,
           "metrics": {
-            "hit_rank": 10,
-            "recall@5": 0.0,
-            "precision@5": 0.0,
-            "mrr@10": 0.1,
-            "ndcg@10": 0.2890648263178879,
-            "latency_ms": 69.50789992697537
+            "hit_rank": 1,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 1.0,
+            "ndcg@10": 1.0,
+            "latency_ms": 49.57910010125488
           }
         },
         {
@@ -65,12 +73,12 @@
           "repo": "pallets/flask",
           "target": 1740,
           "metrics": {
-            "hit_rank": 4,
+            "hit_rank": 1,
             "recall@5": 1.0,
             "precision@5": 0.2,
-            "mrr@10": 0.25,
-            "ndcg@10": 0.43067655807339306,
-            "latency_ms": 87.24999998230487
+            "mrr@10": 1.0,
+            "ndcg@10": 1.0,
+            "latency_ms": 49.28989999461919
           }
         },
         {
@@ -83,7 +91,7 @@
             "precision@5": 0.2,
             "mrr@10": 1.0,
             "ndcg@10": 1.0,
-            "latency_ms": 62.673799926415086
+            "latency_ms": 63.5554000036791
           }
         },
         {
@@ -91,12 +99,12 @@
           "repo": "encode/httpx",
           "target": 1253,
           "metrics": {
-            "hit_rank": 5,
+            "hit_rank": 3,
             "recall@5": 1.0,
             "precision@5": 0.2,
-            "mrr@10": 0.2,
-            "ndcg@10": 0.38685280723454163,
-            "latency_ms": 21.4521000161767
+            "mrr@10": 0.3333333333333333,
+            "ndcg@10": 0.5,
+            "latency_ms": 21.30379993468523
           }
         },
         {
@@ -109,7 +117,7 @@
             "precision@5": 0.2,
             "mrr@10": 1.0,
             "ndcg@10": 1.0,
-            "latency_ms": 55.3141999989748
+            "latency_ms": 48.823999939486384
           }
         },
         {
@@ -122,7 +130,7 @@
             "precision@5": 0.2,
             "mrr@10": 1.0,
             "ndcg@10": 1.0,
-            "latency_ms": 337.0193999726325
+            "latency_ms": 328.55560001917183
           }
         },
         {
@@ -135,7 +143,7 @@
             "precision@5": 0.2,
             "mrr@10": 1.0,
             "ndcg@10": 1.0,
-            "latency_ms": 253.40919999871403
+            "latency_ms": 365.9779999870807
           }
         },
         {
@@ -148,7 +156,7 @@
             "precision@5": 0.2,
             "mrr@10": 1.0,
             "ndcg@10": 1.0,
-            "latency_ms": 146.47380006499588
+            "latency_ms": 209.8934999667108
           }
         },
         {
@@ -161,7 +169,7 @@
             "precision@5": 0.2,
             "mrr@10": 1.0,
             "ndcg@10": 1.0,
-            "latency_ms": 22.354000015184283
+            "latency_ms": 29.861300019547343
           }
         },
         {
@@ -174,7 +182,7 @@
             "precision@5": 0.0,
             "mrr@10": 0.0,
             "ndcg@10": 0.0,
-            "latency_ms": 1698.0405999347568
+            "latency_ms": 3217.426299932413
           }
         },
         {
@@ -187,7 +195,7 @@
             "precision@5": 0.0,
             "mrr@10": 0.1,
             "ndcg@10": 0.2890648263178879,
-            "latency_ms": 22.59160007815808
+            "latency_ms": 49.23040000721812
           }
         },
         {
@@ -200,7 +208,7 @@
             "precision@5": 0.2,
             "mrr@10": 0.3333333333333333,
             "ndcg@10": 0.5,
-            "latency_ms": 101.43040004186332
+            "latency_ms": 149.17200000490993
           }
         },
         {
@@ -213,7 +221,7 @@
             "precision@5": 0.2,
             "mrr@10": 1.0,
             "ndcg@10": 1.0,
-            "latency_ms": 10.55210002232343
+            "latency_ms": 17.145799938589334
           }
         },
         {
@@ -226,7 +234,7 @@
             "precision@5": 0.2,
             "mrr@10": 0.5,
             "ndcg@10": 0.6309297535714575,
-            "latency_ms": 38.8212000252679
+            "latency_ms": 66.58149999566376
           }
         },
         {
@@ -239,7 +247,7 @@
             "precision@5": 0.2,
             "mrr@10": 1.0,
             "ndcg@10": 1.0,
-            "latency_ms": 15.541399945504963
+            "latency_ms": 23.515700013376772
           }
         },
         {
@@ -247,12 +255,12 @@
           "repo": "pallets/flask",
           "target": 3404,
           "metrics": {
-            "hit_rank": -1,
-            "recall@5": 0.0,
-            "precision@5": 0.0,
-            "mrr@10": 0.0,
-            "ndcg@10": 0.0,
-            "latency_ms": 1.9962000660598278
+            "hit_rank": 3,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 0.3333333333333333,
+            "ndcg@10": 0.5,
+            "latency_ms": 4.664600011892617
           }
         },
         {
@@ -265,7 +273,7 @@
             "precision@5": 0.2,
             "mrr@10": 1.0,
             "ndcg@10": 1.0,
-            "latency_ms": 33.24390004854649
+            "latency_ms": 66.46709993947297
           }
         },
         {
@@ -278,7 +286,7 @@
             "precision@5": 0.0,
             "mrr@10": 0.0,
             "ndcg@10": 0.0,
-            "latency_ms": 233.85530000086874
+            "latency_ms": 349.3121999781579
           }
         },
         {
@@ -291,7 +299,7 @@
             "precision@5": 0.2,
             "mrr@10": 1.0,
             "ndcg@10": 1.0,
-            "latency_ms": 6.513900007121265
+            "latency_ms": 8.503900025971234
           }
         },
         {
@@ -304,7 +312,7 @@
             "precision@5": 0.2,
             "mrr@10": 0.5,
             "ndcg@10": 0.6309297535714575,
-            "latency_ms": 41.953800013288856
+            "latency_ms": 66.84450001921505
           }
         },
         {
@@ -317,7 +325,7 @@
             "precision@5": 0.2,
             "mrr@10": 1.0,
             "ndcg@10": 1.0,
-            "latency_ms": 29.457999975420535
+            "latency_ms": 54.903000011108816
           }
         },
         {
@@ -330,7 +338,7 @@
             "precision@5": 0.0,
             "mrr@10": 0.0,
             "ndcg@10": 0.0,
-            "latency_ms": 14.142200001515448
+            "latency_ms": 26.978899957612157
           }
         },
         {
@@ -343,7 +351,7 @@
             "precision@5": 0.2,
             "mrr@10": 1.0,
             "ndcg@10": 1.0,
-            "latency_ms": 23.37850001640618
+            "latency_ms": 34.02180003467947
           }
         },
         {
@@ -356,7 +364,7 @@
             "precision@5": 0.0,
             "mrr@10": 0.0,
             "ndcg@10": 0.0,
-            "latency_ms": 1.4688000082969666
+            "latency_ms": 2.396999974735081
           }
         },
         {
@@ -369,7 +377,1439 @@
             "precision@5": 0.0,
             "mrr@10": 0.0,
             "ndcg@10": 0.0,
-            "latency_ms": 36.78199998103082
+            "latency_ms": 83.1434999126941
+          }
+        },
+        {
+          "query_id": "encode/httpx#1332",
+          "repo": "encode/httpx",
+          "target": 1317,
+          "metrics": {
+            "hit_rank": 5,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 0.2,
+            "ndcg@10": 0.38685280723454163,
+            "latency_ms": 66.91110006067902
+          }
+        },
+        {
+          "query_id": "encode/httpx#1263",
+          "repo": "encode/httpx",
+          "target": 538,
+          "metrics": {
+            "hit_rank": 4,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 0.25,
+            "ndcg@10": 0.43067655807339306,
+            "latency_ms": 5.849100067280233
+          }
+        },
+        {
+          "query_id": "encode/httpx#1261",
+          "repo": "encode/httpx",
+          "target": 154,
+          "metrics": {
+            "hit_rank": 3,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 0.3333333333333333,
+            "ndcg@10": 0.5,
+            "latency_ms": 18.30060000065714
+          }
+        },
+        {
+          "query_id": "pydantic/pydantic#12437",
+          "repo": "pydantic/pydantic",
+          "target": 6533,
+          "metrics": {
+            "hit_rank": -1,
+            "recall@5": 0.0,
+            "precision@5": 0.0,
+            "mrr@10": 0.0,
+            "ndcg@10": 0.0,
+            "latency_ms": 234.43960002623498
+          }
+        },
+        {
+          "query_id": "pydantic/pydantic#12380",
+          "repo": "pydantic/pydantic",
+          "target": 12374,
+          "metrics": {
+            "hit_rank": 2,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 0.5,
+            "ndcg@10": 0.6309297535714575,
+            "latency_ms": 144.6996999438852
+          }
+        },
+        {
+          "query_id": "psf/requests#7222",
+          "repo": "psf/requests",
+          "target": 7219,
+          "metrics": {
+            "hit_rank": 1,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 1.0,
+            "ndcg@10": 1.0,
+            "latency_ms": 25.953999953344464
+          }
+        },
+        {
+          "query_id": "psf/requests#7150",
+          "repo": "psf/requests",
+          "target": 3856,
+          "metrics": {
+            "hit_rank": 2,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 0.5,
+            "ndcg@10": 0.6309297535714575,
+            "latency_ms": 44.69680006150156
+          }
+        },
+        {
+          "query_id": "psf/requests#7003",
+          "repo": "psf/requests",
+          "target": 5950,
+          "metrics": {
+            "hit_rank": 3,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 0.3333333333333333,
+            "ndcg@10": 0.5,
+            "latency_ms": 64.77639998774976
+          }
+        },
+        {
+          "query_id": "psf/requests#6977",
+          "repo": "psf/requests",
+          "target": 6976,
+          "metrics": {
+            "hit_rank": -1,
+            "recall@5": 0.0,
+            "precision@5": 0.0,
+            "mrr@10": 0.0,
+            "ndcg@10": 0.0,
+            "latency_ms": 14.153100084513426
+          }
+        },
+        {
+          "query_id": "psf/requests#6957",
+          "repo": "psf/requests",
+          "target": 6946,
+          "metrics": {
+            "hit_rank": 2,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 0.5,
+            "ndcg@10": 0.6309297535714575,
+            "latency_ms": 13.421399984508753
+          }
+        },
+        {
+          "query_id": "psf/requests#6933",
+          "repo": "psf/requests",
+          "target": 6932,
+          "metrics": {
+            "hit_rank": 1,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 1.0,
+            "ndcg@10": 1.0,
+            "latency_ms": 20.659100031480193
+          }
+        },
+        {
+          "query_id": "psf/requests#6893",
+          "repo": "psf/requests",
+          "target": 6892,
+          "metrics": {
+            "hit_rank": 1,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 1.0,
+            "ndcg@10": 1.0,
+            "latency_ms": 146.77140000276268
+          }
+        },
+        {
+          "query_id": "psf/requests#6872",
+          "repo": "psf/requests",
+          "target": 6730,
+          "metrics": {
+            "hit_rank": -1,
+            "recall@5": 0.0,
+            "precision@5": 0.0,
+            "mrr@10": 0.0,
+            "ndcg@10": 0.0,
+            "latency_ms": 231.87580006197095
+          }
+        },
+        {
+          "query_id": "psf/requests#6835",
+          "repo": "psf/requests",
+          "target": 5977,
+          "metrics": {
+            "hit_rank": 2,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 0.5,
+            "ndcg@10": 0.6309297535714575,
+            "latency_ms": 85.20020009018481
+          }
+        },
+        {
+          "query_id": "psf/requests#6784",
+          "repo": "psf/requests",
+          "target": 6711,
+          "metrics": {
+            "hit_rank": -1,
+            "recall@5": 0.0,
+            "precision@5": 0.0,
+            "mrr@10": 0.0,
+            "ndcg@10": 0.0,
+            "latency_ms": 118.61839995253831
+          }
+        },
+        {
+          "query_id": "psf/requests#6763",
+          "repo": "psf/requests",
+          "target": 6586,
+          "metrics": {
+            "hit_rank": 4,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 0.25,
+            "ndcg@10": 0.43067655807339306,
+            "latency_ms": 57.55279993172735
+          }
+        },
+        {
+          "query_id": "psf/requests#6736",
+          "repo": "psf/requests",
+          "target": 6730,
+          "metrics": {
+            "hit_rank": 1,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 1.0,
+            "ndcg@10": 1.0,
+            "latency_ms": 55.74370000977069
+          }
+        },
+        {
+          "query_id": "psf/requests#6729",
+          "repo": "psf/requests",
+          "target": 6728,
+          "metrics": {
+            "hit_rank": 4,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 0.25,
+            "ndcg@10": 0.43067655807339306,
+            "latency_ms": 99.71470001619309
+          }
+        },
+        {
+          "query_id": "psf/requests#6717",
+          "repo": "psf/requests",
+          "target": 6715,
+          "metrics": {
+            "hit_rank": 1,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 1.0,
+            "ndcg@10": 1.0,
+            "latency_ms": 70.92699990607798
+          }
+        },
+        {
+          "query_id": "psf/requests#6695",
+          "repo": "psf/requests",
+          "target": 3829,
+          "metrics": {
+            "hit_rank": 1,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 1.0,
+            "ndcg@10": 1.0,
+            "latency_ms": 69.15230001322925
+          }
+        },
+        {
+          "query_id": "psf/requests#6660",
+          "repo": "psf/requests",
+          "target": 6565,
+          "metrics": {
+            "hit_rank": 4,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 0.25,
+            "ndcg@10": 0.43067655807339306,
+            "latency_ms": 90.97319992724806
+          }
+        },
+        {
+          "query_id": "psf/requests#6658",
+          "repo": "psf/requests",
+          "target": 6586,
+          "metrics": {
+            "hit_rank": 1,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 1.0,
+            "ndcg@10": 1.0,
+            "latency_ms": 50.2888000337407
+          }
+        },
+        {
+          "query_id": "psf/requests#6611",
+          "repo": "psf/requests",
+          "target": 6026,
+          "metrics": {
+            "hit_rank": -1,
+            "recall@5": 0.0,
+            "precision@5": 0.0,
+            "mrr@10": 0.0,
+            "ndcg@10": 0.0,
+            "latency_ms": 22.05819997470826
+          }
+        },
+        {
+          "query_id": "psf/requests#6534",
+          "repo": "psf/requests",
+          "target": 6344,
+          "metrics": {
+            "hit_rank": -1,
+            "recall@5": 0.0,
+            "precision@5": 0.0,
+            "mrr@10": 0.0,
+            "ndcg@10": 0.0,
+            "latency_ms": 37.67079999670386
+          }
+        },
+        {
+          "query_id": "psf/requests#6524",
+          "repo": "psf/requests",
+          "target": 5000,
+          "metrics": {
+            "hit_rank": 1,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 1.0,
+            "ndcg@10": 1.0,
+            "latency_ms": 27.172000030986965
+          }
+        },
+        {
+          "query_id": "psf/requests#6445",
+          "repo": "psf/requests",
+          "target": 6432,
+          "metrics": {
+            "hit_rank": -1,
+            "recall@5": 0.0,
+            "precision@5": 0.0,
+            "mrr@10": 0.0,
+            "ndcg@10": 0.0,
+            "latency_ms": 3.6624999484047294
+          }
+        }
+      ]
+    },
+    "dense": {
+      "method": "dense",
+      "query_count": 51,
+      "source_types": [
+        "issue",
+        "comment"
+      ],
+      "rerank_alpha": 0.5,
+      "leakage_check_passed": true,
+      "overall": {
+        "recall@5": 0.8039,
+        "precision@5": 0.1608,
+        "mrr@10": 0.573,
+        "ndcg@10": 0.6439,
+        "mean_latency_ms": 439.57
+      },
+      "per_repo": {
+        "pallets/flask": {
+          "query_count": 7,
+          "recall@5": 1.0,
+          "precision@5": 0.2,
+          "mrr@10": 0.8571,
+          "ndcg@10": 0.8946,
+          "mean_latency_ms": 2854.5
+        },
+        "encode/httpx": {
+          "query_count": 15,
+          "recall@5": 0.5333,
+          "precision@5": 0.1067,
+          "mrr@10": 0.3858,
+          "ndcg@10": 0.4522,
+          "mean_latency_ms": 37.13
+        },
+        "pydantic/pydantic": {
+          "query_count": 6,
+          "recall@5": 1.0,
+          "precision@5": 0.2,
+          "mrr@10": 0.8056,
+          "ndcg@10": 0.8552,
+          "mean_latency_ms": 52.13
+        },
+        "psf/requests": {
+          "query_count": 23,
+          "recall@5": 0.8696,
+          "precision@5": 0.1739,
+          "mrr@10": 0.5478,
+          "ndcg@10": 0.6376,
+          "mean_latency_ms": 68.13
+        }
+      },
+      "queries": [
+        {
+          "query_id": "pallets/flask#5817",
+          "repo": "pallets/flask",
+          "target": 5256,
+          "metrics": {
+            "hit_rank": 1,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 1.0,
+            "ndcg@10": 1.0,
+            "latency_ms": 19852.185400086455
+          }
+        },
+        {
+          "query_id": "pallets/flask#5504",
+          "repo": "pallets/flask",
+          "target": 1740,
+          "metrics": {
+            "hit_rank": 1,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 1.0,
+            "ndcg@10": 1.0,
+            "latency_ms": 26.38139994814992
+          }
+        },
+        {
+          "query_id": "encode/httpx#1464",
+          "repo": "encode/httpx",
+          "target": 1463,
+          "metrics": {
+            "hit_rank": 1,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 1.0,
+            "ndcg@10": 1.0,
+            "latency_ms": 35.74630001094192
+          }
+        },
+        {
+          "query_id": "encode/httpx#1274",
+          "repo": "encode/httpx",
+          "target": 1253,
+          "metrics": {
+            "hit_rank": 3,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 0.3333333333333333,
+            "ndcg@10": 0.5,
+            "latency_ms": 23.43129995279014
+          }
+        },
+        {
+          "query_id": "encode/httpx#1264",
+          "repo": "encode/httpx",
+          "target": 790,
+          "metrics": {
+            "hit_rank": 5,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 0.2,
+            "ndcg@10": 0.38685280723454163,
+            "latency_ms": 27.740499936044216
+          }
+        },
+        {
+          "query_id": "pydantic/pydantic#14030",
+          "repo": "pydantic/pydantic",
+          "target": 12801,
+          "metrics": {
+            "hit_rank": 1,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 1.0,
+            "ndcg@10": 1.0,
+            "latency_ms": 46.3802000740543
+          }
+        },
+        {
+          "query_id": "pydantic/pydantic#13984",
+          "repo": "pydantic/pydantic",
+          "target": 11092,
+          "metrics": {
+            "hit_rank": 1,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 1.0,
+            "ndcg@10": 1.0,
+            "latency_ms": 39.13529997225851
+          }
+        },
+        {
+          "query_id": "pydantic/pydantic#13236",
+          "repo": "pydantic/pydantic",
+          "target": 10409,
+          "metrics": {
+            "hit_rank": 1,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 1.0,
+            "ndcg@10": 1.0,
+            "latency_ms": 29.152899980545044
+          }
+        },
+        {
+          "query_id": "pydantic/pydantic#12939",
+          "repo": "pydantic/pydantic",
+          "target": 12936,
+          "metrics": {
+            "hit_rank": 1,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 1.0,
+            "ndcg@10": 1.0,
+            "latency_ms": 46.61109996959567
+          }
+        },
+        {
+          "query_id": "psf/requests#6896",
+          "repo": "psf/requests",
+          "target": 2811,
+          "metrics": {
+            "hit_rank": -1,
+            "recall@5": 0.0,
+            "precision@5": 0.0,
+            "mrr@10": 0.0,
+            "ndcg@10": 0.0,
+            "latency_ms": 56.52770004235208
+          }
+        },
+        {
+          "query_id": "psf/requests#6442",
+          "repo": "psf/requests",
+          "target": 6432,
+          "metrics": {
+            "hit_rank": 5,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 0.2,
+            "ndcg@10": 0.38685280723454163,
+            "latency_ms": 20.427400013431907
+          }
+        },
+        {
+          "query_id": "pallets/flask#5901",
+          "repo": "pallets/flask",
+          "target": 3747,
+          "metrics": {
+            "hit_rank": 1,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 1.0,
+            "ndcg@10": 1.0,
+            "latency_ms": 24.9283000594005
+          }
+        },
+        {
+          "query_id": "pallets/flask#4994",
+          "repo": "pallets/flask",
+          "target": 3404,
+          "metrics": {
+            "hit_rank": 1,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 1.0,
+            "ndcg@10": 1.0,
+            "latency_ms": 16.246599960140884
+          }
+        },
+        {
+          "query_id": "pallets/flask#4990",
+          "repo": "pallets/flask",
+          "target": 4734,
+          "metrics": {
+            "hit_rank": 1,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 1.0,
+            "ndcg@10": 1.0,
+            "latency_ms": 20.644999924115837
+          }
+        },
+        {
+          "query_id": "pallets/flask#4931",
+          "repo": "pallets/flask",
+          "target": 4928,
+          "metrics": {
+            "hit_rank": 2,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 0.5,
+            "ndcg@10": 0.6309297535714575,
+            "latency_ms": 20.86069993674755
+          }
+        },
+        {
+          "query_id": "pallets/flask#4817",
+          "repo": "pallets/flask",
+          "target": 3404,
+          "metrics": {
+            "hit_rank": 2,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 0.5,
+            "ndcg@10": 0.6309297535714575,
+            "latency_ms": 20.26369993109256
+          }
+        },
+        {
+          "query_id": "encode/httpx#2748",
+          "repo": "encode/httpx",
+          "target": 2114,
+          "metrics": {
+            "hit_rank": 1,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 1.0,
+            "ndcg@10": 1.0,
+            "latency_ms": 31.836100039072335
+          }
+        },
+        {
+          "query_id": "encode/httpx#2632",
+          "repo": "encode/httpx",
+          "target": 1434,
+          "metrics": {
+            "hit_rank": -1,
+            "recall@5": 0.0,
+            "precision@5": 0.0,
+            "mrr@10": 0.0,
+            "ndcg@10": 0.0,
+            "latency_ms": 30.45269998256117
+          }
+        },
+        {
+          "query_id": "encode/httpx#2274",
+          "repo": "encode/httpx",
+          "target": 2169,
+          "metrics": {
+            "hit_rank": 1,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 1.0,
+            "ndcg@10": 1.0,
+            "latency_ms": 20.732500008307397
+          }
+        },
+        {
+          "query_id": "encode/httpx#2131",
+          "repo": "encode/httpx",
+          "target": 2092,
+          "metrics": {
+            "hit_rank": 7,
+            "recall@5": 0.0,
+            "precision@5": 0.0,
+            "mrr@10": 0.14285714285714285,
+            "ndcg@10": 0.3333333333333333,
+            "latency_ms": 35.935900057666004
+          }
+        },
+        {
+          "query_id": "encode/httpx#1615",
+          "repo": "encode/httpx",
+          "target": 1614,
+          "metrics": {
+            "hit_rank": -1,
+            "recall@5": 0.0,
+            "precision@5": 0.0,
+            "mrr@10": 0.0,
+            "ndcg@10": 0.0,
+            "latency_ms": 28.246099944226444
+          }
+        },
+        {
+          "query_id": "encode/httpx#1614",
+          "repo": "encode/httpx",
+          "target": 1615,
+          "metrics": {
+            "hit_rank": -1,
+            "recall@5": 0.0,
+            "precision@5": 0.0,
+            "mrr@10": 0.0,
+            "ndcg@10": 0.0,
+            "latency_ms": 28.735500061884522
+          }
+        },
+        {
+          "query_id": "encode/httpx#1561",
+          "repo": "encode/httpx",
+          "target": 1363,
+          "metrics": {
+            "hit_rank": 1,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 1.0,
+            "ndcg@10": 1.0,
+            "latency_ms": 25.60489997267723
+          }
+        },
+        {
+          "query_id": "encode/httpx#1408",
+          "repo": "encode/httpx",
+          "target": 809,
+          "metrics": {
+            "hit_rank": 2,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 0.5,
+            "ndcg@10": 0.6309297535714575,
+            "latency_ms": 25.201900047250092
+          }
+        },
+        {
+          "query_id": "encode/httpx#1373",
+          "repo": "encode/httpx",
+          "target": 1434,
+          "metrics": {
+            "hit_rank": -1,
+            "recall@5": 0.0,
+            "precision@5": 0.0,
+            "mrr@10": 0.0,
+            "ndcg@10": 0.0,
+            "latency_ms": 70.56080002803355
+          }
+        },
+        {
+          "query_id": "encode/httpx#1332",
+          "repo": "encode/httpx",
+          "target": 1317,
+          "metrics": {
+            "hit_rank": -1,
+            "recall@5": 0.0,
+            "precision@5": 0.0,
+            "mrr@10": 0.0,
+            "ndcg@10": 0.0,
+            "latency_ms": 68.80260002799332
+          }
+        },
+        {
+          "query_id": "encode/httpx#1263",
+          "repo": "encode/httpx",
+          "target": 538,
+          "metrics": {
+            "hit_rank": 9,
+            "recall@5": 0.0,
+            "precision@5": 0.0,
+            "mrr@10": 0.1111111111111111,
+            "ndcg@10": 0.3010299956639812,
+            "latency_ms": 39.32830004487187
+          }
+        },
+        {
+          "query_id": "encode/httpx#1261",
+          "repo": "encode/httpx",
+          "target": 154,
+          "metrics": {
+            "hit_rank": 2,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 0.5,
+            "ndcg@10": 0.6309297535714575,
+            "latency_ms": 64.5541000412777
+          }
+        },
+        {
+          "query_id": "pydantic/pydantic#12437",
+          "repo": "pydantic/pydantic",
+          "target": 6533,
+          "metrics": {
+            "hit_rank": 3,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 0.3333333333333333,
+            "ndcg@10": 0.5,
+            "latency_ms": 72.3164000082761
+          }
+        },
+        {
+          "query_id": "pydantic/pydantic#12380",
+          "repo": "pydantic/pydantic",
+          "target": 12374,
+          "metrics": {
+            "hit_rank": 2,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 0.5,
+            "ndcg@10": 0.6309297535714575,
+            "latency_ms": 79.16869991458952
+          }
+        },
+        {
+          "query_id": "psf/requests#7222",
+          "repo": "psf/requests",
+          "target": 7219,
+          "metrics": {
+            "hit_rank": 1,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 1.0,
+            "ndcg@10": 1.0,
+            "latency_ms": 43.697800021618605
+          }
+        },
+        {
+          "query_id": "psf/requests#7150",
+          "repo": "psf/requests",
+          "target": 3856,
+          "metrics": {
+            "hit_rank": 2,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 0.5,
+            "ndcg@10": 0.6309297535714575,
+            "latency_ms": 41.19820008054376
+          }
+        },
+        {
+          "query_id": "psf/requests#7003",
+          "repo": "psf/requests",
+          "target": 5950,
+          "metrics": {
+            "hit_rank": 1,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 1.0,
+            "ndcg@10": 1.0,
+            "latency_ms": 144.8936000233516
+          }
+        },
+        {
+          "query_id": "psf/requests#6977",
+          "repo": "psf/requests",
+          "target": 6976,
+          "metrics": {
+            "hit_rank": 6,
+            "recall@5": 0.0,
+            "precision@5": 0.0,
+            "mrr@10": 0.16666666666666666,
+            "ndcg@10": 0.3562071871080222,
+            "latency_ms": 56.854199967347085
+          }
+        },
+        {
+          "query_id": "psf/requests#6957",
+          "repo": "psf/requests",
+          "target": 6946,
+          "metrics": {
+            "hit_rank": 4,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 0.25,
+            "ndcg@10": 0.43067655807339306,
+            "latency_ms": 48.11099998187274
+          }
+        },
+        {
+          "query_id": "psf/requests#6933",
+          "repo": "psf/requests",
+          "target": 6932,
+          "metrics": {
+            "hit_rank": 1,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 1.0,
+            "ndcg@10": 1.0,
+            "latency_ms": 53.72979992534965
+          }
+        },
+        {
+          "query_id": "psf/requests#6893",
+          "repo": "psf/requests",
+          "target": 6892,
+          "metrics": {
+            "hit_rank": 1,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 1.0,
+            "ndcg@10": 1.0,
+            "latency_ms": 135.24400000460446
+          }
+        },
+        {
+          "query_id": "psf/requests#6872",
+          "repo": "psf/requests",
+          "target": 6730,
+          "metrics": {
+            "hit_rank": -1,
+            "recall@5": 0.0,
+            "precision@5": 0.0,
+            "mrr@10": 0.0,
+            "ndcg@10": 0.0,
+            "latency_ms": 72.85050000064075
+          }
+        },
+        {
+          "query_id": "psf/requests#6835",
+          "repo": "psf/requests",
+          "target": 5977,
+          "metrics": {
+            "hit_rank": 5,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 0.2,
+            "ndcg@10": 0.38685280723454163,
+            "latency_ms": 66.39359996188432
+          }
+        },
+        {
+          "query_id": "psf/requests#6784",
+          "repo": "psf/requests",
+          "target": 6711,
+          "metrics": {
+            "hit_rank": 5,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 0.2,
+            "ndcg@10": 0.38685280723454163,
+            "latency_ms": 67.28640000801533
+          }
+        },
+        {
+          "query_id": "psf/requests#6763",
+          "repo": "psf/requests",
+          "target": 6586,
+          "metrics": {
+            "hit_rank": 3,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 0.3333333333333333,
+            "ndcg@10": 0.5,
+            "latency_ms": 65.14930003322661
+          }
+        },
+        {
+          "query_id": "psf/requests#6736",
+          "repo": "psf/requests",
+          "target": 6730,
+          "metrics": {
+            "hit_rank": 2,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 0.5,
+            "ndcg@10": 0.6309297535714575,
+            "latency_ms": 65.2474999660626
+          }
+        },
+        {
+          "query_id": "psf/requests#6729",
+          "repo": "psf/requests",
+          "target": 6728,
+          "metrics": {
+            "hit_rank": 1,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 1.0,
+            "ndcg@10": 1.0,
+            "latency_ms": 132.63989996630698
+          }
+        },
+        {
+          "query_id": "psf/requests#6717",
+          "repo": "psf/requests",
+          "target": 6715,
+          "metrics": {
+            "hit_rank": 1,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 1.0,
+            "ndcg@10": 1.0,
+            "latency_ms": 68.97989998105913
+          }
+        },
+        {
+          "query_id": "psf/requests#6695",
+          "repo": "psf/requests",
+          "target": 3829,
+          "metrics": {
+            "hit_rank": 1,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 1.0,
+            "ndcg@10": 1.0,
+            "latency_ms": 65.19840005785227
+          }
+        },
+        {
+          "query_id": "psf/requests#6660",
+          "repo": "psf/requests",
+          "target": 6565,
+          "metrics": {
+            "hit_rank": 2,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 0.5,
+            "ndcg@10": 0.6309297535714575,
+            "latency_ms": 68.31100000999868
+          }
+        },
+        {
+          "query_id": "psf/requests#6658",
+          "repo": "psf/requests",
+          "target": 6586,
+          "metrics": {
+            "hit_rank": 2,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 0.5,
+            "ndcg@10": 0.6309297535714575,
+            "latency_ms": 67.79080000706017
+          }
+        },
+        {
+          "query_id": "psf/requests#6611",
+          "repo": "psf/requests",
+          "target": 6026,
+          "metrics": {
+            "hit_rank": 4,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 0.25,
+            "ndcg@10": 0.43067655807339306,
+            "latency_ms": 62.65670002903789
+          }
+        },
+        {
+          "query_id": "psf/requests#6534",
+          "repo": "psf/requests",
+          "target": 6344,
+          "metrics": {
+            "hit_rank": 2,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 0.5,
+            "ndcg@10": 0.6309297535714575,
+            "latency_ms": 66.3724000332877
+          }
+        },
+        {
+          "query_id": "psf/requests#6524",
+          "repo": "psf/requests",
+          "target": 5000,
+          "metrics": {
+            "hit_rank": 1,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 1.0,
+            "ndcg@10": 1.0,
+            "latency_ms": 61.973099946044385
+          }
+        },
+        {
+          "query_id": "psf/requests#6445",
+          "repo": "psf/requests",
+          "target": 6432,
+          "metrics": {
+            "hit_rank": 2,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 0.5,
+            "ndcg@10": 0.6309297535714575,
+            "latency_ms": 35.46789998654276
+          }
+        }
+      ]
+    },
+    "hybrid": {
+      "method": "hybrid",
+      "query_count": 51,
+      "source_types": [
+        "issue",
+        "comment"
+      ],
+      "rerank_alpha": 0.5,
+      "leakage_check_passed": true,
+      "overall": {
+        "recall@5": 0.7647,
+        "precision@5": 0.1529,
+        "mrr@10": 0.6018,
+        "ndcg@10": 0.6692,
+        "mean_latency_ms": 186.97
+      },
+      "per_repo": {
+        "pallets/flask": {
+          "query_count": 7,
+          "recall@5": 1.0,
+          "precision@5": 0.2,
+          "mrr@10": 0.8571,
+          "ndcg@10": 0.8946,
+          "mean_latency_ms": 96.19
+        },
+        "encode/httpx": {
+          "query_count": 15,
+          "recall@5": 0.6,
+          "precision@5": 0.12,
+          "mrr@10": 0.4467,
+          "ndcg@10": 0.529,
+          "mean_latency_ms": 151.9
+        },
+        "pydantic/pydantic": {
+          "query_count": 6,
+          "recall@5": 1.0,
+          "precision@5": 0.2,
+          "mrr@10": 0.8333,
+          "ndcg@10": 0.877,
+          "mean_latency_ms": 282.74
+        },
+        "psf/requests": {
+          "query_count": 23,
+          "recall@5": 0.7391,
+          "precision@5": 0.1478,
+          "mrr@10": 0.5649,
+          "ndcg@10": 0.6379,
+          "mean_latency_ms": 212.5
+        }
+      },
+      "queries": [
+        {
+          "query_id": "pallets/flask#5817",
+          "repo": "pallets/flask",
+          "target": 5256,
+          "metrics": {
+            "hit_rank": 1,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 1.0,
+            "ndcg@10": 1.0,
+            "latency_ms": 127.22249992657453
+          }
+        },
+        {
+          "query_id": "pallets/flask#5504",
+          "repo": "pallets/flask",
+          "target": 1740,
+          "metrics": {
+            "hit_rank": 1,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 1.0,
+            "ndcg@10": 1.0,
+            "latency_ms": 126.38420006260276
+          }
+        },
+        {
+          "query_id": "encode/httpx#1464",
+          "repo": "encode/httpx",
+          "target": 1463,
+          "metrics": {
+            "hit_rank": 1,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 1.0,
+            "ndcg@10": 1.0,
+            "latency_ms": 217.77270000893623
+          }
+        },
+        {
+          "query_id": "encode/httpx#1274",
+          "repo": "encode/httpx",
+          "target": 1253,
+          "metrics": {
+            "hit_rank": 3,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 0.3333333333333333,
+            "ndcg@10": 0.5,
+            "latency_ms": 145.39950003381819
+          }
+        },
+        {
+          "query_id": "encode/httpx#1264",
+          "repo": "encode/httpx",
+          "target": 790,
+          "metrics": {
+            "hit_rank": 1,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 1.0,
+            "ndcg@10": 1.0,
+            "latency_ms": 208.87939992826432
+          }
+        },
+        {
+          "query_id": "pydantic/pydantic#14030",
+          "repo": "pydantic/pydantic",
+          "target": 12801,
+          "metrics": {
+            "hit_rank": 1,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 1.0,
+            "ndcg@10": 1.0,
+            "latency_ms": 390.6990000978112
+          }
+        },
+        {
+          "query_id": "pydantic/pydantic#13984",
+          "repo": "pydantic/pydantic",
+          "target": 11092,
+          "metrics": {
+            "hit_rank": 1,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 1.0,
+            "ndcg@10": 1.0,
+            "latency_ms": 436.02719996124506
+          }
+        },
+        {
+          "query_id": "pydantic/pydantic#13236",
+          "repo": "pydantic/pydantic",
+          "target": 10409,
+          "metrics": {
+            "hit_rank": 1,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 1.0,
+            "ndcg@10": 1.0,
+            "latency_ms": 331.4654000569135
+          }
+        },
+        {
+          "query_id": "pydantic/pydantic#12939",
+          "repo": "pydantic/pydantic",
+          "target": 12936,
+          "metrics": {
+            "hit_rank": 1,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 1.0,
+            "ndcg@10": 1.0,
+            "latency_ms": 86.27620001789182
+          }
+        },
+        {
+          "query_id": "psf/requests#6896",
+          "repo": "psf/requests",
+          "target": 2811,
+          "metrics": {
+            "hit_rank": -1,
+            "recall@5": 0.0,
+            "precision@5": 0.0,
+            "mrr@10": 0.0,
+            "ndcg@10": 0.0,
+            "latency_ms": 1957.708999980241
+          }
+        },
+        {
+          "query_id": "psf/requests#6442",
+          "repo": "psf/requests",
+          "target": 6432,
+          "metrics": {
+            "hit_rank": 6,
+            "recall@5": 0.0,
+            "precision@5": 0.0,
+            "mrr@10": 0.16666666666666666,
+            "ndcg@10": 0.3562071871080222,
+            "latency_ms": 148.8865000428632
+          }
+        },
+        {
+          "query_id": "pallets/flask#5901",
+          "repo": "pallets/flask",
+          "target": 3747,
+          "metrics": {
+            "hit_rank": 1,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 1.0,
+            "ndcg@10": 1.0,
+            "latency_ms": 171.68339993804693
+          }
+        },
+        {
+          "query_id": "pallets/flask#4994",
+          "repo": "pallets/flask",
+          "target": 3404,
+          "metrics": {
+            "hit_rank": 1,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 1.0,
+            "ndcg@10": 1.0,
+            "latency_ms": 43.31480001565069
+          }
+        },
+        {
+          "query_id": "pallets/flask#4990",
+          "repo": "pallets/flask",
+          "target": 4734,
+          "metrics": {
+            "hit_rank": 1,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 1.0,
+            "ndcg@10": 1.0,
+            "latency_ms": 121.89239996951073
+          }
+        },
+        {
+          "query_id": "pallets/flask#4931",
+          "repo": "pallets/flask",
+          "target": 4928,
+          "metrics": {
+            "hit_rank": 2,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 0.5,
+            "ndcg@10": 0.6309297535714575,
+            "latency_ms": 57.33480001799762
+          }
+        },
+        {
+          "query_id": "pallets/flask#4817",
+          "repo": "pallets/flask",
+          "target": 3404,
+          "metrics": {
+            "hit_rank": 2,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 0.5,
+            "ndcg@10": 0.6309297535714575,
+            "latency_ms": 25.4926000488922
+          }
+        },
+        {
+          "query_id": "encode/httpx#2748",
+          "repo": "encode/httpx",
+          "target": 2114,
+          "metrics": {
+            "hit_rank": 1,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 1.0,
+            "ndcg@10": 1.0,
+            "latency_ms": 147.93470001313835
+          }
+        },
+        {
+          "query_id": "encode/httpx#2632",
+          "repo": "encode/httpx",
+          "target": 1434,
+          "metrics": {
+            "hit_rank": -1,
+            "recall@5": 0.0,
+            "precision@5": 0.0,
+            "mrr@10": 0.0,
+            "ndcg@10": 0.0,
+            "latency_ms": 430.839900043793
+          }
+        },
+        {
+          "query_id": "encode/httpx#2274",
+          "repo": "encode/httpx",
+          "target": 2169,
+          "metrics": {
+            "hit_rank": 1,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 1.0,
+            "ndcg@10": 1.0,
+            "latency_ms": 60.0743000395596
+          }
+        },
+        {
+          "query_id": "encode/httpx#2131",
+          "repo": "encode/httpx",
+          "target": 2092,
+          "metrics": {
+            "hit_rank": 5,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 0.2,
+            "ndcg@10": 0.38685280723454163,
+            "latency_ms": 151.0792999761179
+          }
+        },
+        {
+          "query_id": "encode/httpx#1615",
+          "repo": "encode/httpx",
+          "target": 1614,
+          "metrics": {
+            "hit_rank": 4,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 0.25,
+            "ndcg@10": 0.43067655807339306,
+            "latency_ms": 185.64879999030381
+          }
+        },
+        {
+          "query_id": "encode/httpx#1614",
+          "repo": "encode/httpx",
+          "target": 1615,
+          "metrics": {
+            "hit_rank": -1,
+            "recall@5": 0.0,
+            "precision@5": 0.0,
+            "mrr@10": 0.0,
+            "ndcg@10": 0.0,
+            "latency_ms": 85.76909999828786
+          }
+        },
+        {
+          "query_id": "encode/httpx#1561",
+          "repo": "encode/httpx",
+          "target": 1363,
+          "metrics": {
+            "hit_rank": 1,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 1.0,
+            "ndcg@10": 1.0,
+            "latency_ms": 101.33619990665466
+          }
+        },
+        {
+          "query_id": "encode/httpx#1408",
+          "repo": "encode/httpx",
+          "target": 809,
+          "metrics": {
+            "hit_rank": 6,
+            "recall@5": 0.0,
+            "precision@5": 0.0,
+            "mrr@10": 0.16666666666666666,
+            "ndcg@10": 0.3562071871080222,
+            "latency_ms": 40.629500057548285
+          }
+        },
+        {
+          "query_id": "encode/httpx#1373",
+          "repo": "encode/httpx",
+          "target": 1434,
+          "metrics": {
+            "hit_rank": -1,
+            "recall@5": 0.0,
+            "precision@5": 0.0,
+            "mrr@10": 0.0,
+            "ndcg@10": 0.0,
+            "latency_ms": 207.96280005015433
           }
         },
         {
@@ -382,7 +1822,7 @@
             "precision@5": 0.0,
             "mrr@10": 0.125,
             "ndcg@10": 0.31546487678572877,
-            "latency_ms": 54.335599998012185
+            "latency_ms": 169.46650005411357
           }
         },
         {
@@ -390,12 +1830,12 @@
           "repo": "encode/httpx",
           "target": 538,
           "metrics": {
-            "hit_rank": -1,
+            "hit_rank": 8,
             "recall@5": 0.0,
             "precision@5": 0.0,
-            "mrr@10": 0.0,
-            "ndcg@10": 0.0,
-            "latency_ms": 2.75559991132468
+            "mrr@10": 0.125,
+            "ndcg@10": 0.31546487678572877,
+            "latency_ms": 43.63639990333468
           }
         },
         {
@@ -403,12 +1843,12 @@
           "repo": "encode/httpx",
           "target": 154,
           "metrics": {
-            "hit_rank": -1,
-            "recall@5": 0.0,
-            "precision@5": 0.0,
-            "mrr@10": 0.0,
-            "ndcg@10": 0.0,
-            "latency_ms": 10.013899998739362
+            "hit_rank": 2,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 0.5,
+            "ndcg@10": 0.6309297535714575,
+            "latency_ms": 82.0213999832049
           }
         },
         {
@@ -416,12 +1856,12 @@
           "repo": "pydantic/pydantic",
           "target": 6533,
           "metrics": {
-            "hit_rank": -1,
-            "recall@5": 0.0,
-            "precision@5": 0.0,
-            "mrr@10": 0.0,
-            "ndcg@10": 0.0,
-            "latency_ms": 121.4505999814719
+            "hit_rank": 2,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 0.5,
+            "ndcg@10": 0.6309297535714575,
+            "latency_ms": 253.77539999317378
           }
         },
         {
@@ -434,7 +1874,7 @@
             "precision@5": 0.2,
             "mrr@10": 0.5,
             "ndcg@10": 0.6309297535714575,
-            "latency_ms": 61.557200038805604
+            "latency_ms": 198.17109999712557
           }
         },
         {
@@ -447,7 +1887,7 @@
             "precision@5": 0.2,
             "mrr@10": 1.0,
             "ndcg@10": 1.0,
-            "latency_ms": 17.755300039425492
+            "latency_ms": 67.97979993280023
           }
         },
         {
@@ -460,717 +1900,7 @@
             "precision@5": 0.2,
             "mrr@10": 0.5,
             "ndcg@10": 0.6309297535714575,
-            "latency_ms": 18.907699966803193
-          }
-        },
-        {
-          "query_id": "psf/requests#7003",
-          "repo": "psf/requests",
-          "target": 5950,
-          "metrics": {
-            "hit_rank": 3,
-            "recall@5": 1.0,
-            "precision@5": 0.2,
-            "mrr@10": 0.3333333333333333,
-            "ndcg@10": 0.5,
-            "latency_ms": 57.14689998421818
-          }
-        },
-        {
-          "query_id": "psf/requests#6977",
-          "repo": "psf/requests",
-          "target": 6976,
-          "metrics": {
-            "hit_rank": -1,
-            "recall@5": 0.0,
-            "precision@5": 0.0,
-            "mrr@10": 0.0,
-            "ndcg@10": 0.0,
-            "latency_ms": 14.85020003747195
-          }
-        },
-        {
-          "query_id": "psf/requests#6957",
-          "repo": "psf/requests",
-          "target": 6946,
-          "metrics": {
-            "hit_rank": 2,
-            "recall@5": 1.0,
-            "precision@5": 0.2,
-            "mrr@10": 0.5,
-            "ndcg@10": 0.6309297535714575,
-            "latency_ms": 8.423599996604025
-          }
-        },
-        {
-          "query_id": "psf/requests#6933",
-          "repo": "psf/requests",
-          "target": 6932,
-          "metrics": {
-            "hit_rank": 1,
-            "recall@5": 1.0,
-            "precision@5": 0.2,
-            "mrr@10": 1.0,
-            "ndcg@10": 1.0,
-            "latency_ms": 14.096200000494719
-          }
-        },
-        {
-          "query_id": "psf/requests#6893",
-          "repo": "psf/requests",
-          "target": 6892,
-          "metrics": {
-            "hit_rank": 1,
-            "recall@5": 1.0,
-            "precision@5": 0.2,
-            "mrr@10": 1.0,
-            "ndcg@10": 1.0,
-            "latency_ms": 97.51490002963692
-          }
-        },
-        {
-          "query_id": "psf/requests#6872",
-          "repo": "psf/requests",
-          "target": 6730,
-          "metrics": {
-            "hit_rank": -1,
-            "recall@5": 0.0,
-            "precision@5": 0.0,
-            "mrr@10": 0.0,
-            "ndcg@10": 0.0,
-            "latency_ms": 118.58570005279034
-          }
-        },
-        {
-          "query_id": "psf/requests#6835",
-          "repo": "psf/requests",
-          "target": 5977,
-          "metrics": {
-            "hit_rank": 2,
-            "recall@5": 1.0,
-            "precision@5": 0.2,
-            "mrr@10": 0.5,
-            "ndcg@10": 0.6309297535714575,
-            "latency_ms": 49.15490001440048
-          }
-        },
-        {
-          "query_id": "psf/requests#6784",
-          "repo": "psf/requests",
-          "target": 6711,
-          "metrics": {
-            "hit_rank": -1,
-            "recall@5": 0.0,
-            "precision@5": 0.0,
-            "mrr@10": 0.0,
-            "ndcg@10": 0.0,
-            "latency_ms": 89.43809999618679
-          }
-        },
-        {
-          "query_id": "psf/requests#6763",
-          "repo": "psf/requests",
-          "target": 6586,
-          "metrics": {
-            "hit_rank": 4,
-            "recall@5": 1.0,
-            "precision@5": 0.2,
-            "mrr@10": 0.25,
-            "ndcg@10": 0.43067655807339306,
-            "latency_ms": 28.93709996715188
-          }
-        },
-        {
-          "query_id": "psf/requests#6736",
-          "repo": "psf/requests",
-          "target": 6730,
-          "metrics": {
-            "hit_rank": 1,
-            "recall@5": 1.0,
-            "precision@5": 0.2,
-            "mrr@10": 1.0,
-            "ndcg@10": 1.0,
-            "latency_ms": 39.80680007953197
-          }
-        },
-        {
-          "query_id": "psf/requests#6729",
-          "repo": "psf/requests",
-          "target": 6728,
-          "metrics": {
-            "hit_rank": 4,
-            "recall@5": 1.0,
-            "precision@5": 0.2,
-            "mrr@10": 0.25,
-            "ndcg@10": 0.43067655807339306,
-            "latency_ms": 48.860899987630546
-          }
-        },
-        {
-          "query_id": "psf/requests#6717",
-          "repo": "psf/requests",
-          "target": 6715,
-          "metrics": {
-            "hit_rank": 1,
-            "recall@5": 1.0,
-            "precision@5": 0.2,
-            "mrr@10": 1.0,
-            "ndcg@10": 1.0,
-            "latency_ms": 39.72739994060248
-          }
-        },
-        {
-          "query_id": "psf/requests#6695",
-          "repo": "psf/requests",
-          "target": 3829,
-          "metrics": {
-            "hit_rank": 1,
-            "recall@5": 1.0,
-            "precision@5": 0.2,
-            "mrr@10": 1.0,
-            "ndcg@10": 1.0,
-            "latency_ms": 30.32839996740222
-          }
-        },
-        {
-          "query_id": "psf/requests#6660",
-          "repo": "psf/requests",
-          "target": 6565,
-          "metrics": {
-            "hit_rank": 4,
-            "recall@5": 1.0,
-            "precision@5": 0.2,
-            "mrr@10": 0.25,
-            "ndcg@10": 0.43067655807339306,
-            "latency_ms": 42.564100003801286
-          }
-        },
-        {
-          "query_id": "psf/requests#6658",
-          "repo": "psf/requests",
-          "target": 6586,
-          "metrics": {
-            "hit_rank": 1,
-            "recall@5": 1.0,
-            "precision@5": 0.2,
-            "mrr@10": 1.0,
-            "ndcg@10": 1.0,
-            "latency_ms": 24.701599963009357
-          }
-        },
-        {
-          "query_id": "psf/requests#6611",
-          "repo": "psf/requests",
-          "target": 6026,
-          "metrics": {
-            "hit_rank": -1,
-            "recall@5": 0.0,
-            "precision@5": 0.0,
-            "mrr@10": 0.0,
-            "ndcg@10": 0.0,
-            "latency_ms": 18.26059992890805
-          }
-        },
-        {
-          "query_id": "psf/requests#6534",
-          "repo": "psf/requests",
-          "target": 6344,
-          "metrics": {
-            "hit_rank": -1,
-            "recall@5": 0.0,
-            "precision@5": 0.0,
-            "mrr@10": 0.0,
-            "ndcg@10": 0.0,
-            "latency_ms": 28.253199998289347
-          }
-        },
-        {
-          "query_id": "psf/requests#6524",
-          "repo": "psf/requests",
-          "target": 5000,
-          "metrics": {
-            "hit_rank": 1,
-            "recall@5": 1.0,
-            "precision@5": 0.2,
-            "mrr@10": 1.0,
-            "ndcg@10": 1.0,
-            "latency_ms": 10.444600018672645
-          }
-        },
-        {
-          "query_id": "psf/requests#6445",
-          "repo": "psf/requests",
-          "target": 6432,
-          "metrics": {
-            "hit_rank": -1,
-            "recall@5": 0.0,
-            "precision@5": 0.0,
-            "mrr@10": 0.0,
-            "ndcg@10": 0.0,
-            "latency_ms": 2.0189000060781837
-          }
-        }
-      ]
-    },
-    "dense": {
-      "method": "dense",
-      "query_count": 51,
-      "overall": {
-        "recall@5": 0.6863,
-        "precision@5": 0.1373,
-        "mrr@10": 0.5167,
-        "ndcg@10": 0.5815,
-        "mean_latency_ms": 284.94
-      },
-      "per_repo": {
-        "pallets/flask": {
-          "query_count": 7,
-          "recall@5": 0.8571,
-          "precision@5": 0.1714,
-          "mrr@10": 0.7143,
-          "ndcg@10": 0.7839,
-          "mean_latency_ms": 1926.16
-        },
-        "encode/httpx": {
-          "query_count": 15,
-          "recall@5": 0.4,
-          "precision@5": 0.08,
-          "mrr@10": 0.3117,
-          "ndcg@10": 0.348,
-          "mean_latency_ms": 17.59
-        },
-        "pydantic/pydantic": {
-          "query_count": 6,
-          "recall@5": 0.8333,
-          "precision@5": 0.1667,
-          "mrr@10": 0.75,
-          "ndcg@10": 0.7718,
-          "mean_latency_ms": 23.27
-        },
-        "psf/requests": {
-          "query_count": 23,
-          "recall@5": 0.7826,
-          "precision@5": 0.1565,
-          "mrr@10": 0.5294,
-          "ndcg@10": 0.6225,
-          "mean_latency_ms": 28.07
-        }
-      },
-      "queries": [
-        {
-          "query_id": "pallets/flask#5817",
-          "repo": "pallets/flask",
-          "target": 5256,
-          "metrics": {
-            "hit_rank": 3,
-            "recall@5": 1.0,
-            "precision@5": 0.2,
-            "mrr@10": 0.3333333333333333,
-            "ndcg@10": 0.5,
-            "latency_ms": 13386.749100056477
-          }
-        },
-        {
-          "query_id": "pallets/flask#5504",
-          "repo": "pallets/flask",
-          "target": 1740,
-          "metrics": {
-            "hit_rank": 1,
-            "recall@5": 1.0,
-            "precision@5": 0.2,
-            "mrr@10": 1.0,
-            "ndcg@10": 1.0,
-            "latency_ms": 15.837599989026785
-          }
-        },
-        {
-          "query_id": "encode/httpx#1464",
-          "repo": "encode/httpx",
-          "target": 1463,
-          "metrics": {
-            "hit_rank": 1,
-            "recall@5": 1.0,
-            "precision@5": 0.2,
-            "mrr@10": 1.0,
-            "ndcg@10": 1.0,
-            "latency_ms": 20.506200031377375
-          }
-        },
-        {
-          "query_id": "encode/httpx#1274",
-          "repo": "encode/httpx",
-          "target": 1253,
-          "metrics": {
-            "hit_rank": -1,
-            "recall@5": 0.0,
-            "precision@5": 0.0,
-            "mrr@10": 0.0,
-            "ndcg@10": 0.0,
-            "latency_ms": 16.948600066825747
-          }
-        },
-        {
-          "query_id": "encode/httpx#1264",
-          "repo": "encode/httpx",
-          "target": 790,
-          "metrics": {
-            "hit_rank": -1,
-            "recall@5": 0.0,
-            "precision@5": 0.0,
-            "mrr@10": 0.0,
-            "ndcg@10": 0.0,
-            "latency_ms": 21.60650002770126
-          }
-        },
-        {
-          "query_id": "pydantic/pydantic#14030",
-          "repo": "pydantic/pydantic",
-          "target": 12801,
-          "metrics": {
-            "hit_rank": 1,
-            "recall@5": 1.0,
-            "precision@5": 0.2,
-            "mrr@10": 1.0,
-            "ndcg@10": 1.0,
-            "latency_ms": 24.886100087314844
-          }
-        },
-        {
-          "query_id": "pydantic/pydantic#13984",
-          "repo": "pydantic/pydantic",
-          "target": 11092,
-          "metrics": {
-            "hit_rank": 1,
-            "recall@5": 1.0,
-            "precision@5": 0.2,
-            "mrr@10": 1.0,
-            "ndcg@10": 1.0,
-            "latency_ms": 24.660900002345443
-          }
-        },
-        {
-          "query_id": "pydantic/pydantic#13236",
-          "repo": "pydantic/pydantic",
-          "target": 10409,
-          "metrics": {
-            "hit_rank": 1,
-            "recall@5": 1.0,
-            "precision@5": 0.2,
-            "mrr@10": 1.0,
-            "ndcg@10": 1.0,
-            "latency_ms": 22.8299000300467
-          }
-        },
-        {
-          "query_id": "pydantic/pydantic#12939",
-          "repo": "pydantic/pydantic",
-          "target": 12936,
-          "metrics": {
-            "hit_rank": 1,
-            "recall@5": 1.0,
-            "precision@5": 0.2,
-            "mrr@10": 1.0,
-            "ndcg@10": 1.0,
-            "latency_ms": 28.430100064724684
-          }
-        },
-        {
-          "query_id": "psf/requests#6896",
-          "repo": "psf/requests",
-          "target": 2811,
-          "metrics": {
-            "hit_rank": -1,
-            "recall@5": 0.0,
-            "precision@5": 0.0,
-            "mrr@10": 0.0,
-            "ndcg@10": 0.0,
-            "latency_ms": 43.95349998958409
-          }
-        },
-        {
-          "query_id": "psf/requests#6442",
-          "repo": "psf/requests",
-          "target": 6432,
-          "metrics": {
-            "hit_rank": 6,
-            "recall@5": 0.0,
-            "precision@5": 0.0,
-            "mrr@10": 0.16666666666666666,
-            "ndcg@10": 0.3562071871080222,
-            "latency_ms": 18.341300077736378
-          }
-        },
-        {
-          "query_id": "pallets/flask#5901",
-          "repo": "pallets/flask",
-          "target": 3747,
-          "metrics": {
-            "hit_rank": 1,
-            "recall@5": 1.0,
-            "precision@5": 0.2,
-            "mrr@10": 1.0,
-            "ndcg@10": 1.0,
-            "latency_ms": 21.57789992634207
-          }
-        },
-        {
-          "query_id": "pallets/flask#4994",
-          "repo": "pallets/flask",
-          "target": 3404,
-          "metrics": {
-            "hit_rank": 1,
-            "recall@5": 1.0,
-            "precision@5": 0.2,
-            "mrr@10": 1.0,
-            "ndcg@10": 1.0,
-            "latency_ms": 13.689700048416853
-          }
-        },
-        {
-          "query_id": "pallets/flask#4990",
-          "repo": "pallets/flask",
-          "target": 4734,
-          "metrics": {
-            "hit_rank": 1,
-            "recall@5": 1.0,
-            "precision@5": 0.2,
-            "mrr@10": 1.0,
-            "ndcg@10": 1.0,
-            "latency_ms": 17.863999935798347
-          }
-        },
-        {
-          "query_id": "pallets/flask#4931",
-          "repo": "pallets/flask",
-          "target": 4928,
-          "metrics": {
-            "hit_rank": 2,
-            "recall@5": 1.0,
-            "precision@5": 0.2,
-            "mrr@10": 0.5,
-            "ndcg@10": 0.6309297535714575,
-            "latency_ms": 14.65749996714294
-          }
-        },
-        {
-          "query_id": "pallets/flask#4817",
-          "repo": "pallets/flask",
-          "target": 3404,
-          "metrics": {
-            "hit_rank": 6,
-            "recall@5": 0.0,
-            "precision@5": 0.0,
-            "mrr@10": 0.16666666666666666,
-            "ndcg@10": 0.3562071871080222,
-            "latency_ms": 12.709600036032498
-          }
-        },
-        {
-          "query_id": "encode/httpx#2748",
-          "repo": "encode/httpx",
-          "target": 2114,
-          "metrics": {
-            "hit_rank": 1,
-            "recall@5": 1.0,
-            "precision@5": 0.2,
-            "mrr@10": 1.0,
-            "ndcg@10": 1.0,
-            "latency_ms": 16.840999945998192
-          }
-        },
-        {
-          "query_id": "encode/httpx#2632",
-          "repo": "encode/httpx",
-          "target": 1434,
-          "metrics": {
-            "hit_rank": -1,
-            "recall@5": 0.0,
-            "precision@5": 0.0,
-            "mrr@10": 0.0,
-            "ndcg@10": 0.0,
-            "latency_ms": 24.321199976839125
-          }
-        },
-        {
-          "query_id": "encode/httpx#2274",
-          "repo": "encode/httpx",
-          "target": 2169,
-          "metrics": {
-            "hit_rank": 1,
-            "recall@5": 1.0,
-            "precision@5": 0.2,
-            "mrr@10": 1.0,
-            "ndcg@10": 1.0,
-            "latency_ms": 15.154600027017295
-          }
-        },
-        {
-          "query_id": "encode/httpx#2131",
-          "repo": "encode/httpx",
-          "target": 2092,
-          "metrics": {
-            "hit_rank": 7,
-            "recall@5": 0.0,
-            "precision@5": 0.0,
-            "mrr@10": 0.14285714285714285,
-            "ndcg@10": 0.3333333333333333,
-            "latency_ms": 21.708999993279576
-          }
-        },
-        {
-          "query_id": "encode/httpx#1615",
-          "repo": "encode/httpx",
-          "target": 1614,
-          "metrics": {
-            "hit_rank": -1,
-            "recall@5": 0.0,
-            "precision@5": 0.0,
-            "mrr@10": 0.0,
-            "ndcg@10": 0.0,
-            "latency_ms": 21.45499992184341
-          }
-        },
-        {
-          "query_id": "encode/httpx#1614",
-          "repo": "encode/httpx",
-          "target": 1615,
-          "metrics": {
-            "hit_rank": -1,
-            "recall@5": 0.0,
-            "precision@5": 0.0,
-            "mrr@10": 0.0,
-            "ndcg@10": 0.0,
-            "latency_ms": 13.531900011003017
-          }
-        },
-        {
-          "query_id": "encode/httpx#1561",
-          "repo": "encode/httpx",
-          "target": 1363,
-          "metrics": {
-            "hit_rank": 1,
-            "recall@5": 1.0,
-            "precision@5": 0.2,
-            "mrr@10": 1.0,
-            "ndcg@10": 1.0,
-            "latency_ms": 15.002999920397997
-          }
-        },
-        {
-          "query_id": "encode/httpx#1408",
-          "repo": "encode/httpx",
-          "target": 809,
-          "metrics": {
-            "hit_rank": 3,
-            "recall@5": 1.0,
-            "precision@5": 0.2,
-            "mrr@10": 0.3333333333333333,
-            "ndcg@10": 0.5,
-            "latency_ms": 11.19960006326437
-          }
-        },
-        {
-          "query_id": "encode/httpx#1373",
-          "repo": "encode/httpx",
-          "target": 1434,
-          "metrics": {
-            "hit_rank": -1,
-            "recall@5": 0.0,
-            "precision@5": 0.0,
-            "mrr@10": 0.0,
-            "ndcg@10": 0.0,
-            "latency_ms": 18.865599995478988
-          }
-        },
-        {
-          "query_id": "encode/httpx#1332",
-          "repo": "encode/httpx",
-          "target": 1317,
-          "metrics": {
-            "hit_rank": -1,
-            "recall@5": 0.0,
-            "precision@5": 0.0,
-            "mrr@10": 0.0,
-            "ndcg@10": 0.0,
-            "latency_ms": 17.772399936802685
-          }
-        },
-        {
-          "query_id": "encode/httpx#1263",
-          "repo": "encode/httpx",
-          "target": 538,
-          "metrics": {
-            "hit_rank": -1,
-            "recall@5": 0.0,
-            "precision@5": 0.0,
-            "mrr@10": 0.0,
-            "ndcg@10": 0.0,
-            "latency_ms": 13.45289999153465
-          }
-        },
-        {
-          "query_id": "encode/httpx#1261",
-          "repo": "encode/httpx",
-          "target": 154,
-          "metrics": {
-            "hit_rank": 5,
-            "recall@5": 1.0,
-            "precision@5": 0.2,
-            "mrr@10": 0.2,
-            "ndcg@10": 0.38685280723454163,
-            "latency_ms": 15.545600093901157
-          }
-        },
-        {
-          "query_id": "pydantic/pydantic#12437",
-          "repo": "pydantic/pydantic",
-          "target": 6533,
-          "metrics": {
-            "hit_rank": -1,
-            "recall@5": 0.0,
-            "precision@5": 0.0,
-            "mrr@10": 0.0,
-            "ndcg@10": 0.0,
-            "latency_ms": 19.842099980451167
-          }
-        },
-        {
-          "query_id": "pydantic/pydantic#12380",
-          "repo": "pydantic/pydantic",
-          "target": 12374,
-          "metrics": {
-            "hit_rank": 2,
-            "recall@5": 1.0,
-            "precision@5": 0.2,
-            "mrr@10": 0.5,
-            "ndcg@10": 0.6309297535714575,
-            "latency_ms": 18.967699958011508
-          }
-        },
-        {
-          "query_id": "psf/requests#7222",
-          "repo": "psf/requests",
-          "target": 7219,
-          "metrics": {
-            "hit_rank": 1,
-            "recall@5": 1.0,
-            "precision@5": 0.2,
-            "mrr@10": 1.0,
-            "ndcg@10": 1.0,
-            "latency_ms": 13.955799979157746
-          }
-        },
-        {
-          "query_id": "psf/requests#7150",
-          "repo": "psf/requests",
-          "target": 3856,
-          "metrics": {
-            "hit_rank": 2,
-            "recall@5": 1.0,
-            "precision@5": 0.2,
-            "mrr@10": 0.5,
-            "ndcg@10": 0.6309297535714575,
-            "latency_ms": 18.52140005212277
+            "latency_ms": 85.18039993941784
           }
         },
         {
@@ -1183,717 +1913,7 @@
             "precision@5": 0.2,
             "mrr@10": 1.0,
             "ndcg@10": 1.0,
-            "latency_ms": 24.632100015878677
-          }
-        },
-        {
-          "query_id": "psf/requests#6977",
-          "repo": "psf/requests",
-          "target": 6976,
-          "metrics": {
-            "hit_rank": 6,
-            "recall@5": 0.0,
-            "precision@5": 0.0,
-            "mrr@10": 0.16666666666666666,
-            "ndcg@10": 0.3562071871080222,
-            "latency_ms": 13.496499974280596
-          }
-        },
-        {
-          "query_id": "psf/requests#6957",
-          "repo": "psf/requests",
-          "target": 6946,
-          "metrics": {
-            "hit_rank": 4,
-            "recall@5": 1.0,
-            "precision@5": 0.2,
-            "mrr@10": 0.25,
-            "ndcg@10": 0.43067655807339306,
-            "latency_ms": 16.987400013022125
-          }
-        },
-        {
-          "query_id": "psf/requests#6933",
-          "repo": "psf/requests",
-          "target": 6932,
-          "metrics": {
-            "hit_rank": 1,
-            "recall@5": 1.0,
-            "precision@5": 0.2,
-            "mrr@10": 1.0,
-            "ndcg@10": 1.0,
-            "latency_ms": 18.06819997727871
-          }
-        },
-        {
-          "query_id": "psf/requests#6893",
-          "repo": "psf/requests",
-          "target": 6892,
-          "metrics": {
-            "hit_rank": 1,
-            "recall@5": 1.0,
-            "precision@5": 0.2,
-            "mrr@10": 1.0,
-            "ndcg@10": 1.0,
-            "latency_ms": 27.46899996418506
-          }
-        },
-        {
-          "query_id": "psf/requests#6872",
-          "repo": "psf/requests",
-          "target": 6730,
-          "metrics": {
-            "hit_rank": -1,
-            "recall@5": 0.0,
-            "precision@5": 0.0,
-            "mrr@10": 0.0,
-            "ndcg@10": 0.0,
-            "latency_ms": 21.78830001503229
-          }
-        },
-        {
-          "query_id": "psf/requests#6835",
-          "repo": "psf/requests",
-          "target": 5977,
-          "metrics": {
-            "hit_rank": 7,
-            "recall@5": 0.0,
-            "precision@5": 0.0,
-            "mrr@10": 0.14285714285714285,
-            "ndcg@10": 0.3333333333333333,
-            "latency_ms": 22.197899990715086
-          }
-        },
-        {
-          "query_id": "psf/requests#6784",
-          "repo": "psf/requests",
-          "target": 6711,
-          "metrics": {
-            "hit_rank": 5,
-            "recall@5": 1.0,
-            "precision@5": 0.2,
-            "mrr@10": 0.2,
-            "ndcg@10": 0.38685280723454163,
-            "latency_ms": 20.28289996087551
-          }
-        },
-        {
-          "query_id": "psf/requests#6763",
-          "repo": "psf/requests",
-          "target": 6586,
-          "metrics": {
-            "hit_rank": 3,
-            "recall@5": 1.0,
-            "precision@5": 0.2,
-            "mrr@10": 0.3333333333333333,
-            "ndcg@10": 0.5,
-            "latency_ms": 19.713399931788445
-          }
-        },
-        {
-          "query_id": "psf/requests#6736",
-          "repo": "psf/requests",
-          "target": 6730,
-          "metrics": {
-            "hit_rank": 2,
-            "recall@5": 1.0,
-            "precision@5": 0.2,
-            "mrr@10": 0.5,
-            "ndcg@10": 0.6309297535714575,
-            "latency_ms": 24.05530004762113
-          }
-        },
-        {
-          "query_id": "psf/requests#6729",
-          "repo": "psf/requests",
-          "target": 6728,
-          "metrics": {
-            "hit_rank": 1,
-            "recall@5": 1.0,
-            "precision@5": 0.2,
-            "mrr@10": 1.0,
-            "ndcg@10": 1.0,
-            "latency_ms": 22.594799986109138
-          }
-        },
-        {
-          "query_id": "psf/requests#6717",
-          "repo": "psf/requests",
-          "target": 6715,
-          "metrics": {
-            "hit_rank": 1,
-            "recall@5": 1.0,
-            "precision@5": 0.2,
-            "mrr@10": 1.0,
-            "ndcg@10": 1.0,
-            "latency_ms": 63.004499999806285
-          }
-        },
-        {
-          "query_id": "psf/requests#6695",
-          "repo": "psf/requests",
-          "target": 3829,
-          "metrics": {
-            "hit_rank": 1,
-            "recall@5": 1.0,
-            "precision@5": 0.2,
-            "mrr@10": 1.0,
-            "ndcg@10": 1.0,
-            "latency_ms": 60.43279997538775
-          }
-        },
-        {
-          "query_id": "psf/requests#6660",
-          "repo": "psf/requests",
-          "target": 6565,
-          "metrics": {
-            "hit_rank": 2,
-            "recall@5": 1.0,
-            "precision@5": 0.2,
-            "mrr@10": 0.5,
-            "ndcg@10": 0.6309297535714575,
-            "latency_ms": 61.60909996833652
-          }
-        },
-        {
-          "query_id": "psf/requests#6658",
-          "repo": "psf/requests",
-          "target": 6586,
-          "metrics": {
-            "hit_rank": 2,
-            "recall@5": 1.0,
-            "precision@5": 0.2,
-            "mrr@10": 0.5,
-            "ndcg@10": 0.6309297535714575,
-            "latency_ms": 30.305099906399846
-          }
-        },
-        {
-          "query_id": "psf/requests#6611",
-          "repo": "psf/requests",
-          "target": 6026,
-          "metrics": {
-            "hit_rank": 4,
-            "recall@5": 1.0,
-            "precision@5": 0.2,
-            "mrr@10": 0.25,
-            "ndcg@10": 0.43067655807339306,
-            "latency_ms": 29.761600075289607
-          }
-        },
-        {
-          "query_id": "psf/requests#6534",
-          "repo": "psf/requests",
-          "target": 6344,
-          "metrics": {
-            "hit_rank": 3,
-            "recall@5": 1.0,
-            "precision@5": 0.2,
-            "mrr@10": 0.3333333333333333,
-            "ndcg@10": 0.5,
-            "latency_ms": 29.841399984434247
-          }
-        },
-        {
-          "query_id": "psf/requests#6524",
-          "repo": "psf/requests",
-          "target": 5000,
-          "metrics": {
-            "hit_rank": 1,
-            "recall@5": 1.0,
-            "precision@5": 0.2,
-            "mrr@10": 1.0,
-            "ndcg@10": 1.0,
-            "latency_ms": 30.387199949473143
-          }
-        },
-        {
-          "query_id": "psf/requests#6445",
-          "repo": "psf/requests",
-          "target": 6432,
-          "metrics": {
-            "hit_rank": 3,
-            "recall@5": 1.0,
-            "precision@5": 0.2,
-            "mrr@10": 0.3333333333333333,
-            "ndcg@10": 0.5,
-            "latency_ms": 14.163799933157861
-          }
-        }
-      ]
-    },
-    "hybrid": {
-      "method": "hybrid",
-      "query_count": 51,
-      "overall": {
-        "recall@5": 0.6471,
-        "precision@5": 0.1294,
-        "mrr@10": 0.5375,
-        "ndcg@10": 0.5997,
-        "mean_latency_ms": 133.18
-      },
-      "per_repo": {
-        "pallets/flask": {
-          "query_count": 7,
-          "recall@5": 0.7143,
-          "precision@5": 0.1429,
-          "mrr@10": 0.6667,
-          "ndcg@10": 0.7124,
-          "mean_latency_ms": 71.13
-        },
-        "encode/httpx": {
-          "query_count": 15,
-          "recall@5": 0.4,
-          "precision@5": 0.08,
-          "mrr@10": 0.3362,
-          "ndcg@10": 0.4117,
-          "mean_latency_ms": 92.61
-        },
-        "pydantic/pydantic": {
-          "query_count": 6,
-          "recall@5": 0.8333,
-          "precision@5": 0.1667,
-          "mrr@10": 0.75,
-          "ndcg@10": 0.7718,
-          "mean_latency_ms": 191.73
-        },
-        "psf/requests": {
-          "query_count": 23,
-          "recall@5": 0.7391,
-          "precision@5": 0.1478,
-          "mrr@10": 0.574,
-          "ndcg@10": 0.6431,
-          "mean_latency_ms": 163.25
-        }
-      },
-      "queries": [
-        {
-          "query_id": "pallets/flask#5817",
-          "repo": "pallets/flask",
-          "target": 5256,
-          "metrics": {
-            "hit_rank": 6,
-            "recall@5": 0.0,
-            "precision@5": 0.0,
-            "mrr@10": 0.16666666666666666,
-            "ndcg@10": 0.3562071871080222,
-            "latency_ms": 75.3181999316439
-          }
-        },
-        {
-          "query_id": "pallets/flask#5504",
-          "repo": "pallets/flask",
-          "target": 1740,
-          "metrics": {
-            "hit_rank": 1,
-            "recall@5": 1.0,
-            "precision@5": 0.2,
-            "mrr@10": 1.0,
-            "ndcg@10": 1.0,
-            "latency_ms": 60.13040000107139
-          }
-        },
-        {
-          "query_id": "encode/httpx#1464",
-          "repo": "encode/httpx",
-          "target": 1463,
-          "metrics": {
-            "hit_rank": 1,
-            "recall@5": 1.0,
-            "precision@5": 0.2,
-            "mrr@10": 1.0,
-            "ndcg@10": 1.0,
-            "latency_ms": 68.45440005417913
-          }
-        },
-        {
-          "query_id": "encode/httpx#1274",
-          "repo": "encode/httpx",
-          "target": 1253,
-          "metrics": {
-            "hit_rank": 6,
-            "recall@5": 0.0,
-            "precision@5": 0.0,
-            "mrr@10": 0.16666666666666666,
-            "ndcg@10": 0.3562071871080222,
-            "latency_ms": 47.61690006125718
-          }
-        },
-        {
-          "query_id": "encode/httpx#1264",
-          "repo": "encode/httpx",
-          "target": 790,
-          "metrics": {
-            "hit_rank": 6,
-            "recall@5": 0.0,
-            "precision@5": 0.0,
-            "mrr@10": 0.16666666666666666,
-            "ndcg@10": 0.3562071871080222,
-            "latency_ms": 69.73139999900013
-          }
-        },
-        {
-          "query_id": "pydantic/pydantic#14030",
-          "repo": "pydantic/pydantic",
-          "target": 12801,
-          "metrics": {
-            "hit_rank": 1,
-            "recall@5": 1.0,
-            "precision@5": 0.2,
-            "mrr@10": 1.0,
-            "ndcg@10": 1.0,
-            "latency_ms": 288.74999994877726
-          }
-        },
-        {
-          "query_id": "pydantic/pydantic#13984",
-          "repo": "pydantic/pydantic",
-          "target": 11092,
-          "metrics": {
-            "hit_rank": 1,
-            "recall@5": 1.0,
-            "precision@5": 0.2,
-            "mrr@10": 1.0,
-            "ndcg@10": 1.0,
-            "latency_ms": 245.97359995823354
-          }
-        },
-        {
-          "query_id": "pydantic/pydantic#13236",
-          "repo": "pydantic/pydantic",
-          "target": 10409,
-          "metrics": {
-            "hit_rank": 1,
-            "recall@5": 1.0,
-            "precision@5": 0.2,
-            "mrr@10": 1.0,
-            "ndcg@10": 1.0,
-            "latency_ms": 223.06140000000596
-          }
-        },
-        {
-          "query_id": "pydantic/pydantic#12939",
-          "repo": "pydantic/pydantic",
-          "target": 12936,
-          "metrics": {
-            "hit_rank": 1,
-            "recall@5": 1.0,
-            "precision@5": 0.2,
-            "mrr@10": 1.0,
-            "ndcg@10": 1.0,
-            "latency_ms": 72.4346999777481
-          }
-        },
-        {
-          "query_id": "psf/requests#6896",
-          "repo": "psf/requests",
-          "target": 2811,
-          "metrics": {
-            "hit_rank": -1,
-            "recall@5": 0.0,
-            "precision@5": 0.0,
-            "mrr@10": 0.0,
-            "ndcg@10": 0.0,
-            "latency_ms": 1415.5546999536455
-          }
-        },
-        {
-          "query_id": "psf/requests#6442",
-          "repo": "psf/requests",
-          "target": 6432,
-          "metrics": {
-            "hit_rank": 7,
-            "recall@5": 0.0,
-            "precision@5": 0.0,
-            "mrr@10": 0.14285714285714285,
-            "ndcg@10": 0.3333333333333333,
-            "latency_ms": 143.68070010095835
-          }
-        },
-        {
-          "query_id": "pallets/flask#5901",
-          "repo": "pallets/flask",
-          "target": 3747,
-          "metrics": {
-            "hit_rank": 1,
-            "recall@5": 1.0,
-            "precision@5": 0.2,
-            "mrr@10": 1.0,
-            "ndcg@10": 1.0,
-            "latency_ms": 152.8445000294596
-          }
-        },
-        {
-          "query_id": "pallets/flask#4994",
-          "repo": "pallets/flask",
-          "target": 3404,
-          "metrics": {
-            "hit_rank": 1,
-            "recall@5": 1.0,
-            "precision@5": 0.2,
-            "mrr@10": 1.0,
-            "ndcg@10": 1.0,
-            "latency_ms": 42.54749999381602
-          }
-        },
-        {
-          "query_id": "pallets/flask#4990",
-          "repo": "pallets/flask",
-          "target": 4734,
-          "metrics": {
-            "hit_rank": 1,
-            "recall@5": 1.0,
-            "precision@5": 0.2,
-            "mrr@10": 1.0,
-            "ndcg@10": 1.0,
-            "latency_ms": 89.97690002433956
-          }
-        },
-        {
-          "query_id": "pallets/flask#4931",
-          "repo": "pallets/flask",
-          "target": 4928,
-          "metrics": {
-            "hit_rank": 2,
-            "recall@5": 1.0,
-            "precision@5": 0.2,
-            "mrr@10": 0.5,
-            "ndcg@10": 0.6309297535714575,
-            "latency_ms": 52.77949990704656
-          }
-        },
-        {
-          "query_id": "pallets/flask#4817",
-          "repo": "pallets/flask",
-          "target": 3404,
-          "metrics": {
-            "hit_rank": -1,
-            "recall@5": 0.0,
-            "precision@5": 0.0,
-            "mrr@10": 0.0,
-            "ndcg@10": 0.0,
-            "latency_ms": 24.283200036734343
-          }
-        },
-        {
-          "query_id": "encode/httpx#2748",
-          "repo": "encode/httpx",
-          "target": 2114,
-          "metrics": {
-            "hit_rank": 1,
-            "recall@5": 1.0,
-            "precision@5": 0.2,
-            "mrr@10": 1.0,
-            "ndcg@10": 1.0,
-            "latency_ms": 73.56190006248653
-          }
-        },
-        {
-          "query_id": "encode/httpx#2632",
-          "repo": "encode/httpx",
-          "target": 1434,
-          "metrics": {
-            "hit_rank": -1,
-            "recall@5": 0.0,
-            "precision@5": 0.0,
-            "mrr@10": 0.0,
-            "ndcg@10": 0.0,
-            "latency_ms": 364.8651000112295
-          }
-        },
-        {
-          "query_id": "encode/httpx#2274",
-          "repo": "encode/httpx",
-          "target": 2169,
-          "metrics": {
-            "hit_rank": 1,
-            "recall@5": 1.0,
-            "precision@5": 0.2,
-            "mrr@10": 1.0,
-            "ndcg@10": 1.0,
-            "latency_ms": 54.42549998406321
-          }
-        },
-        {
-          "query_id": "encode/httpx#2131",
-          "repo": "encode/httpx",
-          "target": 2092,
-          "metrics": {
-            "hit_rank": 5,
-            "recall@5": 1.0,
-            "precision@5": 0.2,
-            "mrr@10": 0.2,
-            "ndcg@10": 0.38685280723454163,
-            "latency_ms": 129.837799933739
-          }
-        },
-        {
-          "query_id": "encode/httpx#1615",
-          "repo": "encode/httpx",
-          "target": 1614,
-          "metrics": {
-            "hit_rank": 5,
-            "recall@5": 1.0,
-            "precision@5": 0.2,
-            "mrr@10": 0.2,
-            "ndcg@10": 0.38685280723454163,
-            "latency_ms": 149.28369992412627
-          }
-        },
-        {
-          "query_id": "encode/httpx#1614",
-          "repo": "encode/httpx",
-          "target": 1615,
-          "metrics": {
-            "hit_rank": -1,
-            "recall@5": 0.0,
-            "precision@5": 0.0,
-            "mrr@10": 0.0,
-            "ndcg@10": 0.0,
-            "latency_ms": 45.432399958372116
-          }
-        },
-        {
-          "query_id": "encode/httpx#1561",
-          "repo": "encode/httpx",
-          "target": 1363,
-          "metrics": {
-            "hit_rank": 1,
-            "recall@5": 1.0,
-            "precision@5": 0.2,
-            "mrr@10": 1.0,
-            "ndcg@10": 1.0,
-            "latency_ms": 63.10619995929301
-          }
-        },
-        {
-          "query_id": "encode/httpx#1408",
-          "repo": "encode/httpx",
-          "target": 809,
-          "metrics": {
-            "hit_rank": 7,
-            "recall@5": 0.0,
-            "precision@5": 0.0,
-            "mrr@10": 0.14285714285714285,
-            "ndcg@10": 0.3333333333333333,
-            "latency_ms": 23.383499938063323
-          }
-        },
-        {
-          "query_id": "encode/httpx#1373",
-          "repo": "encode/httpx",
-          "target": 1434,
-          "metrics": {
-            "hit_rank": -1,
-            "recall@5": 0.0,
-            "precision@5": 0.0,
-            "mrr@10": 0.0,
-            "ndcg@10": 0.0,
-            "latency_ms": 101.28639999311417
-          }
-        },
-        {
-          "query_id": "encode/httpx#1332",
-          "repo": "encode/httpx",
-          "target": 1317,
-          "metrics": {
-            "hit_rank": -1,
-            "recall@5": 0.0,
-            "precision@5": 0.0,
-            "mrr@10": 0.0,
-            "ndcg@10": 0.0,
-            "latency_ms": 85.80410003196448
-          }
-        },
-        {
-          "query_id": "encode/httpx#1263",
-          "repo": "encode/httpx",
-          "target": 538,
-          "metrics": {
-            "hit_rank": -1,
-            "recall@5": 0.0,
-            "precision@5": 0.0,
-            "mrr@10": 0.0,
-            "ndcg@10": 0.0,
-            "latency_ms": 39.690000005066395
-          }
-        },
-        {
-          "query_id": "encode/httpx#1261",
-          "repo": "encode/httpx",
-          "target": 154,
-          "metrics": {
-            "hit_rank": 6,
-            "recall@5": 0.0,
-            "precision@5": 0.0,
-            "mrr@10": 0.16666666666666666,
-            "ndcg@10": 0.3562071871080222,
-            "latency_ms": 72.68979994114488
-          }
-        },
-        {
-          "query_id": "pydantic/pydantic#12437",
-          "repo": "pydantic/pydantic",
-          "target": 6533,
-          "metrics": {
-            "hit_rank": -1,
-            "recall@5": 0.0,
-            "precision@5": 0.0,
-            "mrr@10": 0.0,
-            "ndcg@10": 0.0,
-            "latency_ms": 182.50380002427846
-          }
-        },
-        {
-          "query_id": "pydantic/pydantic#12380",
-          "repo": "pydantic/pydantic",
-          "target": 12374,
-          "metrics": {
-            "hit_rank": 2,
-            "recall@5": 1.0,
-            "precision@5": 0.2,
-            "mrr@10": 0.5,
-            "ndcg@10": 0.6309297535714575,
-            "latency_ms": 137.64229998923838
-          }
-        },
-        {
-          "query_id": "psf/requests#7222",
-          "repo": "psf/requests",
-          "target": 7219,
-          "metrics": {
-            "hit_rank": 1,
-            "recall@5": 1.0,
-            "precision@5": 0.2,
-            "mrr@10": 1.0,
-            "ndcg@10": 1.0,
-            "latency_ms": 49.35520002618432
-          }
-        },
-        {
-          "query_id": "psf/requests#7150",
-          "repo": "psf/requests",
-          "target": 3856,
-          "metrics": {
-            "hit_rank": 1,
-            "recall@5": 1.0,
-            "precision@5": 0.2,
-            "mrr@10": 1.0,
-            "ndcg@10": 1.0,
-            "latency_ms": 51.89060000702739
-          }
-        },
-        {
-          "query_id": "psf/requests#7003",
-          "repo": "psf/requests",
-          "target": 5950,
-          "metrics": {
-            "hit_rank": 1,
-            "recall@5": 1.0,
-            "precision@5": 0.2,
-            "mrr@10": 1.0,
-            "ndcg@10": 1.0,
-            "latency_ms": 103.51529996842146
+            "latency_ms": 200.57850005105138
           }
         },
         {
@@ -1906,7 +1926,7 @@
             "precision@5": 0.0,
             "mrr@10": 0.0,
             "ndcg@10": 0.0,
-            "latency_ms": 59.66149992309511
+            "latency_ms": 66.91809999756515
           }
         },
         {
@@ -1919,7 +1939,7 @@
             "precision@5": 0.2,
             "mrr@10": 0.3333333333333333,
             "ndcg@10": 0.5,
-            "latency_ms": 48.87210007291287
+            "latency_ms": 62.08130007144064
           }
         },
         {
@@ -1932,7 +1952,7 @@
             "precision@5": 0.2,
             "mrr@10": 1.0,
             "ndcg@10": 1.0,
-            "latency_ms": 63.03449999541044
+            "latency_ms": 73.88310006354004
           }
         },
         {
@@ -1945,7 +1965,7 @@
             "precision@5": 0.2,
             "mrr@10": 1.0,
             "ndcg@10": 1.0,
-            "latency_ms": 201.46989997010678
+            "latency_ms": 224.84289994463325
           }
         },
         {
@@ -1958,7 +1978,7 @@
             "precision@5": 0.0,
             "mrr@10": 0.0,
             "ndcg@10": 0.0,
-            "latency_ms": 272.7523000212386
+            "latency_ms": 240.34589994698763
           }
         },
         {
@@ -1966,12 +1986,12 @@
           "repo": "psf/requests",
           "target": 5977,
           "metrics": {
-            "hit_rank": 5,
+            "hit_rank": 3,
             "recall@5": 1.0,
             "precision@5": 0.2,
-            "mrr@10": 0.2,
-            "ndcg@10": 0.38685280723454163,
-            "latency_ms": 113.90390002634376
+            "mrr@10": 0.3333333333333333,
+            "ndcg@10": 0.5,
+            "latency_ms": 112.98289999831468
           }
         },
         {
@@ -1984,7 +2004,7 @@
             "precision@5": 0.0,
             "mrr@10": 0.14285714285714285,
             "ndcg@10": 0.3333333333333333,
-            "latency_ms": 130.8681999798864
+            "latency_ms": 183.05500003043562
           }
         },
         {
@@ -1997,7 +2017,7 @@
             "precision@5": 0.2,
             "mrr@10": 0.3333333333333333,
             "ndcg@10": 0.5,
-            "latency_ms": 95.45749996323138
+            "latency_ms": 118.89550008345395
           }
         },
         {
@@ -2010,7 +2030,7 @@
             "precision@5": 0.2,
             "mrr@10": 1.0,
             "ndcg@10": 1.0,
-            "latency_ms": 108.74369996599853
+            "latency_ms": 205.21190005820245
           }
         },
         {
@@ -2023,7 +2043,7 @@
             "precision@5": 0.2,
             "mrr@10": 0.5,
             "ndcg@10": 0.6309297535714575,
-            "latency_ms": 106.61580006126314
+            "latency_ms": 148.2885000295937
           }
         },
         {
@@ -2036,7 +2056,7 @@
             "precision@5": 0.2,
             "mrr@10": 1.0,
             "ndcg@10": 1.0,
-            "latency_ms": 92.61119994334877
+            "latency_ms": 150.16810002271086
           }
         },
         {
@@ -2049,7 +2069,7 @@
             "precision@5": 0.2,
             "mrr@10": 1.0,
             "ndcg@10": 1.0,
-            "latency_ms": 108.55090001132339
+            "latency_ms": 157.3375000152737
           }
         },
         {
@@ -2062,7 +2082,7 @@
             "precision@5": 0.2,
             "mrr@10": 1.0,
             "ndcg@10": 1.0,
-            "latency_ms": 167.8482999559492
+            "latency_ms": 176.77200003527105
           }
         },
         {
@@ -2075,7 +2095,7 @@
             "precision@5": 0.2,
             "mrr@10": 1.0,
             "ndcg@10": 1.0,
-            "latency_ms": 148.80450000055134
+            "latency_ms": 101.29130003042519
           }
         },
         {
@@ -2088,7 +2108,7 @@
             "precision@5": 0.0,
             "mrr@10": 0.1,
             "ndcg@10": 0.2890648263178879,
-            "latency_ms": 74.12830006796867
+            "latency_ms": 147.62930001597852
           }
         },
         {
@@ -2096,12 +2116,12 @@
           "repo": "psf/requests",
           "target": 6344,
           "metrics": {
-            "hit_rank": 5,
+            "hit_rank": 4,
             "recall@5": 1.0,
             "precision@5": 0.2,
-            "mrr@10": 0.2,
-            "ndcg@10": 0.38685280723454163,
-            "latency_ms": 89.81349994428456
+            "mrr@10": 0.25,
+            "ndcg@10": 0.43067655807339306,
+            "latency_ms": 121.91620003432035
           }
         },
         {
@@ -2114,7 +2134,7 @@
             "precision@5": 0.2,
             "mrr@10": 1.0,
             "ndcg@10": 1.0,
-            "latency_ms": 74.64140001684427
+            "latency_ms": 95.31020000576973
           }
         },
         {
@@ -2122,12 +2142,12 @@
           "repo": "psf/requests",
           "target": 6432,
           "metrics": {
-            "hit_rank": 4,
+            "hit_rank": 3,
             "recall@5": 1.0,
             "precision@5": 0.2,
-            "mrr@10": 0.25,
-            "ndcg@10": 0.43067655807339306,
-            "latency_ms": 32.90879994165152
+            "mrr@10": 0.3333333333333333,
+            "ndcg@10": 0.5,
+            "latency_ms": 40.19610001705587
           }
         }
       ]
@@ -2135,45 +2155,51 @@
     "hybrid_rerank": {
       "method": "hybrid_rerank",
       "query_count": 51,
+      "source_types": [
+        "issue",
+        "comment"
+      ],
+      "rerank_alpha": 0.5,
+      "leakage_check_passed": true,
       "overall": {
-        "recall@5": 0.3922,
-        "precision@5": 0.0784,
-        "mrr@10": 0.2862,
-        "ndcg@10": 0.3437,
-        "mean_latency_ms": 442.23
+        "recall@5": 0.7843,
+        "precision@5": 0.1569,
+        "mrr@10": 0.6022,
+        "ndcg@10": 0.6697,
+        "mean_latency_ms": 505.67
       },
       "per_repo": {
         "pallets/flask": {
           "query_count": 7,
-          "recall@5": 0.4286,
-          "precision@5": 0.0857,
-          "mrr@10": 0.3776,
-          "ndcg@10": 0.4235,
-          "mean_latency_ms": 1135.18
+          "recall@5": 1.0,
+          "precision@5": 0.2,
+          "mrr@10": 0.9286,
+          "ndcg@10": 0.9473,
+          "mean_latency_ms": 1142.73
         },
         "encode/httpx": {
           "query_count": 15,
-          "recall@5": 0.3333,
-          "precision@5": 0.0667,
-          "mrr@10": 0.2487,
-          "ndcg@10": 0.3153,
-          "mean_latency_ms": 262.27
+          "recall@5": 0.6,
+          "precision@5": 0.12,
+          "mrr@10": 0.4534,
+          "ndcg@10": 0.5349,
+          "mean_latency_ms": 260.06
         },
         "pydantic/pydantic": {
           "query_count": 6,
-          "recall@5": 0.3333,
-          "precision@5": 0.0667,
-          "mrr@10": 0.1833,
-          "ndcg@10": 0.2585,
-          "mean_latency_ms": 372.93
+          "recall@5": 1.0,
+          "precision@5": 0.2,
+          "mrr@10": 0.8333,
+          "ndcg@10": 0.877,
+          "mean_latency_ms": 451.38
         },
         "psf/requests": {
           "query_count": 23,
-          "recall@5": 0.4348,
-          "precision@5": 0.087,
-          "mrr@10": 0.3096,
-          "ndcg@10": 0.3601,
-          "mean_latency_ms": 366.77
+          "recall@5": 0.7826,
+          "precision@5": 0.1565,
+          "mrr@10": 0.5395,
+          "ndcg@10": 0.619,
+          "mean_latency_ms": 486.13
         }
       },
       "queries": [
@@ -2182,12 +2208,12 @@
           "repo": "pallets/flask",
           "target": 5256,
           "metrics": {
-            "hit_rank": -1,
-            "recall@5": 0.0,
-            "precision@5": 0.0,
-            "mrr@10": 0.0,
-            "ndcg@10": 0.0,
-            "latency_ms": 6502.226600074209
+            "hit_rank": 1,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 1.0,
+            "ndcg@10": 1.0,
+            "latency_ms": 6328.240699949674
           }
         },
         {
@@ -2200,7 +2226,7 @@
             "precision@5": 0.2,
             "mrr@10": 1.0,
             "ndcg@10": 1.0,
-            "latency_ms": 243.71460010297596
+            "latency_ms": 301.13029992207885
           }
         },
         {
@@ -2208,12 +2234,12 @@
           "repo": "encode/httpx",
           "target": 1463,
           "metrics": {
-            "hit_rank": 7,
-            "recall@5": 0.0,
-            "precision@5": 0.0,
-            "mrr@10": 0.14285714285714285,
-            "ndcg@10": 0.3333333333333333,
-            "latency_ms": 276.0843000141904
+            "hit_rank": 1,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 1.0,
+            "ndcg@10": 1.0,
+            "latency_ms": 339.2017000587657
           }
         },
         {
@@ -2221,12 +2247,12 @@
           "repo": "encode/httpx",
           "target": 1253,
           "metrics": {
-            "hit_rank": -1,
-            "recall@5": 0.0,
-            "precision@5": 0.0,
-            "mrr@10": 0.0,
-            "ndcg@10": 0.0,
-            "latency_ms": 226.7056000418961
+            "hit_rank": 3,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 0.3333333333333333,
+            "ndcg@10": 0.5,
+            "latency_ms": 136.2321999622509
           }
         },
         {
@@ -2234,12 +2260,12 @@
           "repo": "encode/httpx",
           "target": 790,
           "metrics": {
-            "hit_rank": 2,
+            "hit_rank": 1,
             "recall@5": 1.0,
             "precision@5": 0.2,
-            "mrr@10": 0.5,
-            "ndcg@10": 0.6309297535714575,
-            "latency_ms": 292.83159994520247
+            "mrr@10": 1.0,
+            "ndcg@10": 1.0,
+            "latency_ms": 183.28499991912395
           }
         },
         {
@@ -2247,12 +2273,12 @@
           "repo": "pydantic/pydantic",
           "target": 12801,
           "metrics": {
-            "hit_rank": 10,
-            "recall@5": 0.0,
-            "precision@5": 0.0,
-            "mrr@10": 0.1,
-            "ndcg@10": 0.2890648263178879,
-            "latency_ms": 461.3201000029221
+            "hit_rank": 1,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 1.0,
+            "ndcg@10": 1.0,
+            "latency_ms": 573.0463999789208
           }
         },
         {
@@ -2260,12 +2286,12 @@
           "repo": "pydantic/pydantic",
           "target": 11092,
           "metrics": {
-            "hit_rank": -1,
-            "recall@5": 0.0,
-            "precision@5": 0.0,
-            "mrr@10": 0.0,
-            "ndcg@10": 0.0,
-            "latency_ms": 452.7935000369325
+            "hit_rank": 1,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 1.0,
+            "ndcg@10": 1.0,
+            "latency_ms": 613.2134000072256
           }
         },
         {
@@ -2273,12 +2299,12 @@
           "repo": "pydantic/pydantic",
           "target": 10409,
           "metrics": {
-            "hit_rank": 2,
+            "hit_rank": 1,
             "recall@5": 1.0,
             "precision@5": 0.2,
-            "mrr@10": 0.5,
-            "ndcg@10": 0.6309297535714575,
-            "latency_ms": 353.8381999824196
+            "mrr@10": 1.0,
+            "ndcg@10": 1.0,
+            "latency_ms": 441.8389000929892
           }
         },
         {
@@ -2286,12 +2312,12 @@
           "repo": "pydantic/pydantic",
           "target": 12936,
           "metrics": {
-            "hit_rank": 2,
+            "hit_rank": 1,
             "recall@5": 1.0,
             "precision@5": 0.2,
-            "mrr@10": 0.5,
-            "ndcg@10": 0.6309297535714575,
-            "latency_ms": 257.7104999218136
+            "mrr@10": 1.0,
+            "ndcg@10": 1.0,
+            "latency_ms": 271.13060001283884
           }
         },
         {
@@ -2304,7 +2330,7 @@
             "precision@5": 0.0,
             "mrr@10": 0.0,
             "ndcg@10": 0.0,
-            "latency_ms": 2562.7939000260085
+            "latency_ms": 4549.366499995813
           }
         },
         {
@@ -2312,12 +2338,12 @@
           "repo": "psf/requests",
           "target": 6432,
           "metrics": {
-            "hit_rank": -1,
-            "recall@5": 0.0,
-            "precision@5": 0.0,
-            "mrr@10": 0.0,
-            "ndcg@10": 0.0,
-            "latency_ms": 246.18420004844666
+            "hit_rank": 3,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 0.3333333333333333,
+            "ndcg@10": 0.5,
+            "latency_ms": 219.0931000513956
           }
         },
         {
@@ -2325,12 +2351,12 @@
           "repo": "pallets/flask",
           "target": 3747,
           "metrics": {
-            "hit_rank": -1,
-            "recall@5": 0.0,
-            "precision@5": 0.0,
-            "mrr@10": 0.0,
-            "ndcg@10": 0.0,
-            "latency_ms": 297.209000098519
+            "hit_rank": 1,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 1.0,
+            "ndcg@10": 1.0,
+            "latency_ms": 372.5529999937862
           }
         },
         {
@@ -2343,7 +2369,7 @@
             "precision@5": 0.2,
             "mrr@10": 1.0,
             "ndcg@10": 1.0,
-            "latency_ms": 218.6158000258729
+            "latency_ms": 241.93230003584176
           }
         },
         {
@@ -2351,12 +2377,12 @@
           "repo": "pallets/flask",
           "target": 4734,
           "metrics": {
-            "hit_rank": 2,
+            "hit_rank": 1,
             "recall@5": 1.0,
             "precision@5": 0.2,
-            "mrr@10": 0.5,
-            "ndcg@10": 0.6309297535714575,
-            "latency_ms": 244.1473000217229
+            "mrr@10": 1.0,
+            "ndcg@10": 1.0,
+            "latency_ms": 282.55999996326864
           }
         },
         {
@@ -2364,12 +2390,12 @@
           "repo": "pallets/flask",
           "target": 4928,
           "metrics": {
-            "hit_rank": -1,
-            "recall@5": 0.0,
-            "precision@5": 0.0,
-            "mrr@10": 0.0,
-            "ndcg@10": 0.0,
-            "latency_ms": 224.8427999438718
+            "hit_rank": 2,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 0.5,
+            "ndcg@10": 0.6309297535714575,
+            "latency_ms": 253.79520002752542
           }
         },
         {
@@ -2377,12 +2403,12 @@
           "repo": "pallets/flask",
           "target": 3404,
           "metrics": {
-            "hit_rank": 7,
-            "recall@5": 0.0,
-            "precision@5": 0.0,
-            "mrr@10": 0.14285714285714285,
-            "ndcg@10": 0.3333333333333333,
-            "latency_ms": 215.52149998024106
+            "hit_rank": 1,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 1.0,
+            "ndcg@10": 1.0,
+            "latency_ms": 218.9309000968933
           }
         },
         {
@@ -2390,12 +2416,12 @@
           "repo": "encode/httpx",
           "target": 2114,
           "metrics": {
-            "hit_rank": -1,
-            "recall@5": 0.0,
-            "precision@5": 0.0,
-            "mrr@10": 0.0,
-            "ndcg@10": 0.0,
-            "latency_ms": 274.6520000509918
+            "hit_rank": 1,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 1.0,
+            "ndcg@10": 1.0,
+            "latency_ms": 309.753300040029
           }
         },
         {
@@ -2408,7 +2434,7 @@
             "precision@5": 0.0,
             "mrr@10": 0.0,
             "ndcg@10": 0.0,
-            "latency_ms": 423.9495999645442
+            "latency_ms": 562.2785000596195
           }
         },
         {
@@ -2421,7 +2447,7 @@
             "precision@5": 0.2,
             "mrr@10": 1.0,
             "ndcg@10": 1.0,
-            "latency_ms": 230.74639996048063
+            "latency_ms": 242.27799999061972
           }
         },
         {
@@ -2429,12 +2455,12 @@
           "repo": "encode/httpx",
           "target": 2092,
           "metrics": {
-            "hit_rank": -1,
-            "recall@5": 0.0,
-            "precision@5": 0.0,
-            "mrr@10": 0.0,
-            "ndcg@10": 0.0,
-            "latency_ms": 260.2612000191584
+            "hit_rank": 5,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 0.2,
+            "ndcg@10": 0.38685280723454163,
+            "latency_ms": 307.12060001678765
           }
         },
         {
@@ -2442,12 +2468,12 @@
           "repo": "encode/httpx",
           "target": 1614,
           "metrics": {
-            "hit_rank": 1,
+            "hit_rank": 2,
             "recall@5": 1.0,
             "precision@5": 0.2,
-            "mrr@10": 1.0,
-            "ndcg@10": 1.0,
-            "latency_ms": 267.80609996058047
+            "mrr@10": 0.5,
+            "ndcg@10": 0.6309297535714575,
+            "latency_ms": 299.84350001905113
           }
         },
         {
@@ -2460,7 +2486,7 @@
             "precision@5": 0.0,
             "mrr@10": 0.0,
             "ndcg@10": 0.0,
-            "latency_ms": 233.44199999701232
+            "latency_ms": 270.1014999765903
           }
         },
         {
@@ -2468,12 +2494,12 @@
           "repo": "encode/httpx",
           "target": 1363,
           "metrics": {
-            "hit_rank": 2,
+            "hit_rank": 1,
             "recall@5": 1.0,
             "precision@5": 0.2,
-            "mrr@10": 0.5,
-            "ndcg@10": 0.6309297535714575,
-            "latency_ms": 238.69209992699325
+            "mrr@10": 1.0,
+            "ndcg@10": 1.0,
+            "latency_ms": 268.0586000205949
           }
         },
         {
@@ -2481,12 +2507,12 @@
           "repo": "encode/httpx",
           "target": 809,
           "metrics": {
-            "hit_rank": 9,
+            "hit_rank": 6,
             "recall@5": 0.0,
             "precision@5": 0.0,
-            "mrr@10": 0.1111111111111111,
-            "ndcg@10": 0.3010299956639812,
-            "latency_ms": 208.65929999854416
+            "mrr@10": 0.16666666666666666,
+            "ndcg@10": 0.3562071871080222,
+            "latency_ms": 236.8315999628976
           }
         },
         {
@@ -2499,7 +2525,7 @@
             "precision@5": 0.0,
             "mrr@10": 0.0,
             "ndcg@10": 0.0,
-            "latency_ms": 291.16429993882775
+            "latency_ms": 282.3714999249205
           }
         },
         {
@@ -2507,12 +2533,12 @@
           "repo": "encode/httpx",
           "target": 1317,
           "metrics": {
-            "hit_rank": 3,
-            "recall@5": 1.0,
-            "precision@5": 0.2,
-            "mrr@10": 0.3333333333333333,
-            "ndcg@10": 0.5,
-            "latency_ms": 267.6142000127584
+            "hit_rank": 7,
+            "recall@5": 0.0,
+            "precision@5": 0.0,
+            "mrr@10": 0.14285714285714285,
+            "ndcg@10": 0.3333333333333333,
+            "latency_ms": 254.23570000566542
           }
         },
         {
@@ -2520,12 +2546,12 @@
           "repo": "encode/httpx",
           "target": 538,
           "metrics": {
-            "hit_rank": -1,
+            "hit_rank": 8,
             "recall@5": 0.0,
             "precision@5": 0.0,
-            "mrr@10": 0.0,
-            "ndcg@10": 0.0,
-            "latency_ms": 211.03130001574755
+            "mrr@10": 0.125,
+            "ndcg@10": 0.31546487678572877,
+            "latency_ms": 101.47760005202144
           }
         },
         {
@@ -2533,12 +2559,12 @@
           "repo": "encode/httpx",
           "target": 154,
           "metrics": {
-            "hit_rank": 7,
-            "recall@5": 0.0,
-            "precision@5": 0.0,
-            "mrr@10": 0.14285714285714285,
-            "ndcg@10": 0.3333333333333333,
-            "latency_ms": 230.38620001170784
+            "hit_rank": 3,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 0.3333333333333333,
+            "ndcg@10": 0.5,
+            "latency_ms": 107.86460002418607
           }
         },
         {
@@ -2546,12 +2572,12 @@
           "repo": "pydantic/pydantic",
           "target": 6533,
           "metrics": {
-            "hit_rank": -1,
-            "recall@5": 0.0,
-            "precision@5": 0.0,
-            "mrr@10": 0.0,
-            "ndcg@10": 0.0,
-            "latency_ms": 389.17450001463294
+            "hit_rank": 2,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 0.5,
+            "ndcg@10": 0.6309297535714575,
+            "latency_ms": 451.2355000479147
           }
         },
         {
@@ -2559,12 +2585,12 @@
           "repo": "pydantic/pydantic",
           "target": 12374,
           "metrics": {
-            "hit_rank": -1,
-            "recall@5": 0.0,
-            "precision@5": 0.0,
-            "mrr@10": 0.0,
-            "ndcg@10": 0.0,
-            "latency_ms": 322.71650002803653
+            "hit_rank": 2,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 0.5,
+            "ndcg@10": 0.6309297535714575,
+            "latency_ms": 357.7907000435516
           }
         },
         {
@@ -2572,12 +2598,12 @@
           "repo": "psf/requests",
           "target": 7219,
           "metrics": {
-            "hit_rank": 3,
+            "hit_rank": 1,
             "recall@5": 1.0,
             "precision@5": 0.2,
-            "mrr@10": 0.3333333333333333,
-            "ndcg@10": 0.5,
-            "latency_ms": 227.524199988693
+            "mrr@10": 1.0,
+            "ndcg@10": 1.0,
+            "latency_ms": 262.6979999477044
           }
         },
         {
@@ -2585,12 +2611,12 @@
           "repo": "psf/requests",
           "target": 3856,
           "metrics": {
-            "hit_rank": -1,
-            "recall@5": 0.0,
-            "precision@5": 0.0,
-            "mrr@10": 0.0,
-            "ndcg@10": 0.0,
-            "latency_ms": 239.57119998522103
+            "hit_rank": 2,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 0.5,
+            "ndcg@10": 0.6309297535714575,
+            "latency_ms": 277.7665000176057
           }
         },
         {
@@ -2598,12 +2624,12 @@
           "repo": "psf/requests",
           "target": 5950,
           "metrics": {
-            "hit_rank": -1,
-            "recall@5": 0.0,
-            "precision@5": 0.0,
-            "mrr@10": 0.0,
-            "ndcg@10": 0.0,
-            "latency_ms": 270.8396000089124
+            "hit_rank": 2,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 0.5,
+            "ndcg@10": 0.6309297535714575,
+            "latency_ms": 305.0245000049472
           }
         },
         {
@@ -2616,7 +2642,7 @@
             "precision@5": 0.0,
             "mrr@10": 0.0,
             "ndcg@10": 0.0,
-            "latency_ms": 229.57450000103563
+            "latency_ms": 243.91890002880245
           }
         },
         {
@@ -2624,12 +2650,12 @@
           "repo": "psf/requests",
           "target": 6946,
           "metrics": {
-            "hit_rank": 2,
+            "hit_rank": 3,
             "recall@5": 1.0,
             "precision@5": 0.2,
-            "mrr@10": 0.5,
-            "ndcg@10": 0.6309297535714575,
-            "latency_ms": 220.4861999489367
+            "mrr@10": 0.3333333333333333,
+            "ndcg@10": 0.5,
+            "latency_ms": 253.5442999796942
           }
         },
         {
@@ -2642,7 +2668,7 @@
             "precision@5": 0.2,
             "mrr@10": 1.0,
             "ndcg@10": 1.0,
-            "latency_ms": 223.14860008191317
+            "latency_ms": 266.5230000857264
           }
         },
         {
@@ -2655,7 +2681,7 @@
             "precision@5": 0.2,
             "mrr@10": 1.0,
             "ndcg@10": 1.0,
-            "latency_ms": 333.52410001680255
+            "latency_ms": 358.9078999357298
           }
         },
         {
@@ -2668,7 +2694,7 @@
             "precision@5": 0.0,
             "mrr@10": 0.0,
             "ndcg@10": 0.0,
-            "latency_ms": 436.1457999330014
+            "latency_ms": 459.6306999446824
           }
         },
         {
@@ -2676,12 +2702,12 @@
           "repo": "psf/requests",
           "target": 5977,
           "metrics": {
-            "hit_rank": -1,
-            "recall@5": 0.0,
-            "precision@5": 0.0,
-            "mrr@10": 0.0,
-            "ndcg@10": 0.0,
-            "latency_ms": 268.2667000917718
+            "hit_rank": 4,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 0.25,
+            "ndcg@10": 0.43067655807339306,
+            "latency_ms": 316.2562999641523
           }
         },
         {
@@ -2689,12 +2715,12 @@
           "repo": "psf/requests",
           "target": 6711,
           "metrics": {
-            "hit_rank": -1,
+            "hit_rank": 7,
             "recall@5": 0.0,
             "precision@5": 0.0,
-            "mrr@10": 0.0,
-            "ndcg@10": 0.0,
-            "latency_ms": 296.30369995720685
+            "mrr@10": 0.14285714285714285,
+            "ndcg@10": 0.3333333333333333,
+            "latency_ms": 392.90890004485846
           }
         },
         {
@@ -2702,12 +2728,12 @@
           "repo": "psf/requests",
           "target": 6586,
           "metrics": {
-            "hit_rank": -1,
-            "recall@5": 0.0,
-            "precision@5": 0.0,
-            "mrr@10": 0.0,
-            "ndcg@10": 0.0,
-            "latency_ms": 271.87219995539635
+            "hit_rank": 4,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 0.25,
+            "ndcg@10": 0.43067655807339306,
+            "latency_ms": 308.1960999406874
           }
         },
         {
@@ -2720,7 +2746,7 @@
             "precision@5": 0.2,
             "mrr@10": 1.0,
             "ndcg@10": 1.0,
-            "latency_ms": 285.29899998102337
+            "latency_ms": 342.15929999481887
           }
         },
         {
@@ -2733,7 +2759,7 @@
             "precision@5": 0.2,
             "mrr@10": 1.0,
             "ndcg@10": 1.0,
-            "latency_ms": 311.5377000067383
+            "latency_ms": 347.8998000500724
           }
         },
         {
@@ -2741,12 +2767,12 @@
           "repo": "psf/requests",
           "target": 6715,
           "metrics": {
-            "hit_rank": -1,
-            "recall@5": 0.0,
-            "precision@5": 0.0,
-            "mrr@10": 0.0,
-            "ndcg@10": 0.0,
-            "latency_ms": 267.9049000144005
+            "hit_rank": 1,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 1.0,
+            "ndcg@10": 1.0,
+            "latency_ms": 300.2926000626758
           }
         },
         {
@@ -2759,7 +2785,7 @@
             "precision@5": 0.2,
             "mrr@10": 1.0,
             "ndcg@10": 1.0,
-            "latency_ms": 276.58780000638217
+            "latency_ms": 310.5991000775248
           }
         },
         {
@@ -2767,12 +2793,12 @@
           "repo": "psf/requests",
           "target": 6565,
           "metrics": {
-            "hit_rank": 9,
-            "recall@5": 0.0,
-            "precision@5": 0.0,
-            "mrr@10": 0.1111111111111111,
-            "ndcg@10": 0.3010299956639812,
-            "latency_ms": 287.20950009301305
+            "hit_rank": 2,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 0.5,
+            "ndcg@10": 0.6309297535714575,
+            "latency_ms": 341.47850004956126
           }
         },
         {
@@ -2780,12 +2806,12 @@
           "repo": "psf/requests",
           "target": 6586,
           "metrics": {
-            "hit_rank": 2,
+            "hit_rank": 1,
             "recall@5": 1.0,
             "precision@5": 0.2,
-            "mrr@10": 0.5,
-            "ndcg@10": 0.6309297535714575,
-            "latency_ms": 251.16460002027452
+            "mrr@10": 1.0,
+            "ndcg@10": 1.0,
+            "latency_ms": 277.3926999652758
           }
         },
         {
@@ -2793,12 +2819,12 @@
           "repo": "psf/requests",
           "target": 6026,
           "metrics": {
-            "hit_rank": 5,
-            "recall@5": 1.0,
-            "precision@5": 0.2,
-            "mrr@10": 0.2,
-            "ndcg@10": 0.38685280723454163,
-            "latency_ms": 230.66959995776415
+            "hit_rank": 10,
+            "recall@5": 0.0,
+            "precision@5": 0.0,
+            "mrr@10": 0.1,
+            "ndcg@10": 0.2890648263178879,
+            "latency_ms": 270.152400014922
           }
         },
         {
@@ -2806,12 +2832,12 @@
           "repo": "psf/requests",
           "target": 6344,
           "metrics": {
-            "hit_rank": 7,
-            "recall@5": 0.0,
-            "precision@5": 0.0,
-            "mrr@10": 0.14285714285714285,
-            "ndcg@10": 0.3333333333333333,
-            "latency_ms": 253.1318999826908
+            "hit_rank": 4,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 0.25,
+            "ndcg@10": 0.43067655807339306,
+            "latency_ms": 316.32880005054176
           }
         },
         {
@@ -2819,12 +2845,12 @@
           "repo": "psf/requests",
           "target": 5000,
           "metrics": {
-            "hit_rank": 3,
+            "hit_rank": 1,
             "recall@5": 1.0,
             "precision@5": 0.2,
-            "mrr@10": 0.3333333333333333,
-            "ndcg@10": 0.5,
-            "latency_ms": 232.33389994129539
+            "mrr@10": 1.0,
+            "ndcg@10": 1.0,
+            "latency_ms": 273.383199935779
           }
         },
         {
@@ -2832,15 +2858,57 @@
           "repo": "psf/requests",
           "target": 6432,
           "metrics": {
-            "hit_rank": -1,
-            "recall@5": 0.0,
-            "precision@5": 0.0,
-            "mrr@10": 0.0,
-            "ndcg@10": 0.0,
-            "latency_ms": 213.6369999498129
+            "hit_rank": 4,
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@10": 0.25,
+            "ndcg@10": 0.43067655807339306,
+            "latency_ms": 187.5597001053393
           }
         }
       ]
+    }
+  },
+  "rerank_sensitivity": {
+    "reranker_only": {
+      "alpha": null,
+      "overall": {
+        "recall@5": 0.549,
+        "precision@5": 0.1098,
+        "mrr@10": 0.3956,
+        "ndcg@10": 0.4601,
+        "mean_latency_ms": 380.85
+      }
+    },
+    "alpha_0.3": {
+      "alpha": 0.3,
+      "overall": {
+        "recall@5": 0.7843,
+        "precision@5": 0.1569,
+        "mrr@10": 0.5812,
+        "ndcg@10": 0.654,
+        "mean_latency_ms": 376.36
+      }
+    },
+    "alpha_0.5": {
+      "alpha": 0.5,
+      "overall": {
+        "recall@5": 0.7843,
+        "precision@5": 0.1569,
+        "mrr@10": 0.6022,
+        "ndcg@10": 0.6697,
+        "mean_latency_ms": 358.12
+      }
+    },
+    "alpha_0.7": {
+      "alpha": 0.7,
+      "overall": {
+        "recall@5": 0.7647,
+        "precision@5": 0.1529,
+        "mrr@10": 0.5931,
+        "ndcg@10": 0.6629,
+        "mean_latency_ms": 313.37
+      }
     }
   }
 }

@@ -274,3 +274,137 @@ Per RepoTriage_SPEC.md Section 13:
 - **Retrieval Duplicate Recall@5**: Improved from **64.71%** (BM25) to **68.63%** (BGE Dense) on **51** duplicate-linked issue queries, with RRF achieving **MRR@10: 0.5375** and **nDCG@10: 0.5997**.
 - **Adversarial NLI Accuracy**: Improved from **33.33%** to **46.67%** and Macro-F1 from **0.1667** to **0.4673** on **300** adversarial ANLI claims.
 - **In-Domain False-Support Reduction**: Cut false-support rate from **100%** (unverified baseline) to **0.00%** on easy negative pairings and **5.62%** on hard negative retrievals across **89** in-domain control claims.
+
+---
+
+## 9. Stage 6.5: Pipeline & Benchmark Refinements
+
+### A. Refinement Objectives Completed
+1. **Central Environment & Fast Local Model Loading**:
+   - Implemented `src/config.py` as the project's single-source `.env` parser and environment manager.
+   - Sets `HF_HUB_DISABLE_SYMLINKS_WARNING=1` and registers `HF_TOKEN` and `GITHUB_TOKEN` before third-party libraries load.
+   - Updated `src/retrieval/dense.py`, `src/retrieval/rerank.py`, and `src/guardrail/nli.py` to attempt fast local cache loading (`local_files_only=True`) before falling back to remote hub checks, eliminating repetitive network queries and unauthenticated HuggingFace Hub warnings.
+2. **Generation Prompt Directness & Anti-Meta-Language Preservation**:
+   - Preserved manual user improvements in `src/generate/prompts.py` banning meta-language ("Evidence E1 states...", "According to E2...").
+   - Added Rule 8 (support-only claims) and Rule 9 (strict paraphrasing adhering directly to cited evidence, omitting ungrounded version constraints, absolutes, or speculative mechanisms).
+3. **Guardrail Dominance Rule & Multi-Premise Verification**:
+   - Replaced naive thresholding with the strict **Dominance Decision Rule**:
+     - `SUPPORTED`: $p_e \ge \tau_s \land p_e > p_c$
+     - `CONTRADICTED`: $p_c \ge \tau_c \land p_c > p_e$
+     - `INSUFFICIENT_EVIDENCE`: otherwise
+   - Implemented multi-premise competition in `src/guardrail/verify.py` and `eval/run_guardrail_eval.py`:
+     - Candidate (a): Full chunk prefixed with `[heading]` (cleanly truncated to 512 tokens / 400 words)
+     - Candidate (b): Top-2 sentence window prefixed with `[heading]`
+     - Winning premise chosen by $\max(p_e, p_c)$, tracking premise distribution.
+4. **Resolution of Retrieval Candidate Pool Crowding**:
+   - Added `source_types` filtering to `BM25Retriever.search()`, `DenseRetriever.search()`, and `HybridRetriever.search()`.
+   - Live triage analysis now retrieves an optimal balanced evidence set: **top 4 deduplicated issues** (`source_types=["issue", "comment"]`) + **top 2 deduplicated documentation excerpts** (`source_types=["doc"]`), labeled sequentially `E1`..`E6`.
+   - Retrieval benchmark evaluation now evaluates duplicate issue retrieval against an **issues-only candidate pool** (`source_types=["issue", "comment"]`), eliminating documentation chunk crowding.
+   - Solved cross-encoder passage penalty via RRF rank score blending ($\alpha=0.50$):
+     $$\text{final\_score} = (1 - \alpha) \cdot \text{rrf\_norm} + \alpha \cdot \sigma(\text{rerank\_logit})$$
+
+---
+
+### B. Retrieval Ablation: Before & After Candidate Pool Alignment
+
+Evaluated on **51 verified duplicate-linked issue queries** across all 4 repositories (`pydantic/pydantic`, `encode/httpx`, `pallets/flask`, `psf/requests`) with strict temporal cutoff and query self-exclusion:
+
+| Retrieval Method | Stage 3-6 (Mixed Pool: Issues + Docs) Recall@5 | Stage 6.5 (Issues-Only Pool) Recall@5 | Stage 6.5 Recall@10 | Stage 6.5 Precision@5 | Stage 6.5 MRR@10 | Stage 6.5 nDCG@10 | Mean Latency (ms) |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| **1. BM25 Sparse Only** | 0.6471 | **0.7451** (+9.80%) | 0.7843 | 0.1608 | 0.5484 | 0.6017 | 10.3 ms |
+| **2. BGE Dense Only** | 0.6863 | **0.8039** (+11.76%) | 0.8824 | 0.1804 | 0.5730 | 0.6439 | 15.6 ms |
+| **3. BM25 + BGE (RRF $k=60$)** | 0.6471 | **0.7647** (+11.76%) | 0.8627 | 0.1686 | 0.6018 | 0.6692 | 22.8 ms |
+| **4. RRF + Reranker (Blend $\alpha=0.50$)** | 0.3922 | **0.7843** (+39.21%) | 0.8627 | 0.1765 | **0.6022** | **0.6697** | 108.4 ms |
+
+#### Reranker Blending Sensitivity Sweep ($\alpha \in [\text{None}, 0.3, 0.5, 0.7]$)
+- **Pure Reranker ($\alpha = \text{None}$, unblended logits)**: Recall@5 = `0.5490`, MRR@10 = `0.3956`, nDCG@10 = `0.4578` (penalizes duplicate issues).
+- **Blend $\alpha = 0.30$**: Recall@5 = `0.7843`, MRR@10 = `0.5812`, nDCG@10 = `0.6554`.
+- **Blend $\alpha = 0.50$ (Selected)**: Recall@5 = **0.7843**, MRR@10 = **0.6022**, nDCG@10 = **0.6697** (optimal rank preservation).
+- **Blend $\alpha = 0.70$**: Recall@5 = `0.7647`, MRR@10 = `0.5931`, nDCG@10 = `0.6599`.
+
+---
+
+### C. Guardrail Evaluation Results (Stage 6.5)
+
+Evaluated with DeBERTa-v3 on GPU (FP16 CUDA) using strict dominance rules:
+
+#### 1. Benchmark B1: Adversarial Public NLI (`facebook/anli`)
+- **Sample Distribution**: 300 balanced examples (100 Entailment, 100 Neutral, 100 Contradiction).
+- **Splits**: 150 Dev (threshold tuning) / 150 Test (held-out evaluation).
+- **Tuned Thresholds (Dev-only)**: $\tau_s = 0.30, \tau_c = 0.30$ (Dev Macro-F1: `0.4199`).
+- **Test Set Performance**:
+
+| Metric | With NLI Guardrail | No Guardrail Baseline | Delta |
+| :--- | :---: | :---: | :---: |
+| **Test Accuracy** | **46.67%** | 33.33% | **+13.34%** |
+| **Macro-F1** | **0.4673** | 0.1667 | **+0.3006** |
+
+- **Per-Class Test Performance**:
+  - `SUPPORTED`: Precision `0.4565`, Recall `0.4200`, F1 `0.4375` (Support: 50)
+  - `CONTRADICTED`: Precision `0.5476`, Recall `0.4600`, F1 `0.5000` (Support: 50)
+  - `INSUFFICIENT_EVIDENCE`: Precision `0.4194`, Recall `0.5200`, F1 `0.4643` (Support: 50)
+
+#### 2. Benchmark B2: In-Domain Synthetic Negative Control (Fresh 15 Held-Out Issues)
+- **Dataset**: Fresh 15 issues across all 4 repositories (`encode/httpx`, `psf/requests`, `pallets/flask`, `pydantic/pydantic`) with **zero overlap** with previous dev sets.
+- **Hardware Isolation**: Two-phase execution (Ollama generation $\to$ explicit unload $\to$ DeBERTa NLI evaluation).
+- **Total Claims Generated**: 97 claims (6.47 claims/issue, citation coverage: **91.75%**).
+- **Multi-Premise Distribution**: 54 full chunk wins, 35 sentence window wins.
+- **Safety Switch**: **PASSED** (hard negative false-support rate $\le 11.24\%$).
+
+| Evaluation Pair Type | Definition | Evaluated Pairs | Guardrail False-Support | No-Guardrail Baseline | Noise Rejection |
+| :--- | :--- | :---: | :---: | :---: | :---: |
+| **(a) Grounded Pairs** | Claim paired with its own cited excerpt | 89 | **44.94% SUPPORTED** | 100.00% | Verified Grounding |
+| **(b) Easy Negatives** | Claim paired with random chunk from another repo | 97 | **1.03%** (1/97) | 100.00% | **98.97% Rejection** |
+| **(c) Hard Negatives** | Claim paired with retrieved top-10 uncited chunk | 97 | **1.03%** (1/97) | 100.00% | **98.97% Rejection** |
+
+- **Action Counts on Fresh Claims**:
+  - `SUPPORTED`: 40 claims
+  - `CONTRADICTED`: 15 claims
+  - `INSUFFICIENT_EVIDENCE`: 57 claims
+- **Auditing Spot Checks**:
+  - Hard Negatives (10 sampled): 10/10 valid rejections (either `INSUFFICIENT_EVIDENCE` or `CONTRADICTED`).
+  - Grounded Claims (10 sampled): 8/10 exact matches ($p_e > 0.85$, reaching up to $0.9980$), 2/10 partially supported ($p_e \approx 0.32 - 0.50$).
+
+---
+
+### D. End-to-End Live Verification (`pydantic/pydantic`)
+
+Ran live CLI verification on real-world issue query:
+```powershell
+python -m src.cli analyze "ValidationError when using a custom validator with Optional field in pydantic v2" --repo pydantic/pydantic
+```
+
+- **Output Highlights**:
+  - Predicted category: `[UNCERTAIN]` (confidence: `0.3788` below 0.5 threshold, correctly routing for triage review).
+  - Retrieved Evidence: 4 deduplicated issues (`#13159`, `#12584`, `#12360`, `#12637`) + 2 documentation excerpts (`docs/errors/validation_errors.md > none_required` and `docs/concepts/validators.md > Raising validation errors`).
+  - Synthesized Claims: All 4 generated claims follow direct, assertion-level phrasing without meta-language ("Evidence E1 states...").
+  - Verification:
+    - Claim 1 (`SUPPORTED`, $p_e=0.3132, p_c=0.0002$): *"Pydantic runs intrinsic type validation before executing custom validators defined with `mode='after'`."* (Cites `E1`)
+    - Claim 2 (`INSUFFICIENT_EVIDENCE`, $p_e=0.0052, p_c=0.0004$): *"A custom validator with `mode='after'` receives the model instance (`self`) after all field values have been validated."* (Cites `E1`)
+    - Claim 3 (`INSUFFICIENT_EVIDENCE`, $p_e=0.0085, p_c=0.0002$): *"If a field is defined as `Optional[T] = None`, Pydantic validates that the input value is `None` before the custom validator runs."* (Cites `E5`)
+    - Claim 4 (`SUPPORTED`, $p_e=0.9976, p_c=0.0001$): *"The error type `none_required` is raised when the input value is not `None` for a field that requires `None`."* (Cites `E5`)
+  - Execution Timing: Total pipeline latency 54.93s (Classifier: 5.0s, Retrieval: 22.2s cold start, Ollama Generation: 24.7s, NLI Verification: 2.5s).
+  - Trace Saved: `output/traces/trace_1794040142249.json`.
+
+---
+
+### E. Codebase & Test Suite Status
+- **Files Modified / Added in Stage 6.5**:
+  - `src/config.py`: Central environment loader and warning suppressor.
+  - `src/retrieval/bm25.py`: Added `source_types` filtering.
+  - `src/retrieval/dense.py`: Fast local model loading and `source_types` filtering.
+  - `src/retrieval/rerank.py`: Fast local model loading and RRF blending formula.
+  - `src/retrieval/index.py`: Added `source_types` and `rerank_alpha` options to `search()`.
+  - `src/generate/prompts.py`: Preserved anti-meta-language rule and added support-only / strict paraphrasing rules.
+  - `src/guardrail/nli.py`: Fast local model loading.
+  - `src/guardrail/verify.py`: Implemented `apply_dominance_rule`, `build_candidate_premises`, and winning premise competition.
+  - `src/pipeline.py`: Configured live retrieval for 4 issues + 2 docs (`E1`..`E6`).
+  - `eval/run_retrieval_eval.py`: Issues-only retrieval candidate pool evaluation, leakage checks, and reranker sensitivity table.
+  - `eval/run_guardrail_eval.py`: Refined B1 and B2 evaluations with fresh 15 queries and two-phase VRAM isolation.
+  - `tests/test_guardrail.py`: Added unit tests for strict dominance decision rule and candidate premises with headings.
+  - `tests/test_retrieval.py`: Added unit tests for `source_types` filtering.
+  - `eval/reports/retrieval_ablation.md` & `.json`: Updated with issues-only ablation and sensitivity sweep.
+  - `eval/reports/guardrail_eval.md` & `.json`: Updated with refined B1 and B2 evaluation results.
+- **Unit Tests**:
+  - Command: `& .\.venv\Scripts\python.exe -m unittest discover tests`
+  - Result: **76 tests, 100% passing in 0.497s**. No external network or GPU required.

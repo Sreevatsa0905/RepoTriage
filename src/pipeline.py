@@ -136,16 +136,31 @@ class RepoTriagePipeline:
         predicted_label = classification_result.get("label", "uncertain")
 
         # 2. Stage 2 Retrieval (Hybrid RRF + Reranker with parent-issue dedup)
+        # Live analysis: top 4 deduplicated issues + top 2 deduplicated doc excerpts
         t0 = time.perf_counter()
         retriever = self._get_retriever(repo=repo)
-        # Retrieve top 6 evidence items
-        evidence_items = retriever.search(
+        issue_items = retriever.search(
             query=text,
             repo=repo,
-            top_k=6,
+            top_k=4,
             method="hybrid_rerank",
+            source_types=["issue", "comment"],
+            rerank_alpha=0.50,
             return_trace=False,
         )
+        doc_items = retriever.search(
+            query=text,
+            repo=repo,
+            top_k=2,
+            method="hybrid_rerank",
+            source_types=["doc"],
+            rerank_alpha=0.50,
+            return_trace=False,
+        )
+
+        evidence_items = list(issue_items) + list(doc_items)
+        for idx, item in enumerate(evidence_items, 1):
+            item["evidence_id"] = f"E{idx}"
         timings["retrieval_ms"] = round((time.perf_counter() - t0) * 1000, 2)
 
         # Structure evidence for UI & downstream use
