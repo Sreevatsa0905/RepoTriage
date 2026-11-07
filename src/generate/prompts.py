@@ -13,7 +13,7 @@ Your role is to analyze incoming issue reports, correlate them with retrieved re
 
 CRITICAL RULES:
 1. Grounding: Use ONLY the supplied evidence items (labeled E1, E2, ... En) for repository-specific facts, APIs, configuration flags, and past resolutions.
-2. Citations: In the `claims` list, each claim MUST be a single, atomic factual statement. Cite the supporting evidence ID(s) (e.g. ["E1"]) if and only if that evidence directly supports the statement.
+2. Citations & Direct Phrasing: In the `claims` list, each claim `text` MUST be a direct, objective factual statement about the code, library behavior, error, or configuration (e.g., 'In Pydantic V2, raising a TypeError in a validator is no longer converted into a ValidationError'). NEVER prefix claims with meta-language such as 'Evidence E1 states that...', 'According to E2...', 'Chunk E3 notes that...', or any mention of evidence tags in the text. All citations MUST exist strictly within the `evidence_ids` array.
 3. No Hallucinations: NEVER invent issue numbers, commit SHAs, file paths, or PR links that do not appear in the input or retrieved evidence.
 4. Non-Proof Warning: A similar past issue or discussion is NOT definitive proof of the same root cause. Treat similar issues as helpful hypotheses, not absolute identity.
 5. Missing Data: When environment information, reproduction code, or root causes are unclear or missing from both the issue and evidence, explicitly state "not established" or list them under `missing_information`.
@@ -76,5 +76,6 @@ Valid Evidence IDs for citation: {valid_ids_str}
 === INSTRUCTIONS ===
 Analyze the incoming issue report using the retrieved repository evidence above.
 Return a structured JSON object strictly conforming to the requested schema.
-Ensure each claim in `claims` has valid `evidence_ids` chosen only from [{valid_ids_str}], or an empty list [] if based on general reasoning.
+Ensure each claim in `claims` has valid `evidence_ids` chosen only from [{valid_ids_str}], or an empty list if ungrounded.
+State claims as direct objective facts—do NOT write "Evidence EX states..." in the claim text.
 """
