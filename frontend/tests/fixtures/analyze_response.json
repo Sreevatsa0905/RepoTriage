@@ -1,0 +1,359 @@
+{
+  "query": {
+    "text": "branch failed as upstream configuration was not set",
+    "repo": "pydantic/pydantic",
+    "issue_url": null
+  },
+  "classification": {
+    "label": "bug",
+    "predicted_category": "bug",
+    "scores": {
+      "bug": 0.6254,
+      "feature": 0.118,
+      "question": 0.2567
+    },
+    "confidence": 0.6254,
+    "threshold": 0.5,
+    "needs_review": false,
+    "model_version": "RepoTriage-Pooled-TFIDF-LogReg",
+    "benchmark_metrics": {
+      "pooled_test_macro_f1": 0.76,
+      "cold_start_macro_f1": 0.594
+    }
+  },
+  "similar_issues": [
+    {
+      "evidence_id": "E1",
+      "number": 12435,
+      "heading": "Comment on #12435 by @DresdenGman",
+      "url": "https://github.com/pydantic/pydantic/issues/12435#issuecomment-5124171426",
+      "rank": 1,
+      "score": 0.040616776794195175,
+      "excerpt": "[pydantic/pydantic #12435 Comment by @DresdenGman]\n\nI\u2019d like to work on this. Could I be assigned to the issue?\n\nI reviewed the existing third-party workflow and the current upstream test setups. My proposed implementation is two independent, Linux-based jobs that follow the workflow\u2019s existing patt"
+    },
+    {
+      "evidence_id": "E2",
+      "number": 12867,
+      "heading": "Comment on #12867 by @davidhewitt",
+      "url": "https://github.com/pydantic/pydantic/issues/12867#issuecomment-4296790737",
+      "rank": 2,
+      "score": 0.06941547244787216,
+      "excerpt": "[pydantic/pydantic #12867 Comment by @davidhewitt]\n\n@fofoni in 2.13 it should be possible to now build on a debug 3.11 interpreter (the upstream PyO3 bug was fixed and shipped). Would you be able to please retry the original build?\n\nThanks \ud83d\ude4f"
+    },
+    {
+      "evidence_id": "E3",
+      "number": 13071,
+      "heading": "Comment on #13071 by @dvzrv",
+      "url": "https://github.com/pydantic/pydantic/issues/13071#issuecomment-4258481908",
+      "rank": 3,
+      "score": 0.0037948342505842447,
+      "excerpt": "[pydantic/pydantic #13071 Comment by @dvzrv]\n\nNo, this would be very resource heavy (requiring a full clone of each upstream repository and custom parsing logic for Cargo.toml files).\nVersion detection for our thousands of upstreams happens multiple times a day.\nzWhen e.g. nvchecker is setup to trac"
+    },
+    {
+      "evidence_id": "E4",
+      "number": 13602,
+      "heading": "Comment on #13602 by @Viicos",
+      "url": "https://github.com/pydantic/pydantic/issues/13602#issuecomment-5225578006",
+      "rank": 4,
+      "score": 0.049497053027153015,
+      "excerpt": "[pydantic/pydantic #13602 Comment by @Viicos]\n\nHi @psalvaggio,\n\nI've looked at the upstream issue, and this seesm to be an x/y problem. By using a `TypeAdapter` within an existing \"validation run\" (e.g. validating a model), you are exposing yourself to all kind of issues. Strictness _not_ being forw"
+    }
+  ],
+  "doc_excerpts": [
+    {
+      "evidence_id": "E5",
+      "file_path": "docs/contributing.md",
+      "heading": "Checkout a new branch and make your changes",
+      "url": "https://github.com/pydantic/pydantic/blob/main/docs/contributing.md#checkout-a-new-branch-and-make-your-changes",
+      "rank": 1,
+      "score": 0.17412921786308289,
+      "excerpt": "[pydantic/pydantic - docs/contributing.md] Checkout a new branch and make your changes\n\ngit switch -c my-new-feature-branch"
+    },
+    {
+      "evidence_id": "E6",
+      "file_path": "docs/integrations/mypy.md",
+      "heading": "Support for frozen models",
+      "url": "https://github.com/pydantic/pydantic/blob/main/docs/integrations/mypy.md#support-for-frozen-models",
+      "rank": 2,
+      "score": 0.006589771714061499,
+      "excerpt": "[pydantic/pydantic - docs/integrations/mypy.md] Support for frozen models\n\n* If the [`frozen`][pydantic.ConfigDict.frozen] configuration is set to `True`, you will get\n  an error if you try mutating a model field (see [faux immutability](../concepts/models.md#faux-immutability))"
+    }
+  ],
+  "evidence_items": [
+    {
+      "chunk_id": "4dec085721ba71f3",
+      "repo": "pydantic/pydantic",
+      "source_type": "comment",
+      "issue_number": 12435,
+      "file_path": null,
+      "heading": "Comment on #12435 by @DresdenGman",
+      "url": "https://github.com/pydantic/pydantic/issues/12435#issuecomment-5124171426",
+      "content_hash": "389da2a4c1b7351288eca068c9f0655f52860540993be836847bc9789797d16f",
+      "text": "[pydantic/pydantic #12435 Comment by @DresdenGman]\n\nI\u2019d like to work on this. Could I be assigned to the issue?\n\nI reviewed the existing third-party workflow and the current upstream test setups. My proposed implementation is two independent, Linux-based jobs that follow the workflow\u2019s existing pattern:\n\n- check out each upstream project plus Pydantic under `pydantic-latest`;\n- install the upstream project\u2019s locked test environment;\n- replace the resolved `pydantic` / `pydantic-core` with the editable checkout; and\n- run the upstream\u2019s deterministic, no-secret test suite.\n\nFor FastMCP, I would mirror its supported Linux coverage (Python 3.10 and 3.13) and exclude integration/conformance tests that require external credentials or Node tooling. For the MCP Python SDK, I would use its locked unit-test setup across its supported Python versions. This would exercise actual Pydantic-backed models and schema handling rather than only checking that dependencies install.\n\nIf that scope or version matrix should be narrower, I\u2019m happy to adjust before opening a PR.",
+      "token_count": 179,
+      "bm25_score": 8.774026512571691,
+      "bm25_rank": 4,
+      "dense_rank": 2,
+      "dense_score": 0.587188720703125,
+      "rrf_score": 0.031754032258064516,
+      "rrf_rank": 1,
+      "rerank_logit": 0.040616776794195175,
+      "rerank_score": 0.040616776794195175,
+      "rerank_sigmoid": 0.5101527984618712,
+      "rrf_minmax": 1.0,
+      "final_score": 0.7550763992309356,
+      "blend_score": 0.7550763992309356,
+      "rerank_rank": 1,
+      "evidence_id": "E1"
+    },
+    {
+      "chunk_id": "2816f87047a3926f",
+      "repo": "pydantic/pydantic",
+      "source_type": "comment",
+      "issue_number": 12867,
+      "file_path": null,
+      "heading": "Comment on #12867 by @davidhewitt",
+      "url": "https://github.com/pydantic/pydantic/issues/12867#issuecomment-4296790737",
+      "content_hash": "78655c6d8398557026b89a35393845f79b0f89d04245935c2960b1e124056226",
+      "text": "[pydantic/pydantic #12867 Comment by @davidhewitt]\n\n@fofoni in 2.13 it should be possible to now build on a debug 3.11 interpreter (the upstream PyO3 bug was fixed and shipped). Would you be able to please retry the original build?\n\nThanks \ud83d\ude4f",
+      "token_count": 46,
+      "bm25_score": 7.535921911761837,
+      "bm25_rank": 6,
+      "dense_rank": 5,
+      "dense_score": 0.5820918083190918,
+      "rrf_score": 0.030536130536130537,
+      "rrf_rank": 2,
+      "rerank_logit": 0.06941547244787216,
+      "rerank_score": 0.06941547244787216,
+      "rerank_sigmoid": 0.5173469031555917,
+      "rrf_minmax": 0.9338840655878234,
+      "final_score": 0.7256154843717075,
+      "blend_score": 0.7256154843717075,
+      "rerank_rank": 2,
+      "evidence_id": "E2"
+    },
+    {
+      "chunk_id": "60dd9db593336005",
+      "repo": "pydantic/pydantic",
+      "source_type": "comment",
+      "issue_number": 13071,
+      "file_path": null,
+      "heading": "Comment on #13071 by @dvzrv",
+      "url": "https://github.com/pydantic/pydantic/issues/13071#issuecomment-4258481908",
+      "content_hash": "ac98dd8dabd2a035f2df385278a1cb9f63f2b9a89cf9416786c02232fabc22ed",
+      "text": "[pydantic/pydantic #13071 Comment by @dvzrv]\n\nNo, this would be very resource heavy (requiring a full clone of each upstream repository and custom parsing logic for Cargo.toml files).\nVersion detection for our thousands of upstreams happens multiple times a day.\nzWhen e.g. nvchecker is setup to track upstream tags for new version detection, it uses [`git-ls-remote`](https://man.archlinux.org/man/git-ls-remote.1).\nWhen using PyPI it queries a particular API for a package.\n\nOnly during build time, we clone the repository or download a specific tarball to build from (depending on how the PKGBUILD package build script is setup for a given package).\n\n> I'm not against creating pydantic-core specific tags, but I would rather avoid it if not required. This also feels like a more general problem to any library set up as a monorepo.\n\nYes. That's why projects usually use distinguished tag schemes to target the particular version of the (differing) packages in a monorepo.\nSee e.g.:\n\n- https://gitlab.archlinux.org/archlinux/alpm/alpm/-/tags\n- https://gitlab.archlinux.org/archlinux/signstar/-/tags\n\nIf you only ever use one version for all packages in a monorepo, it would not matter and you could use just a single tag.\nHowever, this is not the case in this repository: pydantic-core is in version 2.46.0 and pydantic in version 2.13.0.",
+      "token_count": 229,
+      "bm25_score": 9.462377624265034,
+      "bm25_rank": 2,
+      "dense_rank": 14,
+      "dense_score": 0.5558399558067322,
+      "rrf_score": 0.02964254577157803,
+      "rrf_rank": 3,
+      "rerank_logit": 0.0037948342505842447,
+      "rerank_score": 0.0037948342505842447,
+      "rerank_sigmoid": 0.5009487074241368,
+      "rrf_minmax": 0.8853742469211277,
+      "final_score": 0.6931614771726322,
+      "blend_score": 0.6931614771726322,
+      "rerank_rank": 3,
+      "evidence_id": "E3"
+    },
+    {
+      "chunk_id": "2a32d81f0d5c5248",
+      "repo": "pydantic/pydantic",
+      "source_type": "comment",
+      "issue_number": 13602,
+      "file_path": null,
+      "heading": "Comment on #13602 by @Viicos",
+      "url": "https://github.com/pydantic/pydantic/issues/13602#issuecomment-5225578006",
+      "content_hash": "1a7fd0e825d493215c464f4a6aaefdcbeef81977ddb6d40f3d59e1da8325915d",
+      "text": "[pydantic/pydantic #13602 Comment by @Viicos]\n\nHi @psalvaggio,\n\nI've looked at the upstream issue, and this seesm to be an x/y problem. By using a `TypeAdapter` within an existing \"validation run\" (e.g. validating a model), you are exposing yourself to all kind of issues. Strictness _not_ being forwarded is one of them, but you also loose all information about the current validation run: strictness, but also [validation context](https://pydantic.dev/docs/validation/latest/concepts/validators/#validation-context), and possibly others.\n\nFor your specific case, https://github.com/pydantic/pydantic/issues/11154 would presumably solve it, but you are still open to the limitation I mentioned.\n\nClosing as duplicate, happy to reopen if I missed anything.",
+      "token_count": 113,
+      "bm25_score": 6.495818033983259,
+      "bm25_rank": 14,
+      "dense_rank": 9,
+      "dense_score": 0.5621741414070129,
+      "rrf_score": 0.028006267136701922,
+      "rrf_rank": 4,
+      "rerank_logit": 0.049497053027153015,
+      "rerank_score": 0.049497053027153015,
+      "rerank_sigmoid": 0.5123717375065466,
+      "rrf_minmax": 0.7965459868446721,
+      "final_score": 0.6544588621756093,
+      "blend_score": 0.6544588621756093,
+      "rerank_rank": 4,
+      "evidence_id": "E4"
+    },
+    {
+      "chunk_id": "682109f1e5af8a38",
+      "repo": "pydantic/pydantic",
+      "source_type": "doc",
+      "issue_number": null,
+      "file_path": "docs/contributing.md",
+      "heading": "Checkout a new branch and make your changes",
+      "url": "https://github.com/pydantic/pydantic/blob/main/docs/contributing.md#checkout-a-new-branch-and-make-your-changes",
+      "content_hash": "0d28bee35e2ed65b31cacb5568d114735eecdfb64e9d41b41164ec1f6f46caff",
+      "text": "[pydantic/pydantic - docs/contributing.md] Checkout a new branch and make your changes\n\ngit switch -c my-new-feature-branch",
+      "token_count": 17,
+      "bm25_score": 8.159409879800409,
+      "bm25_rank": 7,
+      "dense_rank": 2,
+      "dense_score": 0.548999547958374,
+      "rrf_score": 0.031054405392392875,
+      "rrf_rank": 1,
+      "rerank_logit": 0.17412921786308289,
+      "rerank_score": 0.17412921786308289,
+      "rerank_sigmoid": 0.5434226417677402,
+      "rrf_minmax": 1.0,
+      "final_score": 0.7717113208838702,
+      "blend_score": 0.7717113208838702,
+      "rerank_rank": 1,
+      "evidence_id": "E5"
+    },
+    {
+      "chunk_id": "723c400f70dafc59",
+      "repo": "pydantic/pydantic",
+      "source_type": "doc",
+      "issue_number": null,
+      "file_path": "docs/integrations/mypy.md",
+      "heading": "Support for frozen models",
+      "url": "https://github.com/pydantic/pydantic/blob/main/docs/integrations/mypy.md#support-for-frozen-models",
+      "content_hash": "005515ba05c5dedb4188c0b6cd4bbf66680c8b158d5c08e9e1de12fb007fb8dd",
+      "text": "[pydantic/pydantic - docs/integrations/mypy.md] Support for frozen models\n\n* If the [`frozen`][pydantic.ConfigDict.frozen] configuration is set to `True`, you will get\n  an error if you try mutating a model field (see [faux immutability](../concepts/models.md#faux-immutability))",
+      "token_count": 35,
+      "bm25_score": 8.310414155028193,
+      "bm25_rank": 5,
+      "dense_rank": 6,
+      "dense_score": 0.5327930450439453,
+      "rrf_score": 0.030536130536130537,
+      "rrf_rank": 2,
+      "rerank_logit": 0.006589771714061499,
+      "rerank_score": 0.006589771714061499,
+      "rerank_sigmoid": 0.5016474369668447,
+      "rrf_minmax": 0.9687063305348538,
+      "final_score": 0.7351768837508492,
+      "blend_score": 0.7351768837508492,
+      "rerank_rank": 2,
+      "evidence_id": "E6"
+    }
+  ],
+  "analysis": {
+    "issue_summary": "The user reports that a branch failed due to upstream configuration not being set.",
+    "issue_type": "bug",
+    "affected_components": [],
+    "observed_symptoms": [],
+    "environment_details": "not established",
+    "reproduction_steps": [],
+    "missing_information": [],
+    "likely_causes": [],
+    "recommended_diagnostics": [],
+    "recommended_next_steps": [],
+    "claims": [
+      {
+        "claim_id": "c1",
+        "text": "Upstream version detection for thousands of projects happens multiple times a day using git-ls-remote during build time.",
+        "evidence_ids": [
+          "E3"
+        ]
+      },
+      {
+        "claim_id": "c2",
+        "text": "During build time, the system clones repositories or downloads specific tarballs depending on how the PKGBUILD package build script is configured.",
+        "evidence_ids": [
+          "E3"
+        ]
+      },
+      {
+        "claim_id": "c3",
+        "text": "pydantic-core is in version 2.46.0 and pydantic is in version 2.13.0.",
+        "evidence_ids": [
+          "E3"
+        ]
+      },
+      {
+        "claim_id": "c4",
+        "text": "Projects using a monorepo structure often use distinguished tag schemes to target particular versions of packages within the repository.",
+        "evidence_ids": [
+          "E3"
+        ]
+      }
+    ],
+    "limitations": "The specific upstream project causing the 'upstream configuration was not set' error is not identified in the issue report or evidence. The exact branch name and failure context are not provided. No reproduction code or logs were submitted to diagnose the root cause of the configuration failure."
+  },
+  "verified_claims": [
+    {
+      "claim_id": "c1",
+      "text": "Upstream version detection for thousands of projects happens multiple times a day using git-ls-remote during build time.",
+      "evidence_ids": [
+        "E3"
+      ],
+      "verdict": "INSUFFICIENT_EVIDENCE",
+      "entailment_score": 0.0008,
+      "contradiction_score": 0.0008,
+      "neutral_score": 0.9985,
+      "best_evidence_id": "E3",
+      "best_excerpt": "[Comment on #13071 by @dvzrv] [pydantic/pydantic #13071 Comment by @dvzrv] No, this would be very resource heavy (requiring a full clone of each upstream repository and custom parsing logic for Cargo.toml files). Version detection for our thousands of upstreams happens multiple times a day. zWhen e.g. nvchecker is setup to track upstream tags for new version detection, it uses [`git-ls-remote`](https://man.archlinux.org/man/git-ls-remote.1). When using PyPI it queries a particular API for a package. Only during build time, we clone the repository or download a specific tarball to build from (depending on how the PKGBUILD package build script is setup for a given package). > I'm not against creating pydantic-core specific tags, but I would rather avoid it if not required. This also feels like a more general problem to any library set up as a monorepo. Yes. That's why projects usually use distinguished tag schemes to target the particular version of the (differing) packages in a monorepo. See e.g.: - https://gitlab.archlinux.org/archlinux/alpm/alpm/-/tags - https://gitlab.archlinux.org/archlinux/signstar/-/tags If you only ever use one version for all packages in a monorepo, it would not matter and you could use just a single tag. However, this is not the case in this repository: pydantic-core is in version 2.46.0 and pydantic in version 2.13.0.",
+      "best_premise_type": "full_chunk"
+    },
+    {
+      "claim_id": "c2",
+      "text": "During build time, the system clones repositories or downloads specific tarballs depending on how the PKGBUILD package build script is configured.",
+      "evidence_ids": [
+        "E3"
+      ],
+      "verdict": "SUPPORTED",
+      "entailment_score": 0.9971,
+      "contradiction_score": 0.0,
+      "neutral_score": 0.0028,
+      "best_evidence_id": "E3",
+      "best_excerpt": "[Comment on #13071 by @dvzrv] Only during build time, we clone the repository or download a specific tarball to build from (depending on how the PKGBUILD package build script is setup for a given package). > I'm not against creating pydantic-core specific tags, but I would rather avoid it if not required.",
+      "best_premise_type": "sentence_window"
+    },
+    {
+      "claim_id": "c3",
+      "text": "pydantic-core is in version 2.46.0 and pydantic is in version 2.13.0.",
+      "evidence_ids": [
+        "E3"
+      ],
+      "verdict": "INSUFFICIENT_EVIDENCE",
+      "entailment_score": 0.0085,
+      "contradiction_score": 0.0001,
+      "neutral_score": 0.9912,
+      "best_evidence_id": "E3",
+      "best_excerpt": "[Comment on #13071 by @dvzrv] If you only ever use one version for all packages in a monorepo, it would not matter and you could use just a single tag. However, this is not the case in this repository: pydantic-core is in version 2.46.0 and pydantic in version 2.13.0.",
+      "best_premise_type": "sentence_window"
+    },
+    {
+      "claim_id": "c4",
+      "text": "Projects using a monorepo structure often use distinguished tag schemes to target particular versions of packages within the repository.",
+      "evidence_ids": [
+        "E3"
+      ],
+      "verdict": "SUPPORTED",
+      "entailment_score": 0.9985,
+      "contradiction_score": 0.0,
+      "neutral_score": 0.0017,
+      "best_evidence_id": "E3",
+      "best_excerpt": "[Comment on #13071 by @dvzrv] That's why projects usually use distinguished tag schemes to target the particular version of the (differing) packages in a monorepo. See e.g.:",
+      "best_premise_type": "sentence_window"
+    }
+  ],
+  "timings_ms": {
+    "classifier_ms": 9.04,
+    "retrieval_ms": 6896.18,
+    "generation_ms": 23818.62,
+    "guardrail_ms": 3320.29,
+    "total_ms": 34813.17
+  },
+  "generation_trace": {
+    "model": "qwen3.5:4b",
+    "retried": false,
+    "generation_latency_ms": 21792.97,
+    "prompt_eval_count": 2082,
+    "eval_count": 335,
+    "num_claims": 4,
+    "num_cited_claims": 4
+  },
+  "timestamp": "2026-11-07T10:27:50.878299+00:00",
+  "trace_file": "./output/traces/trace_1794047270878.json"
+}

@@ -574,3 +574,42 @@ python -m src.cli analyze "ValidationError when using a custom validator with Op
 ### D. Final Quality Checks
 - **Offline Unit Test Suite**: `python -m unittest discover tests` executed cleanly (**86 tests passing, 0 failures, 0 errors**).
 - **Git State Hygiene**: No secrets, `.env`, `data/raw/`, `output/traces/`, or model binaries tracked in source control.
+
+
+---
+
+## 13. Frontend Bug Fix: Result View Schema Alignment & ErrorBoundary Hardening
+
+### A. Root Cause Analysis
+- **Error Observed**: `Uncaught TypeError: Cannot read properties of undefined (reading 'predicted_label') at IssueCopilot (IssueCopilot.tsx:295:47)`.
+- **Root Cause**: Schema mismatch between backend `pipeline.analyze()` response dictionary and frontend TypeScript interface:
+  - Backend returns `"classification"`, while UI accessed `analysisResult.classifier.predicted_label`.
+  - Backend returns `"analysis"`, while UI accessed `analysisResult.synthesis`.
+  - Backend returns `"verified_claims"`, while UI accessed `analysisResult.verification.claims`.
+  - Backend returns `"evidence_items"`, while UI accessed `analysisResult.retrieval.evidence`.
+  - Backend returns `"timings_ms"`, while UI accessed `analysisResult.timings`.
+- **Consequence**: Uncaught JavaScript exception in React render phase unmounted the entire fiber tree, leaving `<div id="root"></div>` completely blank.
+
+### B. Changes & Defensive Hardening
+1. **Schema Realignment (`frontend/src/types.ts`)**:
+   - Updated TypeScript interfaces to strictly match backend payload fields (`classification`, `analysis`, `verified_claims`, `evidence_items`, `timings_ms`, `trace_file`), with optional fallbacks for backwards compatibility.
+2. **Defensive Component Rendering (`frontend/src/components/IssueCopilot.tsx`)**:
+   - Added safe extraction with optional chaining (`?.`), nullish coalescing, and type-safe fallbacks across all panels (`predictedLabel`, `confidenceScore`, `needsReview`, `synthesizedType`, `issueSummary`).
+   - Implemented array validation (`Array.isArray()`) for `claimsList` and `evidenceList` with graceful empty-state messaging.
+   - Pinned numeric formatting checks (`typeof val === 'number' ? val.toFixed(...) : '0'`).
+   - Added robust API error handling for HTTP 429 (`Pipeline busy`), HTTP 500, and network failures.
+3. **React ErrorBoundary Component (`frontend/src/components/ErrorBoundary.tsx`)**:
+   - Wrapped the analysis result container and root application layout in `<ErrorBoundary>`.
+   - On unexpected render failures, catches the exception and renders an inline alert ("This result could not be displayed") with the error message, a view reset button, and a collapsible raw JSON inspector, preventing total unmounting.
+4. **Automated Frontend Test Suite (`frontend/tests/test_ui.mjs`)**:
+   - Added automated Playwright test suite verifying:
+     - Full real fixture rendering from `frontend/tests/fixtures/analyze_response.json` (Claims panel, Evidence cards, Structured analysis, Latency footer).
+     - Empty claims and empty evidence edge cases without crashing.
+     - HTTP 429 Pipeline Busy alert presentation.
+     - Evaluation & Benchmarks tab health and stability.
+   - All 4 test suites passed with 0 uncaught browser exceptions.
+5. **Visual Documentation & Build Verification**:
+   - Production bundle compiled cleanly via `npm run build` in 1.38s.
+   - Captured real screenshot of completed analysis view: `docs/screenshots/ui_result.png`.
+   - Embedded `docs/screenshots/ui_result.png` in root `README.md`.
+   - Python offline test suite passes (86 tests, 0 failures, 0 errors).

@@ -60,7 +60,7 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab, health 
           {health?.database && (
             <div className="flex items-center space-x-1.5 px-2.5 py-1 rounded-full bg-dark-700 border border-dark-600 text-gray-300">
               <Database className="w-3.5 h-3.5 text-blue-400" />
-              <span>{health.database.total_chunks.toLocaleString()} Chunks</span>
+              <span>{health.database.total_chunks ? health.database.total_chunks.toLocaleString() : 0} Chunks</span>
             </div>
           )}
 

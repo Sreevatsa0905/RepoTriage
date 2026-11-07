@@ -85,8 +85,11 @@ flowchart TD
 
 ## 3. UI Screenshots
 
-### Live Issue Copilot (Tab 1)
-![Issue Copilot](docs/screenshots/ui_copilot.png)
+### Live Issue Copilot: Input & Staging (Tab 1)
+![Issue Copilot Initial View](docs/screenshots/ui_copilot.png)
+
+### Completed Multi-Stage Analysis Result & Verified Claims
+![Completed Analysis Result](docs/screenshots/ui_result.png)
 
 ### Evaluation & Benchmarks Dashboard (Tab 2)
 ![Evaluation Dashboard](docs/screenshots/ui_evaluation.png)

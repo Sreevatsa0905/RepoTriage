@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Navbar } from './components/Navbar';
 import { IssueCopilot } from './components/IssueCopilot';
 import { EvaluationTab } from './components/EvaluationTab';
+import { ErrorBoundary } from './components/ErrorBoundary';
 import type { SystemHealth, Repository } from './types';
 
 export function App() {
@@ -27,11 +28,13 @@ export function App() {
       <Navbar activeTab={activeTab} setActiveTab={setActiveTab} health={health} />
 
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {activeTab === 'copilot' ? (
-          <IssueCopilot repositories={repositories} />
-        ) : (
-          <EvaluationTab />
-        )}
+        <ErrorBoundary>
+          {activeTab === 'copilot' ? (
+            <IssueCopilot repositories={repositories} />
+          ) : (
+            <EvaluationTab />
+          )}
+        </ErrorBoundary>
       </main>
 
       <footer className="border-t border-dark-700 bg-dark-800/60 py-6 text-center text-xs text-gray-500">

@@ -12,15 +12,17 @@ import {
   Clock,
   CheckCircle,
   Layers,
-  BookOpen
+  BookOpen,
+  Info
 } from 'lucide-react';
-import type { AnalyzeResponse, SearchResponse, Repository, EvidenceItem } from '../types';
+import type { AnalyzeResponse, SearchResponse, Repository, EvidenceItem, VerifiedClaim } from '../types';
+import { ErrorBoundary } from './ErrorBoundary';
 
 interface IssueCopilotProps {
   repositories: Repository[];
 }
 
-export const IssueCopilot: React.FC<IssueCopilotProps> = ({ repositories }) => {
+export const IssueCopilot: React.FC<IssueCopilotProps> = ({ repositories = [] }) => {
   const [selectedRepo, setSelectedRepo] = useState<string>('pydantic/pydantic');
   const [inputText, setInputText] = useState<string>('');
   const [issueUrl, setIssueUrl] = useState<string>('');
@@ -38,7 +40,7 @@ export const IssueCopilot: React.FC<IssueCopilotProps> = ({ repositories }) => {
     }
   }, [repositories, selectedRepo]);
 
-  // Stepper timer effect when analyzing
+  // Animated progress stepper during analysis
   useEffect(() => {
     let interval: ReturnType<typeof setInterval>;
     if (isLoading) {
@@ -47,7 +49,7 @@ export const IssueCopilot: React.FC<IssueCopilotProps> = ({ repositories }) => {
       interval = setInterval(() => {
         const elapsed = (Date.now() - start) / 1000;
         if (elapsed < 1.0) setLoadingStep(1);
-        else if (elapsed < 2.5) setLoadingStep(2);
+        else if (elapsed < 3.0) setLoadingStep(2);
         else if (elapsed < 25.0) setLoadingStep(3);
         else setLoadingStep(4);
       }, 500);
@@ -66,6 +68,7 @@ export const IssueCopilot: React.FC<IssueCopilotProps> = ({ repositories }) => {
     setIsLoading(true);
     setErrorMsg(null);
     setSearchOnlyResults(null);
+    setAnalysisResult(null);
 
     try {
       const res = await fetch('/api/analyze', {
@@ -74,19 +77,31 @@ export const IssueCopilot: React.FC<IssueCopilotProps> = ({ repositories }) => {
         body: JSON.stringify({
           text: inputText,
           repo: selectedRepo,
-          issue_url: issueUrl || null,
+          issue_url: issueUrl.trim() || null,
         }),
       });
 
       if (!res.ok) {
-        const err = await res.json().catch(() => ({ detail: 'Analysis failed' }));
-        throw new Error(err.detail || `Server error: ${res.status}`);
+        if (res.status === 429) {
+          throw new Error('Pipeline busy: another issue analysis is currently in progress. Please retry in a few moments.');
+        }
+        let detail = `Server error (${res.status})`;
+        try {
+          const errData = await res.json();
+          if (errData?.detail) detail = errData.detail;
+        } catch (_) {}
+        throw new Error(detail);
       }
 
       const data: AnalyzeResponse = await res.json();
       setAnalysisResult(data);
     } catch (err: any) {
-      setErrorMsg(err.message || 'Failed to complete analysis');
+      console.error('Analyze request failed:', err);
+      if (err.name === 'TypeError' && err.message?.includes('Failed to fetch')) {
+        setErrorMsg('Unable to reach the RepoTriage API backend. Please ensure the backend server is running on http://127.0.0.1:8000.');
+      } else {
+        setErrorMsg(err.message || 'An unexpected error occurred during issue analysis.');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -101,6 +116,7 @@ export const IssueCopilot: React.FC<IssueCopilotProps> = ({ repositories }) => {
     setIsLoading(true);
     setErrorMsg(null);
     setAnalysisResult(null);
+    setSearchOnlyResults(null);
 
     try {
       const res = await fetch('/api/search', {
@@ -115,14 +131,23 @@ export const IssueCopilot: React.FC<IssueCopilotProps> = ({ repositories }) => {
       });
 
       if (!res.ok) {
-        const err = await res.json().catch(() => ({ detail: 'Search failed' }));
-        throw new Error(err.detail || `Server error: ${res.status}`);
+        let detail = `Search failed (${res.status})`;
+        try {
+          const errData = await res.json();
+          if (errData?.detail) detail = errData.detail;
+        } catch (_) {}
+        throw new Error(detail);
       }
 
       const data: SearchResponse = await res.json();
-      setSearchOnlyResults(data.results);
+      setSearchOnlyResults(Array.isArray(data?.results) ? data.results : []);
     } catch (err: any) {
-      setErrorMsg(err.message || 'Failed to execute hybrid search');
+      console.error('Search request failed:', err);
+      if (err.name === 'TypeError' && err.message?.includes('Failed to fetch')) {
+        setErrorMsg('Unable to reach the RepoTriage API backend. Please ensure the backend server is running on http://127.0.0.1:8000.');
+      } else {
+        setErrorMsg(err.message || 'Failed to execute hybrid search.');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -135,6 +160,40 @@ export const IssueCopilot: React.FC<IssueCopilotProps> = ({ repositories }) => {
   const toggleEvidenceExpansion = (id: string) => {
     setExpandedEvidence((prev) => ({ ...prev, [id]: !prev[id] }));
   };
+
+  // Safe data extraction helpers
+  const classification = analysisResult?.classification || analysisResult?.classifier || {};
+  const predictedLabel = (classification.label || classification.predicted_category || 'uncertain').toLowerCase();
+  const confidenceScore = typeof classification.confidence === 'number' ? classification.confidence : 0;
+  const needsReview = Boolean(classification.needs_review);
+
+  const analysis = analysisResult?.analysis || analysisResult?.synthesis || {};
+  const synthesizedType = (analysis.issue_type || 'unspecified').toLowerCase();
+  const issueSummary = analysis.issue_summary || 'No summary synthesized';
+
+  // Defensive claim normalization
+  const claimsList: VerifiedClaim[] = Array.isArray(analysisResult?.verified_claims)
+    ? analysisResult!.verified_claims
+    : Array.isArray(analysisResult?.verification?.claims)
+    ? analysisResult!.verification!.claims
+    : Array.isArray(analysis.claims)
+    ? (analysis.claims as any[])
+    : [];
+
+  const supportedClaimsCount = claimsList.filter((c) => c?.verdict === 'SUPPORTED').length;
+
+  // Defensive evidence items normalization
+  const evidenceList: EvidenceItem[] = Array.isArray(analysisResult?.evidence_items)
+    ? analysisResult!.evidence_items
+    : Array.isArray(analysisResult?.similar_issues)
+    ? [...analysisResult!.similar_issues, ...(analysisResult?.doc_excerpts || [])]
+    : [];
+
+  // Defensive timing metrics
+  const timings = analysisResult?.timings_ms || analysisResult?.timings || {};
+  const traceIdentifier = analysisResult?.trace_file
+    ? analysisResult.trace_file.split('/').pop()?.replace('.json', '')
+    : analysisResult?.trace_id || 'trace-active';
 
   return (
     <div className="space-y-8">
@@ -195,9 +254,9 @@ export const IssueCopilot: React.FC<IssueCopilotProps> = ({ repositories }) => {
           </div>
 
           {errorMsg && (
-            <div className="p-3 rounded-lg bg-red-950/60 border border-red-800 text-red-300 text-sm flex items-center gap-2">
-              <AlertTriangle className="w-4 h-4 flex-shrink-0" />
-              <span>{errorMsg}</span>
+            <div className="p-3.5 rounded-lg bg-red-950/70 border border-red-800 text-red-200 text-xs flex items-start gap-2.5">
+              <AlertTriangle className="w-4 h-4 flex-shrink-0 mt-0.5 text-red-400" />
+              <div className="flex-1 leading-relaxed">{errorMsg}</div>
             </div>
           )}
 
@@ -227,7 +286,7 @@ export const IssueCopilot: React.FC<IssueCopilotProps> = ({ repositories }) => {
         </div>
       </div>
 
-      {/* Loading Progress State */}
+      {/* Loading Progress Stepper */}
       {isLoading && (
         <div className="bg-dark-800 border border-indigo-900/50 rounded-xl p-6 shadow-xl animate-pulse">
           <div className="flex items-center justify-between mb-4">
@@ -276,265 +335,351 @@ export const IssueCopilot: React.FC<IssueCopilotProps> = ({ repositories }) => {
         </div>
       )}
 
-      {/* Analysis Results View */}
+      {/* Analysis Results View Wrapped in ErrorBoundary */}
       {analysisResult && (
-        <div className="space-y-6">
-          {/* Issue Type Side-by-Side Panel */}
-          <div className="bg-dark-800 border border-dark-600 rounded-xl p-5 shadow-md">
-            <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wider mb-4 flex items-center gap-2">
-              <Layers className="w-4 h-4 text-indigo-400" />
-              Issue Classification (Classifier vs. LLM)
-            </h3>
+        <ErrorBoundary fallbackData={analysisResult} onReset={() => setAnalysisResult(null)}>
+          <div className="space-y-6">
+            {/* Issue Type Side-by-Side Panel */}
+            <div className="bg-dark-800 border border-dark-600 rounded-xl p-5 shadow-md">
+              <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wider mb-4 flex items-center gap-2">
+                <Layers className="w-4 h-4 text-indigo-400" />
+                Issue Classification (Classifier vs. LLM)
+              </h3>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Frozen Classifier */}
-              <div className="p-4 rounded-lg bg-dark-900 border border-dark-700">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs text-gray-400 font-medium">Frozen Classifier (TF-IDF + LogReg)</span>
-                  <span className={`px-2 py-0.5 rounded text-xs font-semibold uppercase ${
-                    analysisResult.classifier.predicted_label === 'bug'
-                      ? 'bg-rose-950 text-rose-300 border border-rose-800'
-                      : analysisResult.classifier.predicted_label === 'feature'
-                      ? 'bg-blue-950 text-blue-300 border border-blue-800'
-                      : analysisResult.classifier.predicted_label === 'question'
-                      ? 'bg-amber-950 text-amber-300 border border-amber-800'
-                      : 'bg-gray-800 text-gray-400'
-                  }`}>
-                    {analysisResult.classifier.predicted_label}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between text-xs text-gray-400 mb-2">
-                  <span>Confidence: {(analysisResult.classifier.confidence * 100).toFixed(1)}%</span>
-                  {analysisResult.classifier.needs_review && (
-                    <span className="text-amber-400 flex items-center gap-1">
-                      <AlertTriangle className="w-3 h-3" /> Needs Review (uncertain)
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Frozen Classifier */}
+                <div className="p-4 rounded-lg bg-dark-900 border border-dark-700">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs text-gray-400 font-medium">Frozen Classifier (TF-IDF + LogReg)</span>
+                    <span
+                      className={`px-2 py-0.5 rounded text-xs font-semibold uppercase ${
+                        predictedLabel === 'bug'
+                          ? 'bg-rose-950 text-rose-300 border border-rose-800'
+                          : predictedLabel === 'feature'
+                          ? 'bg-blue-950 text-blue-300 border border-blue-800'
+                          : predictedLabel === 'question'
+                          ? 'bg-amber-950 text-amber-300 border border-amber-800'
+                          : 'bg-gray-800 text-gray-400 border border-gray-700'
+                      }`}
+                    >
+                      {predictedLabel}
                     </span>
-                  )}
-                </div>
-                <p className="text-xs text-gray-400 italic">
-                  Note: Pre-trained on NLBSE 2024 dataset. A threshold of 0.50 is enforced to filter ambiguous predictions.
-                </p>
-              </div>
-
-              {/* LLM Synthesis */}
-              <div className="p-4 rounded-lg bg-dark-900 border border-dark-700">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs text-gray-400 font-medium">Synthesized Type (Ollama Qwen 4B)</span>
-                  <span className="px-2 py-0.5 rounded text-xs font-semibold uppercase bg-indigo-950 text-indigo-300 border border-indigo-800">
-                    {analysisResult.synthesis.issue_type}
-                  </span>
-                </div>
-                <p className="text-xs text-gray-300 leading-relaxed">
-                  {analysisResult.synthesis.issue_type_reason}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Prominent Verified Claims Panel */}
-          <div className="bg-dark-800 border border-dark-600 rounded-xl p-6 shadow-md">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 mb-4 pb-3 border-b border-dark-700">
-              <div>
-                <h3 className="text-base font-bold text-white flex items-center gap-2">
-                  <ShieldCheck className="w-5 h-5 text-emerald-400" />
-                  NLI Verified Claims Panel
-                </h3>
-                <p className="text-xs text-gray-400 mt-0.5">
-                  Every claim is verified against retrieved documentation & issue chunks using DeBERTa-v3 NLI.
-                </p>
-              </div>
-
-              <div className="flex items-center gap-3 text-xs">
-                <span className="text-gray-400">
-                  Thresholds: <code className="bg-dark-900 px-1.5 py-0.5 rounded text-gray-300">τ_s={analysisResult.verification.summary.thresholds_used.tau_support}</code>, <code className="bg-dark-900 px-1.5 py-0.5 rounded text-gray-300">τ_c={analysisResult.verification.summary.thresholds_used.tau_contradict}</code>
-                </span>
-                <span className="px-2 py-1 rounded bg-emerald-950/70 border border-emerald-800 text-emerald-300 font-medium">
-                  {analysisResult.verification.summary.supported} / {analysisResult.verification.summary.total_claims} Supported
-                </span>
-              </div>
-            </div>
-
-            <div className="p-3 mb-4 rounded-lg bg-indigo-950/40 border border-indigo-900/60 text-xs text-indigo-300 flex items-start gap-2">
-              <HelpCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
-              <span>
-                <strong>Verification Signal Disclaimer:</strong> Verdicts reflect automated natural language inference agreement against cited text excerpts, not formal mathematical proof. Always review expandable source premises for critical debugging decisions.
-              </span>
-            </div>
-
-            {/* Claims List */}
-            <div className="space-y-3">
-              {analysisResult.verification.claims.map((claim) => {
-                const isExpanded = expandedClaims[claim.id];
-                return (
-                  <div
-                    key={claim.id}
-                    className="p-4 rounded-lg bg-dark-900 border border-dark-700 transition-colors"
-                  >
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1.5">
-                          {claim.verdict === 'SUPPORTED' ? (
-                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-950 text-emerald-300 border border-emerald-800">
-                              <CheckCircle className="w-3 h-3" /> SUPPORTED
-                            </span>
-                          ) : claim.verdict === 'CONTRADICTED' ? (
-                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-950 text-rose-300 border border-rose-800">
-                              <XCircle className="w-3 h-3" /> CONTRADICTED
-                            </span>
-                          ) : (
-                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-950 text-amber-300 border border-amber-800">
-                              <AlertTriangle className="w-3 h-3" /> INSUFFICIENT EVIDENCE
-                            </span>
-                          )}
-
-                          <span className="text-xs text-gray-400 font-mono">
-                            Cites: {claim.cited_evidence_ids.join(', ') || 'None'}
-                          </span>
-                        </div>
-
-                        <p className="text-sm text-gray-200 font-medium leading-relaxed">
-                          "{claim.claim_text}"
-                        </p>
-
-                        <div className="flex items-center gap-4 mt-2 text-xs text-gray-400 font-mono">
-                          <span>p(entailment): <strong className="text-gray-200">{claim.entailment_prob.toFixed(4)}</strong></span>
-                          <span>p(contradiction): <strong className="text-gray-200">{claim.contradiction_prob.toFixed(4)}</strong></span>
-                          <span>p(neutral): <strong className="text-gray-200">{claim.neutral_prob.toFixed(4)}</strong></span>
-                        </div>
-                      </div>
-
-                      <button
-                        onClick={() => toggleClaimExpansion(claim.id)}
-                        className="p-1 rounded text-gray-400 hover:text-white hover:bg-dark-700 transition-colors"
-                        title="Toggle cited premise details"
-                      >
-                        {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-                      </button>
-                    </div>
-
-                    {/* Expandable Winning Premise Detail */}
-                    {isExpanded && claim.winning_premise && (
-                      <div className="mt-3 pt-3 border-t border-dark-800 text-xs">
-                        <div className="text-gray-400 font-medium mb-1">
-                          Winning Premise ({claim.winning_premise.premise_type}):
-                        </div>
-                        <pre className="p-3 rounded bg-dark-950 text-gray-300 whitespace-pre-wrap font-mono text-xs border border-dark-800 overflow-x-auto max-h-48">
-                          {claim.winning_premise.text}
-                        </pre>
-                      </div>
+                  </div>
+                  <div className="flex items-center justify-between text-xs text-gray-400 mb-2">
+                    <span>Confidence: {(confidenceScore * 100).toFixed(1)}%</span>
+                    {needsReview && (
+                      <span className="text-amber-400 flex items-center gap-1 font-medium">
+                        <AlertTriangle className="w-3 h-3" /> Needs Review (uncertain)
+                      </span>
                     )}
                   </div>
-                );
-              })}
-            </div>
-          </div>
+                  <p className="text-[11px] text-gray-400 italic">
+                    Trained on NLBSE 2024 dataset. A threshold of 0.50 is enforced to filter ambiguous predictions.
+                  </p>
+                </div>
 
-          {/* Structured Synthesis Panel */}
-          <div className="bg-dark-800 border border-dark-600 rounded-xl p-6 shadow-md space-y-6">
-            <div>
-              <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Issue Title & Summary</h4>
-              <h3 className="text-lg font-bold text-white mb-2">{analysisResult.synthesis.title}</h3>
-              <p className="text-sm text-gray-300 leading-relaxed bg-dark-900 p-4 rounded-lg border border-dark-700">
-                {analysisResult.synthesis.summary}
-              </p>
-            </div>
-
-            <div>
-              <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Technical Analysis & Root Cause</h4>
-              <div className="text-sm text-gray-300 leading-relaxed bg-dark-900 p-4 rounded-lg border border-dark-700 whitespace-pre-wrap font-sans">
-                {analysisResult.synthesis.technical_analysis}
+                {/* LLM Synthesis */}
+                <div className="p-4 rounded-lg bg-dark-900 border border-dark-700">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs text-gray-400 font-medium">Synthesized Type (Ollama Qwen 4B)</span>
+                    <span className="px-2 py-0.5 rounded text-xs font-semibold uppercase bg-indigo-950 text-indigo-300 border border-indigo-800">
+                      {synthesizedType}
+                    </span>
+                  </div>
+                  <p className="text-xs text-gray-300 leading-relaxed">
+                    {issueSummary}
+                  </p>
+                </div>
               </div>
             </div>
 
-            <div>
-              <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Suggested Resolution</h4>
-              <div className="text-sm text-gray-300 leading-relaxed bg-dark-900 p-4 rounded-lg border border-dark-700 whitespace-pre-wrap font-sans">
-                {analysisResult.synthesis.suggested_resolution}
+            {/* Prominent Verified Claims Panel */}
+            <div className="bg-dark-800 border border-dark-600 rounded-xl p-6 shadow-md">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 mb-4 pb-3 border-b border-dark-700">
+                <div>
+                  <h3 className="text-base font-bold text-white flex items-center gap-2">
+                    <ShieldCheck className="w-5 h-5 text-emerald-400" />
+                    NLI Verified Claims Panel
+                  </h3>
+                  <p className="text-xs text-gray-400 mt-0.5">
+                    Every claim is verified against retrieved documentation & issue chunks using DeBERTa-v3 NLI.
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-3 text-xs">
+                  <span className="text-gray-400">
+                    Thresholds: <code className="bg-dark-900 px-1.5 py-0.5 rounded text-gray-300">τ_s=0.80</code>, <code className="bg-dark-900 px-1.5 py-0.5 rounded text-gray-300">τ_c=0.80</code>
+                  </span>
+                  <span className="px-2 py-1 rounded bg-emerald-950/70 border border-emerald-800 text-emerald-300 font-medium">
+                    {supportedClaimsCount} / {claimsList.length} Supported
+                  </span>
+                </div>
               </div>
+
+              <div className="p-3 mb-4 rounded-lg bg-indigo-950/40 border border-indigo-900/60 text-xs text-indigo-300 flex items-start gap-2">
+                <HelpCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                <span>
+                  <strong>Verification Signal Disclaimer:</strong> Verdicts reflect automated natural language inference agreement against cited text excerpts, not mathematical proof. Always review expandable source premises for critical debugging decisions.
+                </span>
+              </div>
+
+              {/* Claims List */}
+              {claimsList.length === 0 ? (
+                <div className="p-4 rounded-lg bg-dark-900 border border-dark-700 text-xs text-gray-400 text-center">
+                  No discrete factual claims were extracted for verification.
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {claimsList.map((claim, idx) => {
+                    const cid = claim.claim_id || claim.id || `claim_${idx + 1}`;
+                    const isExpanded = Boolean(expandedClaims[cid]);
+                    const verdict = claim.verdict || 'INSUFFICIENT_EVIDENCE';
+                    const claimText = claim.text || claim.claim_text || 'Factual claim text';
+                    const citedIds = claim.evidence_ids || claim.cited_evidence_ids || [];
+
+                    const pEntailment = typeof claim.entailment_score === 'number'
+                      ? claim.entailment_score
+                      : typeof claim.entailment_prob === 'number'
+                      ? claim.entailment_prob
+                      : 0;
+
+                    const pContradiction = typeof claim.contradiction_score === 'number'
+                      ? claim.contradiction_score
+                      : typeof claim.contradiction_prob === 'number'
+                      ? claim.contradiction_prob
+                      : 0;
+
+                    const pNeutral = typeof claim.neutral_score === 'number'
+                      ? claim.neutral_score
+                      : typeof claim.neutral_prob === 'number'
+                      ? claim.neutral_prob
+                      : 0;
+
+                    const winningExcerpt = claim.best_excerpt || claim.winning_premise?.text || '';
+                    const winningType = claim.best_premise_type || claim.winning_premise?.premise_type || 'passage';
+
+                    return (
+                      <div
+                        key={cid}
+                        className="p-4 rounded-lg bg-dark-900 border border-dark-700 transition-colors"
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-1.5">
+                              {verdict === 'SUPPORTED' ? (
+                                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-950 text-emerald-300 border border-emerald-800">
+                                  <CheckCircle className="w-3 h-3" /> SUPPORTED
+                                </span>
+                              ) : verdict === 'CONTRADICTED' ? (
+                                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-950 text-rose-300 border border-rose-800">
+                                  <XCircle className="w-3 h-3" /> CONTRADICTED
+                                </span>
+                              ) : (
+                                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-950 text-amber-300 border border-amber-800">
+                                  <AlertTriangle className="w-3 h-3" /> INSUFFICIENT EVIDENCE
+                                </span>
+                              )}
+
+                              <span className="text-xs text-gray-400 font-mono">
+                                Cites: {citedIds.join(', ') || 'None'}
+                              </span>
+                            </div>
+
+                            <p className="text-sm text-gray-200 font-medium leading-relaxed">
+                              "{claimText}"
+                            </p>
+
+                            <div className="flex items-center gap-4 mt-2 text-xs text-gray-400 font-mono">
+                              <span>p(entailment): <strong className="text-gray-200">{pEntailment.toFixed(4)}</strong></span>
+                              <span>p(contradiction): <strong className="text-gray-200">{pContradiction.toFixed(4)}</strong></span>
+                              <span>p(neutral): <strong className="text-gray-200">{pNeutral.toFixed(4)}</strong></span>
+                            </div>
+                          </div>
+
+                          {winningExcerpt && (
+                            <button
+                              onClick={() => toggleClaimExpansion(cid)}
+                              className="p-1 rounded text-gray-400 hover:text-white hover:bg-dark-700 transition-colors"
+                              title="Toggle cited premise details"
+                            >
+                              {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                            </button>
+                          )}
+                        </div>
+
+                        {/* Expandable Winning Premise Detail */}
+                        {isExpanded && winningExcerpt && (
+                          <div className="mt-3 pt-3 border-t border-dark-800 text-xs">
+                            <div className="text-gray-400 font-medium mb-1">
+                              Winning Premise ({winningType}):
+                            </div>
+                            <pre className="p-3 rounded bg-dark-950 text-gray-300 whitespace-pre-wrap font-mono text-xs border border-dark-800 overflow-x-auto max-h-48">
+                              {winningExcerpt}
+                            </pre>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </div>
-          </div>
 
-          {/* Retrieved Evidence Cards */}
-          <div className="bg-dark-800 border border-dark-600 rounded-xl p-6 shadow-md">
-            <h3 className="text-base font-bold text-white mb-4 flex items-center gap-2">
-              <BookOpen className="w-5 h-5 text-indigo-400" />
-              Retrieved Evidence Items ({analysisResult.retrieval.count})
-            </h3>
+            {/* Structured Synthesis Panel */}
+            <div className="bg-dark-800 border border-dark-600 rounded-xl p-6 shadow-md space-y-5">
+              <div>
+                <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Issue Summary</h4>
+                <p className="text-sm text-gray-300 leading-relaxed bg-dark-900 p-4 rounded-lg border border-dark-700">
+                  {issueSummary}
+                </p>
+              </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {analysisResult.retrieval.evidence.map((item) => {
-                const isExp = expandedEvidence[item.id];
-                return (
-                  <div key={item.id} className="p-4 rounded-lg bg-dark-900 border border-dark-700 flex flex-col justify-between">
-                    <div>
-                      <div className="flex items-center justify-between gap-2 mb-2">
-                        <span className="px-2 py-0.5 rounded font-mono text-xs font-bold bg-indigo-950 text-indigo-300 border border-indigo-800">
-                          {item.id}
-                        </span>
-                        <div className="flex items-center gap-2">
-                          <span className={`px-2 py-0.5 rounded text-xs capitalize ${
-                            item.source_type === 'issue'
-                              ? 'bg-blue-950 text-blue-300'
-                              : item.source_type === 'doc'
-                              ? 'bg-purple-950 text-purple-300'
-                              : 'bg-emerald-950 text-emerald-300'
-                          }`}>
-                            {item.source_type}
-                          </span>
-                          <span className="text-xs text-gray-400 font-mono">
-                            score: {item.score.toFixed(3)}
-                          </span>
+              {Array.isArray(analysis.likely_causes) && analysis.likely_causes.length > 0 && (
+                <div>
+                  <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Likely Root Causes</h4>
+                  <ul className="text-sm text-gray-300 leading-relaxed bg-dark-900 p-4 rounded-lg border border-dark-700 space-y-1 list-disc list-inside">
+                    {analysis.likely_causes.map((c: string, i: number) => (
+                      <li key={i}>{c}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {Array.isArray(analysis.recommended_next_steps) && analysis.recommended_next_steps.length > 0 && (
+                <div>
+                  <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Recommended Next Steps</h4>
+                  <ul className="text-sm text-gray-300 leading-relaxed bg-dark-900 p-4 rounded-lg border border-dark-700 space-y-1 list-disc list-inside">
+                    {analysis.recommended_next_steps.map((s: string, i: number) => (
+                      <li key={i}>{s}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {analysis.limitations && (
+                <div>
+                  <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1 flex items-center gap-1.5">
+                    <Info className="w-3.5 h-3.5 text-gray-400" /> Limitations & Missing Information
+                  </h4>
+                  <p className="text-xs text-gray-400 italic bg-dark-900 p-3 rounded-lg border border-dark-700">
+                    {analysis.limitations}
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {/* Retrieved Evidence Cards */}
+            <div className="bg-dark-800 border border-dark-600 rounded-xl p-6 shadow-md">
+              <h3 className="text-base font-bold text-white mb-4 flex items-center gap-2">
+                <BookOpen className="w-5 h-5 text-indigo-400" />
+                Retrieved Evidence Items ({evidenceList.length})
+              </h3>
+
+              {evidenceList.length === 0 ? (
+                <div className="p-4 rounded-lg bg-dark-900 border border-dark-700 text-xs text-gray-400 text-center">
+                  No evidence chunks retrieved for this query.
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {evidenceList.map((item, idx) => {
+                    const eid = item.evidence_id || item.id || item.chunk_id || `E${idx + 1}`;
+                    const isExp = Boolean(expandedEvidence[eid]);
+                    const itemType = item.source_type || 'issue';
+                    const itemTitle = item.heading || item.title || item.file_path || (item.issue_number ? `Issue #${item.issue_number}` : 'Reference passage');
+                    const itemScore = typeof item.blend_score === 'number'
+                      ? item.blend_score
+                      : typeof item.final_score === 'number'
+                      ? item.final_score
+                      : typeof item.score === 'number'
+                      ? item.score
+                      : 0;
+                    const itemExcerpt = item.text || item.excerpt || 'No excerpt available';
+
+                    return (
+                      <div key={eid} className="p-4 rounded-lg bg-dark-900 border border-dark-700 flex flex-col justify-between">
+                        <div>
+                          <div className="flex items-center justify-between gap-2 mb-2">
+                            <span className="px-2 py-0.5 rounded font-mono text-xs font-bold bg-indigo-950 text-indigo-300 border border-indigo-800">
+                              {eid}
+                            </span>
+                            <div className="flex items-center gap-2">
+                              <span
+                                className={`px-2 py-0.5 rounded text-xs capitalize ${
+                                  itemType === 'issue'
+                                    ? 'bg-blue-950 text-blue-300'
+                                    : itemType === 'doc'
+                                    ? 'bg-purple-950 text-purple-300'
+                                    : 'bg-emerald-950 text-emerald-300'
+                                }`}
+                              >
+                                {itemType}
+                              </span>
+                              <span className="text-xs text-gray-400 font-mono">
+                                score: {itemScore.toFixed(3)}
+                              </span>
+                            </div>
+                          </div>
+
+                          <h4 className="text-sm font-semibold text-gray-200 mb-2 truncate" title={itemTitle}>
+                            {itemTitle}
+                          </h4>
+
+                          <p className={`text-xs text-gray-400 font-mono bg-dark-950 p-2.5 rounded border border-dark-800 leading-relaxed ${isExp ? '' : 'line-clamp-4'}`}>
+                            {itemExcerpt}
+                          </p>
+                        </div>
+
+                        <div className="flex items-center justify-between pt-3 mt-3 border-t border-dark-800 text-xs">
+                          <button
+                            onClick={() => toggleEvidenceExpansion(eid)}
+                            className="text-gray-400 hover:text-white"
+                          >
+                            {isExp ? 'Show Less' : 'Show Full Excerpt'}
+                          </button>
+
+                          {item.url && (
+                            <a
+                              href={item.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-indigo-400 hover:text-indigo-300 flex items-center gap-1 font-medium"
+                            >
+                              View Source <ExternalLink className="w-3 h-3" />
+                            </a>
+                          )}
                         </div>
                       </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
 
-                      <h4 className="text-sm font-semibold text-gray-200 mb-2 truncate" title={item.title || item.heading}>
-                        {item.title || item.heading || 'Repository Content'}
-                      </h4>
-
-                      <p className={`text-xs text-gray-400 font-mono bg-dark-950 p-2.5 rounded border border-dark-800 leading-relaxed ${isExp ? '' : 'line-clamp-4'}`}>
-                        {item.excerpt}
-                      </p>
-                    </div>
-
-                    <div className="flex items-center justify-between pt-3 mt-3 border-t border-dark-800 text-xs">
-                      <button
-                        onClick={() => toggleEvidenceExpansion(item.id)}
-                        className="text-gray-400 hover:text-white"
-                      >
-                        {isExp ? 'Show Less' : 'Show Full Excerpt'}
-                      </button>
-
-                      {item.url && (
-                        <a
-                          href={item.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-indigo-400 hover:text-indigo-300 flex items-center gap-1 font-medium"
-                        >
-                          View Source <ExternalLink className="w-3 h-3" />
-                        </a>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
+            {/* Latency & Trace Footer */}
+            <div className="p-4 rounded-xl bg-dark-800 border border-dark-600 flex flex-wrap items-center justify-between text-xs text-gray-400 gap-4">
+              <div className="flex items-center gap-4">
+                <span>
+                  Classifier: <strong className="text-gray-200">{typeof timings.classifier_ms === 'number' ? timings.classifier_ms.toFixed(0) : '0'}ms</strong>
+                </span>
+                <span>
+                  Retrieval: <strong className="text-gray-200">{typeof timings.retrieval_ms === 'number' ? timings.retrieval_ms.toFixed(0) : '0'}ms</strong>
+                </span>
+                <span>
+                  Generation: <strong className="text-gray-200">{typeof timings.generation_ms === 'number' ? (timings.generation_ms / 1000).toFixed(1) : '0.0'}s</strong>
+                </span>
+                <span>
+                  Verification: <strong className="text-gray-200">{typeof (timings.guardrail_ms ?? timings.verification_ms) === 'number' ? ((timings.guardrail_ms ?? timings.verification_ms)! / 1000).toFixed(1) : '0.0'}s</strong>
+                </span>
+                <span>
+                  Total Pipeline: <strong className="text-emerald-400">{typeof (timings.total_ms ?? timings.total_pipeline_ms) === 'number' ? ((timings.total_ms ?? timings.total_pipeline_ms)! / 1000).toFixed(1) : '0.0'}s</strong>
+                </span>
+              </div>
+              <div className="font-mono text-gray-500">
+                Trace: {traceIdentifier}
+              </div>
             </div>
           </div>
-
-          {/* Latency & Trace Footer */}
-          <div className="p-4 rounded-xl bg-dark-800 border border-dark-600 flex flex-wrap items-center justify-between text-xs text-gray-400 gap-4">
-            <div className="flex items-center gap-4">
-              <span>Classifier: <strong className="text-gray-200">{analysisResult.timings.classifier_ms.toFixed(0)}ms</strong></span>
-              <span>Retrieval: <strong className="text-gray-200">{analysisResult.timings.retrieval_ms.toFixed(0)}ms</strong></span>
-              <span>Generation: <strong className="text-gray-200">{(analysisResult.timings.generation_ms / 1000).toFixed(1)}s</strong></span>
-              <span>Verification: <strong className="text-gray-200">{(analysisResult.timings.verification_ms / 1000).toFixed(1)}s</strong></span>
-              <span>Total Pipeline: <strong className="text-emerald-400">{(analysisResult.timings.total_pipeline_ms / 1000).toFixed(1)}s</strong></span>
-            </div>
-            <div className="font-mono text-gray-500">
-              Trace: {analysisResult.trace_id}
-            </div>
-          </div>
-        </div>
+        </ErrorBoundary>
       )}
 
       {/* Search-Only Results View */}
@@ -545,49 +690,55 @@ export const IssueCopilot: React.FC<IssueCopilotProps> = ({ repositories }) => {
             Hybrid Search Ranked Candidates ({searchOnlyResults.length})
           </h3>
 
-          <div className="space-y-4">
-            {searchOnlyResults.map((item, idx) => (
-              <div key={item.chunk_id || idx} className="p-4 rounded-lg bg-dark-900 border border-dark-700">
-                <div className="flex items-center justify-between gap-2 mb-2">
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs font-mono px-2 py-0.5 rounded bg-dark-800 text-gray-300">
-                      Rank #{idx + 1}
-                    </span>
-                    <span className="text-xs capitalize px-2 py-0.5 rounded bg-indigo-950 text-indigo-300">
-                      {item.source_type}
-                    </span>
-                    <span className="text-xs text-gray-400 font-mono">
-                      {item.repo}
+          {searchOnlyResults.length === 0 ? (
+            <div className="p-4 rounded-lg bg-dark-900 border border-dark-700 text-xs text-gray-400 text-center">
+              No matching chunks found.
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {searchOnlyResults.map((item, idx) => (
+                <div key={item.chunk_id || idx} className="p-4 rounded-lg bg-dark-900 border border-dark-700">
+                  <div className="flex items-center justify-between gap-2 mb-2">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-mono px-2 py-0.5 rounded bg-dark-800 text-gray-300">
+                        Rank #{idx + 1}
+                      </span>
+                      <span className="text-xs capitalize px-2 py-0.5 rounded bg-indigo-950 text-indigo-300">
+                        {item.source_type || 'chunk'}
+                      </span>
+                      <span className="text-xs text-gray-400 font-mono">
+                        {item.repo || selectedRepo}
+                      </span>
+                    </div>
+                    <span className="text-xs font-mono text-gray-400">
+                      score: {(typeof item.score === 'number' ? item.score : (item.final_score ?? 0)).toFixed(4)}
                     </span>
                   </div>
-                  <span className="text-xs font-mono text-gray-400">
-                    score: {item.score.toFixed(4)}
-                  </span>
+
+                  <h4 className="text-sm font-semibold text-gray-200 mb-1">
+                    {item.heading || item.title || item.file_path || (item.issue_number ? `Issue #${item.issue_number}` : 'Search candidate')}
+                  </h4>
+
+                  <p className="text-xs text-gray-400 font-mono bg-dark-950 p-2.5 rounded border border-dark-800 line-clamp-3">
+                    {item.text || item.excerpt || 'No text content available'}
+                  </p>
+
+                  {item.url && (
+                    <div className="pt-2 mt-2 border-t border-dark-800 flex justify-end">
+                      <a
+                        href={item.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-xs text-indigo-400 hover:text-indigo-300 flex items-center gap-1 font-medium"
+                      >
+                        Open in GitHub <ExternalLink className="w-3 h-3" />
+                      </a>
+                    </div>
+                  )}
                 </div>
-
-                <h4 className="text-sm font-semibold text-gray-200 mb-1">
-                  {item.title || item.heading || item.file_path || `Issue #${item.issue_number}`}
-                </h4>
-
-                <p className="text-xs text-gray-400 font-mono bg-dark-950 p-2.5 rounded border border-dark-800 line-clamp-3">
-                  {item.excerpt}
-                </p>
-
-                {item.url && (
-                  <div className="pt-2 mt-2 border-t border-dark-800 flex justify-end">
-                    <a
-                      href={item.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-xs text-indigo-400 hover:text-indigo-300 flex items-center gap-1"
-                    >
-                      Open in GitHub <ExternalLink className="w-3 h-3" />
-                    </a>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
     </div>
