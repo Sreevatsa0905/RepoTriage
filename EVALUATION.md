@@ -9,33 +9,41 @@ This document records the exact measured evaluation results for RepoTriage acros
 ### Protocol & Setup
 - **Sample Size**: $n = 51$ verified duplicate query-target pairs across 4 seed repositories (`encode/httpx`, `pallets/flask`, `psf/requests`, `pydantic/pydantic`).
 - **Temporal Leakage Protection**: For each evaluated query issue, the candidate pool strictly excludes the query issue itself and all chunks created after the query's timestamp.
-- **Candidate Pool**: Issues-only candidate pool (5,820 issue & comment chunks).
+- **Candidate Pool**: Issues-only candidate pool: **6,020 chunks** (2,110 issue chunks + 3,910 comment chunks; documentation chunks excluded). Parent-issue deduplication via `deduplicate_evidence_candidates` collapses multiple chunks of the same issue number into the best-ranked item so that Top-K items represent K distinct issues.
 - **Statistical Significance**: 1,000 bootstrap resamples (seed 42) computing 95% Confidence Intervals.
 
 ### Ablation Table
 
 | Retrieval Method | Recall@5 [95% CI] | Precision@5 | MRR@10 [95% CI] | nDCG@10 | Mean Latency |
 | :--- | :---: | :---: | :---: | :---: | :---: |
-| **1. BM25 (Code-Aware)** | 0.7451 [0.6275, 0.8627] | 0.1765 | 0.5484 [0.4340, 0.6670] | 0.5977 | 1.2 ms |
-| **2. Dense (BGE-Base-en-v1.5)** | 0.8039 [0.6863, 0.9020] | 0.1843 | 0.5730 [0.4675, 0.6891] | 0.6309 | 12.5 ms |
-| **3. BM25 + Dense (RRF, $k=60$)** | 0.7647 [0.6471, 0.8824] | 0.1765 | 0.6018 [0.4948, 0.7139] | 0.6429 | 14.1 ms |
-| **4. RRF + Reranker (Blend $\alpha=0.50$)** | **0.7843** [0.6667, 0.9020] | 0.1804 | **0.6022** [0.4946, 0.7140] | **0.6481** | 74.8 ms |
+| **1. BM25 (Code-Aware)** | 0.7451 [0.6275, 0.8627] | 0.1490 | 0.5484 [0.4340, 0.6670] | 0.6017 | 111.7 ms |
+| **2. Dense (BGE-Base-en-v1.5)** | 0.8039 [0.6863, 0.9020] | 0.1608 | 0.5730 [0.4675, 0.6891] | 0.6439 | 1348.8 ms |
+| **3. BM25 + Dense (RRF, $k=60$)** | 0.7647 [0.6471, 0.8824] | 0.1529 | 0.6018 [0.4948, 0.7139] | 0.6692 | 196.3 ms |
+| **4. RRF + Reranker (Blend $\alpha=0.50$)** | **0.7843** [0.6667, 0.9020] | 0.1569 | **0.6022** [0.4946, 0.7140] | **0.6697** | 504.6 ms |
 
 ### Paired Differences vs. BM25 Baseline
 - **RRF vs. BM25**:
   - $\Delta \text{Recall@5} = +0.0196$ [95% CI: -0.0588, +0.0980]
   - $\Delta \text{MRR@10} = +0.0535$ [95% CI: -0.0129, +0.1223]
+- **Dense vs. BM25**:
+  - $\Delta \text{Recall@5} = +0.0588$ [95% CI: -0.0588, +0.1765]
+  - $\Delta \text{MRR@10} = +0.0246$ [95% CI: -0.0603, +0.1138]
+- **RRF + Reranker vs. RRF**:
+  - $\Delta \text{Recall@5} = +0.0196$ [95% CI: +0.0000, +0.0588]
+  - $\Delta \text{MRR@10} = +0.0004$ [95% CI: -0.0392, +0.0412]
 - **RRF + Reranker vs. BM25**:
   - $\Delta \text{Recall@5} = +0.0392$ [95% CI: -0.0588, +0.1373]
   - $\Delta \text{MRR@10} = +0.0538$ [95% CI: -0.0112, +0.1182]
 
 ### Reranker Blending Sensitivity ($\alpha$ Sweep)
 Score blending formula: $S_{\text{final}} = (1 - \alpha) \cdot S_{\text{RRF}} + \alpha \cdot \sigma(S_{\text{rerank}})$
-- $\alpha = 0.0$ (Pure RRF): Recall@5 = 0.7647, MRR@10 = 0.6018
-- $\alpha = 0.25$: Recall@5 = 0.7647, MRR@10 = 0.5982
-- **$\alpha = 0.50$ (Production)**: Recall@5 = **0.7843**, MRR@10 = **0.6022**
-- $\alpha = 0.75$: Recall@5 = **0.7843**, MRR@10 = 0.5891
-- $\alpha = 1.0$ (Pure Reranker): Recall@5 = 0.7451, MRR@10 = 0.5340
+- **$\alpha = \text{None}$ (Pure Reranker Logits)**: Recall@5 = 0.5490, Precision@5 = 0.1098, MRR@10 = 0.3956, nDCG@10 = 0.4601
+- **$\alpha = 0.30$**: Recall@5 = 0.7843, Precision@5 = 0.1569, MRR@10 = 0.5812, nDCG@10 = 0.6540
+- **$\alpha = 0.50$ (Production Default)**: Recall@5 = **0.7843**, Precision@5 = 0.1569, MRR@10 = **0.6022**, nDCG@10 = **0.6697**
+- **$\alpha = 0.70$**: Recall@5 = 0.7647, Precision@5 = 0.1529, MRR@10 = 0.5931, nDCG@10 = 0.6629
+- **$\alpha = 1.0$ (Sigmoid-Only Reranker)**: Recall@5 = 0.5490, Precision@5 = 0.1098, MRR@10 = 0.3956, nDCG@10 = 0.4601
+
+> **Mathematical & Empirical Equivalence**: Because $\sigma(x)$ is strictly monotonic, $\alpha = 1.0$ produces rankings identical to raw unblended cross-encoder logits ($\alpha = \text{None}$). Both severely degrade duplicate retrieval (Recall@5 drops from 0.7647 to 0.5490) by penalizing short bug titles without body lexical overlap, demonstrating why reciprocal rank fusion blending ($\alpha=0.50$) is required to rescue ranking accuracy.
 
 ---
 
@@ -50,29 +58,31 @@ Score blending formula: $S_{\text{final}} = (1 - \alpha) \cdot S_{\text{RRF}} + 
 ### 3x3 Confusion Matrix & Per-Class Metrics
 
 ```
-True \ Pred      Entailment    Neutral    Contradiction
--------------------------------------------------------
-Entailment           22           16            12
-Neutral              16           26             8
-Contradiction        16           12            22
+True \ Pred                  SUPPORTED    CONTRADICTED    INSUFFICIENT_EVIDENCE
+-------------------------------------------------------------------------------
+SUPPORTED (Entailment)          21              5                  24
+CONTRADICTED                    15             23                  12
+INSUFFICIENT_EVIDENCE (Neutral) 10             14                  26
 ```
 
 - **Accuracy**: **46.67%** (70 / 150)
 - **Macro-F1**: **0.4673**
-- **Entailment**: Precision = 40.74%, Recall = 44.00%, F1 = 0.4231
-- **Neutral**: Precision = 48.15%, Recall = 52.00%, F1 = 0.5000
-- **Contradiction**: Precision = 52.38%, Recall = 44.00%, F1 = 0.4783
+- **SUPPORTED**: Precision = 45.65% (21 / 46), Recall = 42.00% (21 / 50), F1 = 0.4375 (Support: 50)
+- **CONTRADICTED**: Precision = 54.76% (23 / 42), Recall = 46.00% (23 / 50), F1 = 0.5000 (Support: 50)
+- **INSUFFICIENT_EVIDENCE**: Precision = 41.94% (26 / 62), Recall = 52.00% (26 / 50), F1 = 0.4643 (Support: 50)
 
 ---
 
 ## 3. Guardrail Benchmark B2: In-Domain Negative Controls & Calibration
 
-### Claim Sets Reconciliation (Stage 6.5 vs. Stage 6.6)
+### Claim Sets History & Reconciliation
 > [!NOTE]
-> **Claim Set Reconciliation**:
-> - **Stage 6.5 Exploratory Dev Set**: Initial testing used an exploratory development set of 10 issue queries (~50 claims total) from early pipeline prototypes, establishing preliminary pass rates (24.0% at $\tau = 0.30$ under single-chunk premise).
-> - **Stage 6.6 Standardized Evaluation Benchmark**: Constructed a standardized, strictly held-out evaluation set of 15 issues across 4 repositories (`encode/httpx`: 4, `pallets/flask`: 4, `pydantic/pydantic`: 4, `psf/requests`: 3) with zero dev overlap. This produced exactly **80 claims** ($n = 80$, 5.33 claims/issue). 75 of 80 claims (93.75%) cited at least one evidence item, while 5 claims (6.25%) had missing or invalid citations and were immediately rejected as `INSUFFICIENT_EVIDENCE` by rule.
-> - **Stage 6.6-D Synthetic Perturbation Benchmark**: A separate rule-constructed synthetic benchmark of **300 pairs** ($n = 300$, balanced: 100 SUPPORTED, 100 CONTRADICTED, 100 INSUFFICIENT_EVIDENCE).
+> **Claim Sets History Across Iterations**:
+> - **Initial Run**: Generated 89 claims across 15 issues (citation coverage: 98.88%, 88 / 89). Evaluated against (a) own cited evidence, (b) random cross-repo chunks (0 / 89 false support), and (c) retrieved top-10 uncited chunks (5 / 89 false support).
+> - **Intermediate Refinement Run**: Prompt refinements (anti-meta-language and strict paraphrasing rules) produced 97 claims across 15 issues (citation coverage: 91.75%, 89 / 97).
+> - **Standardized Production Benchmark (`eval/reports/guardrail_eval.json`)**: Constructed a strictly held-out evaluation set of 15 issues across 4 repositories (`encode/httpx`: 4, `pallets/flask`: 4, `pydantic/pydantic`: 4, `psf/requests`: 3) with zero dev overlap. This produced exactly **80 claims** ($n = 80$, 5.33 claims/issue). 75 of 80 claims (93.75%) cited at least one evidence item, while 5 claims (6.25%) had missing or invalid citations and were immediately rejected as `INSUFFICIENT_EVIDENCE` by rule.
+> - **Earlier runs used different prompt templates, sampling seeds, and negative sampling definitions, and are not directly comparable.** All production numbers cited in this report reflect the standardized 80-claim benchmark.
+> - **Synthetic Perturbation Benchmark (`eval/reports/perturbation_test.json`)**: A separate rule-constructed synthetic benchmark of **300 pairs** ($n = 300$, balanced: 100 SUPPORTED, 100 CONTRADICTED, 100 INSUFFICIENT_EVIDENCE).
 
 ### Protocol & Controls ($n=80$ Claims across 15 Held-Out Issues)
 - **Sample Size**: 15 fresh held-out issues across 4 repos; 80 LLM-synthesized claims.
@@ -180,7 +190,13 @@ Filtering out chunk headers, markdown checkboxes, and metadata fragments via `is
 1. **Retrieval Sample Size ($n=51$)**:
    Each query-target pair represents approximately 1.96 percentage points in Recall@5. Bootstrap 95% confidence intervals overlap between BM25 (0.63–0.86) and RRF+Reranker (0.67–0.90).
 2. **Retrieval Pool Change**:
-   Restricting the candidate pool to issue and comment chunks (excluding docs) accounted for the primary jump in Recall@5 from ~0.45 to ~0.78. RRF and reranker score blending provide incremental consistency (+0.0392 recall, +0.0538 MRR), not the foundational gain.
+   Evaluating duplicate-issue retrieval against a mixed pool (7,704 chunks including 1,684 documentation chunks) diluted precision compared to an issues-only pool (6,020 chunks). Measured before/after Recall@5 per method:
+   - BM25: 0.6471 (mixed pool) $\to$ 0.7451 (issues-only pool, +0.0980)
+   - BGE Dense: 0.6863 (mixed pool) $\to$ 0.8039 (issues-only pool, +0.1176)
+   - BM25 + BGE RRF: 0.6471 (mixed pool) $\to$ 0.7647 (issues-only pool, +0.1176)
+   - Pure Reranker ($\alpha=\text{None}$ / $\alpha=1.0$): 0.3922 (mixed pool) $\to$ 0.5490 (issues-only pool, +0.1568)
+   - RRF + Reranker ($\alpha=0.50$): 0.7843 (issues-only pool)
+   Restricting the candidate pool to issues and comments eliminates documentation chunk interference across all methods. RRF and reranker score blending provide incremental consistency (+0.0392 recall, +0.0538 MRR vs BM25).
 3. **Duplicate Ground Truth Bias**:
    Because ground-truth targets are derived from duplicate issues, queries with explicit stack traces or exact phrasing favor lexical overlap (BM25), while conceptual reformulations benefit from dense embeddings.
 4. **B2 Claim Clustering**:

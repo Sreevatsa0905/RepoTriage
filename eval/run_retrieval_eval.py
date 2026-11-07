@@ -223,9 +223,9 @@ def run_full_ablation(
         res = evaluate_method(m, ground_truth, retriever, source_types=["issue", "comment"], rerank_alpha=0.50)
         ablation_results["methods"][m] = res
 
-    # 2. Reranker sensitivity sweep across alpha: [None (reranker only), 0.3, 0.5 (fixed), 0.7]
+    # 2. Reranker sensitivity sweep across alpha: [None (reranker only), 0.3, 0.5 (fixed), 0.7, 1.0]
     logger.info("Running reranker sensitivity sweep...")
-    sensitivity_alphas = [None, 0.30, 0.50, 0.70]
+    sensitivity_alphas = [None, 0.30, 0.50, 0.70, 1.0]
     for alpha in sensitivity_alphas:
         label = "reranker_only" if alpha is None else f"alpha_{alpha}"
         res = evaluate_method("hybrid_rerank", ground_truth, retriever, source_types=["issue", "comment"], rerank_alpha=alpha)

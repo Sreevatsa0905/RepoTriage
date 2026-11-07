@@ -18,28 +18,30 @@ This document specifies the models powering RepoTriage, their memory footprints,
 
 ## 2. RTX 3050 6GB Laptop GPU Memory Management
 
-Consumer GPUs with 6GB of VRAM cannot simultaneously hold a 4B parameter LLM, a dense embedder, a cross-encoder reranker, and a DeBERTa NLI verifier without triggering Out-Of-Memory (OOM) faults or catastrophic CUDA paging.
+Consumer GPUs with 4GB to 6GB of VRAM cannot simultaneously hold a 4B parameter LLM, a dense embedder, a cross-encoder reranker, and a DeBERTa NLI verifier without triggering Out-Of-Memory (OOM) faults or catastrophic CUDA paging.
 
 ### Sequential Memory Lifecycle
 RepoTriage implements a deterministic, multi-stage memory orchestration pipeline:
 
 ```
 [Phase 1: Ingestion & Embeddings]
-  └── Pre-computed offline: Corpus BGE embeddings saved as float32 .npy arrays on disk.
-      During query search, single query vector is embedded on CPU in <15ms.
+  └── Pre-computed offline: Corpus BGE embeddings saved as float32 in compressed .npz cache on disk.
+      During retrieval evaluation, in-memory dense vector dot-product runs in ~1.3s on CPU.
 
 [Phase 2: Hybrid Retrieval & Reranker]
-  └── Reranker (BAAI/bge-reranker-base) runs on top-20 RRF candidates on CPU/GPU.
-      Total retrieval latency: ~75ms.
+  └── Reranker (BAAI/bge-reranker-base) scores top-20 RRF candidates.
+      Measured mean standalone retrieval latencies: BM25 111.7ms, RRF 196.3ms, RRF+Reranker 504.6ms.
+      Models explicitly unloaded from VRAM (`unload_model()`, `torch.cuda.empty_cache()`) before generation.
 
 [Phase 3: LLM Generation (Ollama)]
   └── Ollama server handles Qwen 4B generation (~2.6GB VRAM footprint).
       Prompt enforces strict, anti-meta-language claim generation with evidence citations.
+      Model unloaded upon completion (`keep_alive: 0`) to free VRAM for NLI.
 
 [Phase 4: Guardrail Verification (DeBERTa-v3)]
-  └── Loaded dynamically on CUDA.
+  └── Loaded dynamically on CUDA (~1.7GB VRAM).
       Runs multi-premise NLI verification over harvested claims.
-      Explicit CUDA cache flushing (torch.cuda.empty_cache()) after batch completion.
+      Explicit CUDA cache flushing (`torch.cuda.empty_cache()`) and model unloading after batch completion.
 ```
 
 ---

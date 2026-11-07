@@ -50,6 +50,7 @@ SEED_REPOSITORIES = [
     "pydantic/pydantic",
     "encode/httpx",
     "pallets/flask",
+    "psf/requests",
 ]
 
 # Regex for GitHub Link header pagination

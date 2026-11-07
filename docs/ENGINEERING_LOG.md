@@ -470,7 +470,10 @@ python -m src.cli analyze "ValidationError when using a custom validator with Op
 - Saved report to `eval/reports/classifier_live_check.json`.
 
 ### G. Warm-API Latency Verification (6.6-G)
-- BGE dense query embedding takes <15ms on CPU; reranking 20 items takes <80ms on CPU. Keeping models resident in memory eliminates the 22s cold-start overhead for interactive API endpoints.
+- Measured warm end-to-end `/api/analyze` execution on local hardware (NVIDIA RTX 3050 Laptop GPU with 4GB VRAM):
+  - **Run 1 (warm cache)**: Total HTTP elapsed: **43.52s** | Pipeline: **43,331 ms** (Classifier: 238.7 ms, Retrieval: 10,996.7 ms, LLM Generation: 28,278.5 ms, Guardrail: 3,110.5 ms).
+  - **Run 2 (consecutive call)**: Total HTTP elapsed: **30.73s** | Pipeline: **30,725 ms** (Classifier: 4.74 ms, Retrieval: 6,526.5 ms, LLM Generation: 20,974.2 ms, Guardrail: 2,637.3 ms).
+- **Memory Residency**: Because the 4GB VRAM budget cannot simultaneously hold the 4B parameter LLM alongside the dense embedder, cross-encoder reranker, and DeBERTa NLI cross-encoder, the pipeline explicitly unloads PyTorch models (`unload_model()`, `torch.cuda.empty_cache()`) between sequential stages. Retrieval models and the NLI guardrail are reloaded from disk cache for each analysis request rather than staying permanently resident across requests in the interactive pipeline. Standalone search evaluation (`eval.run_retrieval_eval`), by contrast, keeps retrieval models resident across queries (mean latency: BM25 111.7ms, RRF 196.3ms, RRF+Reranker 504.6ms).
 
 ### H. Public Ground-Truth Benchmark B1b (6.6-H)
 - Skipped: Hugging Face datasets v3 has deprecated `.py` loading scripts (`fever.py`, `scifact.py`, `hover.py`), resulting in 404/DatasetScriptNotSupported errors.
@@ -565,11 +568,13 @@ python -m src.cli analyze "ValidationError when using a custom validator with Op
    - Direct dependencies pinned in `requirements.txt` and clean `.env.example`.
 
 ### C. Technical Resume Entry Draft (Strictly Measured Figures)
+*The resume notes have been moved to [docs/RESUME_NOTES.md](RESUME_NOTES.md).*
+
 > **Local-First GitHub Issue Intelligence & Resolution Copilot (RepoTriage)**
 > * Built an offline-first issue resolution copilot combining a selective TF-IDF + Logistic Regression classifier (73.58% coverage at 0.50 confidence, achieving 82.05% accuracy on covered issues), hybrid BM25 + BGE dense retrieval (Dense Recall@5: 0.8039 [95% CI: 0.6863, 0.9020]; RRF MRR@10: 0.6018 [95% CI: 0.4948, 0.7139] on $n=51$ duplicate query pairs), local Qwen 4B synthesis, and DeBERTa-v3 natural language inference (NLI) claim verification.
-> * Discovered that an off-the-shelf cross-encoder reranker (`bge-reranker-base`) degraded pure lexical-dense Recall@5 from 0.7647 to 0.7451 until rescued by convex reciprocal-rank score blending ($\alpha = 0.50$, recovering 0.7843 Recall@5 and 0.6022 MRR@10).
+> * Discovered that an off-the-shelf cross-encoder reranker (`bge-reranker-base`) degraded duplicate-issue retrieval Recall@5 from 0.7647 (RRF) and 0.8039 (Dense) down to 0.5490 (pure reranking $\alpha=\text{None}$ / $\alpha=1.0$) by penalizing short bug titles without body overlap, resolved via convex reciprocal-rank score blending ($\alpha = 0.50$, recovering 0.7843 Recall@5 and 0.6022 MRR@10).
 > * Implemented multi-premise sentence-window NLI verification enforcing strict dominance thresholds ($\tau_s = 0.80, \tau_c = 0.80$), eliminating premise-attention dilution and achieving 0.00% (0 / 80) false-support on hard negative controls, 1.25% (1 / 80) on easy negative controls, and 95.00% (95 / 100) supported recall on synthetic rule-perturbed developer claims.
-> * Engineered deterministic GPU memory orchestration for consumer hardware (NVIDIA RTX 3050 6GB), decoupling CPU-resident dense index querying (<15ms) from sequential VRAM-isolated LLM generation and NLI verification.
+> * Engineered deterministic sequential GPU memory management for consumer hardware (NVIDIA RTX 3050 Laptop GPU 4GB VRAM), sequentially loading and unloading PyTorch embedding/reranking models before Ollama inference to guarantee zero-OOM execution across pipeline stages.
 > * Built an asynchronous FastAPI REST service with single-flight concurrency locking (HTTP 429) alongside a Vite React + TypeScript dark-theme copilot displaying unmerged dual classification and interactive claim verification traces.
 
 ### D. Final Quality Checks
@@ -683,10 +688,12 @@ Every guardrail metric across the project now includes its explicit denominator:
 - **B2 Citation Coverage**: `75 / 80` (**93.75%**; 5 claims immediately rejected for missing citations).
 - **B2 Contradiction Detection Rate**: `12 / 80` (**15.00%** overall, `10 / 75` = 13.33% on cited).
 
-**Reconciliation of Claim Counts**:
-1. **Stage 6.5 Exploratory Dev Set**: Initial exploratory run on 10 queries producing ~50 claims total, evaluating early single-premise thresholds.
-2. **Stage 6.6 Standardized Evaluation Benchmark**: Formal held-out evaluation across 15 issues (4 repos: `httpx`: 4, `flask`: 4, `pydantic`: 4, `requests`: 3) producing exactly **80 claims** evaluated under 80 easy negative pairings and 80 hard negative pairings.
-3. **Stage 6.6-D Synthetic Perturbation Benchmark**: Independent automated test on **300 rule-constructed pairs** (100 SUPPORTED, 100 CONTRADICTED, 100 INSUFFICIENT_EVIDENCE).
+**Reconciliation of Claim Counts Across Iterations**:
+1. **Initial Run**: Generated 89 claims across 15 issues (citation coverage: 98.88%, 88 / 89). Evaluated against (a) own cited evidence, (b) random cross-repo chunks (0 / 89 false support), and (c) retrieved top-10 uncited chunks (5 / 89 false support).
+2. **Prompt Refinement Run**: Anti-meta-language prompts generated 97 claims across 15 issues (citation coverage: 91.75%, 89 / 97).
+3. **Standardized Evaluation Benchmark (`eval/reports/guardrail_eval.json`)**: Formal held-out evaluation across 15 issues (4 repos: `httpx`: 4, `flask`: 4, `pydantic`: 4, `requests`: 3) producing exactly **80 claims** evaluated under 80 easy negative pairings and 80 hard negative pairings (0 / 80 false support on hard negatives, 1 / 80 on easy negatives).
+4. Earlier runs used different prompt templates, sampling seeds, and negative sampling definitions and are not directly comparable. All production figures reflect the standardized 80-claim benchmark.
+5. **Synthetic Perturbation Benchmark (`eval/reports/perturbation_test.json`)**: Independent automated test on **300 rule-constructed pairs** (100 SUPPORTED, 100 CONTRADICTED, 100 INSUFFICIENT_EVIDENCE).
 
 ---
 
@@ -700,4 +707,4 @@ Updated the resume draft to comply with all evaluation findings:
 ---
 
 ### D. Document Relocation
-Relocated `CURRENT_STATE.md` to `docs/CURRENT_STATE.md` and updated all navigation links in `README.md`.
+Relocated and renamed process engineering history to `docs/ENGINEERING_LOG.md`, extracted resume draft to `docs/RESUME_NOTES.md`, and updated all navigation links across `README.md`.

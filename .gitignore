@@ -16,13 +16,19 @@ data/external/
 data/processed/
 
 # Model artifacts and weights
-models/
+/models/*
+!/models/pooled_classifier.joblib
+experiments/models/
 *.pkl
 *.joblib
+!models/pooled_classifier.joblib
 *.pt
 *.bin
 *.safetensors
 *.onnx
+
+# Database files
+*.db
 
 # Temporary experiment outputs
 output/

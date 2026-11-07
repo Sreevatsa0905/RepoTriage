@@ -359,7 +359,7 @@ def build_parser() -> argparse.ArgumentParser:
     ingest_parser.add_argument(
         "--all",
         action="store_true",
-        help="Ingest all seed repositories (pydantic/pydantic, encode/httpx, pallets/flask)",
+        help="Ingest all seed repositories (pydantic/pydantic, encode/httpx, pallets/flask, psf/requests)",
     )
     ingest_parser.add_argument(
         "--target-issues",

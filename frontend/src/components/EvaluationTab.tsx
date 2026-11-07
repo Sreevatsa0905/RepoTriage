@@ -98,34 +98,34 @@ export const EvaluationTab: React.FC = () => {
               <tr className="hover:bg-dark-750">
                 <td className="p-3 font-sans font-medium text-white">1. BM25 (Code-Aware Tokenizer)</td>
                 <td className="p-3 font-bold text-gray-200">0.7451 <span className="text-gray-500 font-normal">[0.6275, 0.8627]</span></td>
-                <td className="p-3">0.1765</td>
+                <td className="p-3">0.1490</td>
                 <td className="p-3">0.5484 <span className="text-gray-500 font-normal">[0.4340, 0.6670]</span></td>
-                <td className="p-3">0.5977</td>
-                <td className="p-3 font-sans text-gray-400">1.2ms</td>
+                <td className="p-3">0.6017</td>
+                <td className="p-3 font-sans text-gray-400">111.7ms</td>
               </tr>
               <tr className="hover:bg-dark-750">
                 <td className="p-3 font-sans font-medium text-white">2. Dense (BAAI/bge-base-en-v1.5)</td>
                 <td className="p-3 font-bold text-gray-200">0.8039 <span className="text-gray-500 font-normal">[0.6863, 0.9020]</span></td>
-                <td className="p-3">0.1843</td>
+                <td className="p-3">0.1608</td>
                 <td className="p-3">0.5730 <span className="text-gray-500 font-normal">[0.4675, 0.6891]</span></td>
-                <td className="p-3">0.6309</td>
-                <td className="p-3 font-sans text-gray-400">12.5ms</td>
+                <td className="p-3">0.6439</td>
+                <td className="p-3 font-sans text-gray-400">1348.8ms</td>
               </tr>
               <tr className="hover:bg-dark-750">
                 <td className="p-3 font-sans font-medium text-white">3. BM25 + Dense (RRF, k=60)</td>
                 <td className="p-3 font-bold text-gray-200">0.7647 <span className="text-gray-500 font-normal">[0.6471, 0.8824]</span></td>
-                <td className="p-3">0.1765</td>
+                <td className="p-3">0.1529</td>
                 <td className="p-3">0.6018 <span className="text-gray-500 font-normal">[0.4948, 0.7139]</span></td>
-                <td className="p-3">0.6429</td>
-                <td className="p-3 font-sans text-gray-400">14.1ms</td>
+                <td className="p-3">0.6692</td>
+                <td className="p-3 font-sans text-gray-400">196.3ms</td>
               </tr>
               <tr className="hover:bg-dark-750 bg-indigo-950/20">
                 <td className="p-3 font-sans font-medium text-indigo-300">4. RRF + BGE Reranker (Blend α=0.50)</td>
                 <td className="p-3 font-bold text-emerald-400">0.7843 <span className="text-gray-500 font-normal">[0.6667, 0.9020]</span></td>
-                <td className="p-3">0.1804</td>
+                <td className="p-3">0.1569</td>
                 <td className="p-3 font-bold text-emerald-400">0.6022 <span className="text-gray-500 font-normal">[0.4946, 0.7140]</span></td>
-                <td className="p-3 font-bold text-emerald-400">0.6481</td>
-                <td className="p-3 font-sans text-gray-400">74.8ms</td>
+                <td className="p-3 font-bold text-emerald-400">0.6697</td>
+                <td className="p-3 font-sans text-gray-400">504.6ms</td>
               </tr>
             </tbody>
           </table>
@@ -171,8 +171,8 @@ export const EvaluationTab: React.FC = () => {
               </div>
               <div className="p-2 bg-dark-800 rounded border border-dark-700">
                 <div className="text-gray-400">α=1.0</div>
-                <div className="font-bold text-gray-300">0.7451</div>
-                <div className="text-gray-500 text-[10px]">Pure Rerank</div>
+                <div className="font-bold text-gray-300">0.5490</div>
+                <div className="text-gray-500 text-[10px]">MRR 0.396</div>
               </div>
             </div>
           </div>
@@ -206,29 +206,29 @@ export const EvaluationTab: React.FC = () => {
               <thead>
                 <tr className="text-gray-400 border-b border-dark-700">
                   <th className="p-2 text-left">True \ Pred</th>
-                  <th className="p-2">Entailment</th>
-                  <th className="p-2">Neutral</th>
-                  <th className="p-2">Contradiction</th>
+                  <th className="p-2">SUPPORTED</th>
+                  <th className="p-2">CONTRADICTED</th>
+                  <th className="p-2">INSUFFICIENT</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-dark-700 font-mono">
                 <tr>
-                  <td className="p-2 text-left font-sans text-gray-300">Entailment</td>
-                  <td className="p-2 font-bold text-emerald-400 bg-emerald-950/30">22</td>
-                  <td className="p-2 text-gray-400">16</td>
+                  <td className="p-2 text-left font-sans text-gray-300">SUPPORTED</td>
+                  <td className="p-2 font-bold text-emerald-400 bg-emerald-950/30">21</td>
+                  <td className="p-2 text-gray-400">5</td>
+                  <td className="p-2 text-gray-400">24</td>
+                </tr>
+                <tr>
+                  <td className="p-2 text-left font-sans text-gray-300">CONTRADICTED</td>
+                  <td className="p-2 text-gray-400">15</td>
+                  <td className="p-2 font-bold text-rose-400 bg-rose-950/30">23</td>
                   <td className="p-2 text-gray-400">12</td>
                 </tr>
                 <tr>
-                  <td className="p-2 text-left font-sans text-gray-300">Neutral</td>
-                  <td className="p-2 text-gray-400">16</td>
+                  <td className="p-2 text-left font-sans text-gray-300">INSUFFICIENT</td>
+                  <td className="p-2 text-gray-400">10</td>
+                  <td className="p-2 text-gray-400">14</td>
                   <td className="p-2 font-bold text-blue-400 bg-blue-950/30">26</td>
-                  <td className="p-2 text-gray-400">8</td>
-                </tr>
-                <tr>
-                  <td className="p-2 text-left font-sans text-gray-300">Contradiction</td>
-                  <td className="p-2 text-gray-400">16</td>
-                  <td className="p-2 text-gray-400">12</td>
-                  <td className="p-2 font-bold text-rose-400 bg-rose-950/30">22</td>
                 </tr>
               </tbody>
             </table>
@@ -243,7 +243,7 @@ export const EvaluationTab: React.FC = () => {
               <div className="grid grid-cols-2 gap-3 text-xs mb-4">
                 <div className="p-2.5 rounded bg-dark-800 border border-dark-700">
                   <div className="text-gray-400">Test Accuracy</div>
-                  <div className="text-base font-bold text-white font-mono">46.67%</div>
+                  <div className="text-base font-bold text-white font-mono">46.67% (70 / 150)</div>
                 </div>
                 <div className="p-2.5 rounded bg-dark-800 border border-dark-700">
                   <div className="text-gray-400">Macro F1</div>
@@ -251,9 +251,9 @@ export const EvaluationTab: React.FC = () => {
                 </div>
               </div>
               <div className="space-y-1.5 text-xs text-gray-400 font-mono">
-                <div>• Entailment: Precision 40.74% | Recall 44.00% | F1 0.4231</div>
-                <div>• Neutral: Precision 48.15% | Recall 52.00% | F1 0.5000</div>
-                <div>• Contradiction: Precision 52.38% | Recall 44.00% | F1 0.4783</div>
+                <div>• SUPPORTED: Precision 45.65% | Recall 42.00% | F1 0.4375 (21 / 50)</div>
+                <div>• CONTRADICTED: Precision 54.76% | Recall 46.00% | F1 0.5000 (23 / 50)</div>
+                <div>• INSUFFICIENT: Precision 41.94% | Recall 52.00% | F1 0.4643 (26 / 50)</div>
               </div>
             </div>
             <p className="text-[11px] text-gray-500 mt-3 font-sans italic">
@@ -311,7 +311,7 @@ export const EvaluationTab: React.FC = () => {
                 <td className="p-3 font-sans font-bold text-indigo-300">τ_s = 0.80, τ_c = 0.80 (Production Default)</td>
                 <td className="p-3 font-bold text-white">40.00%</td>
                 <td className="p-3 font-bold text-amber-400">1.25% (1 / 80)</td>
-                <td className="p-3 font-bold text-emerald-400">0.00% (0 / 10)</td>
+                <td className="p-3 font-bold text-emerald-400">0.00% (0 / 80)</td>
                 <td className="p-3 font-bold text-white">15.00%</td>
               </tr>
               <tr className="hover:bg-dark-750">
@@ -370,22 +370,23 @@ export const EvaluationTab: React.FC = () => {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs font-mono">
           <div className="p-3 bg-dark-900 rounded-lg border border-dark-700 text-center">
             <div className="text-gray-400 font-sans">Accuracy</div>
-            <div className="text-lg font-bold text-white mt-1">51.67%</div>
+            <div className="text-lg font-bold text-white mt-1">88.67%</div>
+            <div className="text-[10px] text-gray-500 font-sans">266 / 300 correct</div>
           </div>
           <div className="p-3 bg-dark-900 rounded-lg border border-dark-700 text-center">
             <div className="text-gray-400 font-sans">Contradiction Recall</div>
-            <div className="text-lg font-bold text-emerald-400 mt-1">80.00%</div>
-            <div className="text-[10px] text-gray-500 font-sans">80 / 100 detected</div>
+            <div className="text-lg font-bold text-emerald-400 mt-1">92.00%</div>
+            <div className="text-[10px] text-gray-500 font-sans">92 / 100 detected</div>
           </div>
           <div className="p-3 bg-dark-900 rounded-lg border border-dark-700 text-center">
             <div className="text-gray-400 font-sans">Contradicted False Support</div>
-            <div className="text-lg font-bold text-emerald-400 mt-1">5.00%</div>
-            <div className="text-[10px] text-gray-500 font-sans">5 / 100 negated passed</div>
+            <div className="text-lg font-bold text-emerald-400 mt-1">6.00%</div>
+            <div className="text-[10px] text-gray-500 font-sans">6 / 100 negated passed</div>
           </div>
           <div className="p-3 bg-dark-900 rounded-lg border border-dark-700 text-center">
             <div className="text-gray-400 font-sans">Unrelated False Support</div>
-            <div className="text-lg font-bold text-emerald-400 mt-1">2.00%</div>
-            <div className="text-[10px] text-gray-500 font-sans">2 / 100 NEI passed</div>
+            <div className="text-lg font-bold text-emerald-400 mt-1">0.00%</div>
+            <div className="text-[10px] text-gray-500 font-sans">0 / 100 NEI passed</div>
           </div>
         </div>
       </section>
